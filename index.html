@@ -463,7 +463,10 @@ async function checarAcesso(){
 }
 
 document.getElementById('btn-login').addEventListener('click', () => {
-  sb.auth.signInWithOAuth({ provider: 'google' });
+  sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href.split('#')[0].split('?')[0] }
+  });
 });
 
 function fazerLogout(){
