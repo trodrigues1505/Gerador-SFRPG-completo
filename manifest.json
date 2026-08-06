@@ -1,0 +1,25 @@
+{
+  "name": "Guerreiro Mundial — Gerador de Fichas SFRPG",
+  "short_name": "Guerreiro Mundial",
+  "description": "Gerador de fichas de personagem para Street Fighter RPG 2ª edição",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c0a08",
+  "theme_color": "#c8161d",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
