@@ -387,6 +387,15 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   <!-- ============================================================ ADMIN ============================================================ -->
   <section class="tab dark" data-tab="admin">
     <div class="admin-card no-print">
+      <h2>Solicitações pendentes <span id="admin-pend-contagem" class="admin-hint"></span></h2>
+      <table class="admin-table">
+        <thead><tr><th>E-mail</th><th>Última tentativa</th><th></th></tr></thead>
+        <tbody id="tabela-pendentes"></tbody>
+      </table>
+      <div id="admin-pend-empty" style="display:none;" class="admin-hint">Nenhuma solicitação pendente.</div>
+    </div>
+
+    <div class="admin-card no-print">
       <h2>Controle de acesso — apoiadores autorizados</h2>
       <div class="addrow">
         <input type="email" id="novo-email" placeholder="email@gmail.com">
@@ -454,12 +463,19 @@ async function checarAcesso(){
       carregarListaAdmin(); // a policy de RLS decide se essa leitura realmente retorna dados
     }
   } else {
-    gateMsg.textContent = `Login OK (${user.email}), mas este e-mail não está autorizado. Fale com o mestre para liberar seu acesso.`;
+    gateMsg.textContent = `Login OK (${user.email}), mas este e-mail não está autorizado. Sua solicitação foi registrada — aguarde a liberação do mestre.`;
     btnLogin.style.display = 'none';
     btnLogout.style.display = 'block';
     app.style.display = 'none';
     gate.style.display = 'flex';
+    registrarTentativa(user.email);
   }
+}
+
+async function registrarTentativa(email){
+  // upsert: se já tentou antes, só atualiza o horário da última tentativa
+  await sb.from('access_requests')
+    .upsert({ email, last_attempt_at: new Date().toISOString() }, { onConflict: 'email' });
 }
 
 document.getElementById('btn-login').addEventListener('click', () => {
@@ -480,6 +496,60 @@ async function carregarListaAdmin(){
   const { data, error } = await sb.from('authorized_users').select('*').order('added_at', { ascending: false });
   if(error){ return; } // não-admin real: RLS bloqueou, tabela fica vazia
   renderTabelaAdmin(data || []);
+  carregarPendentes();
+}
+
+async function carregarPendentes(){
+  const { data: pendentes } = await sb.from('access_requests').select('*').order('last_attempt_at', { ascending: false });
+  const { data: autorizados } = await sb.from('authorized_users').select('email');
+  const emailsAutorizados = new Set((autorizados || []).map(u => u.email));
+  // esconde da fila quem já foi aprovado (limpeza acontece no aprovarPendente,
+  // mas isso cobre o caso de a linha antiga não ter sido removida ainda)
+  const lista = (pendentes || []).filter(p => !emailsAutorizados.has(p.email));
+  renderTabelaPendentes(lista);
+}
+
+function renderTabelaPendentes(lista){
+  const tbody = document.getElementById('tabela-pendentes');
+  const empty = document.getElementById('admin-pend-empty');
+  const contagem = document.getElementById('admin-pend-contagem');
+  tbody.innerHTML = '';
+  contagem.textContent = `(${lista.length})`;
+
+  if(lista.length === 0){ empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  lista.forEach(p => {
+    const tr = document.createElement('tr');
+    const data = p.last_attempt_at ? new Date(p.last_attempt_at).toLocaleString('pt-BR') : '—';
+    const emailSafe = p.email.replace(/'/g,"\\'");
+    tr.innerHTML = `
+      <td class="email">${p.email}</td>
+      <td>${data}</td>
+      <td style="display:flex; gap:6px;">
+        <button class="toolbtn" style="background:var(--red); color:#fff; border-color:var(--red);" onclick="aprovarPendente('${emailSafe}')">Aprovar</button>
+        <button class="admin-rmbtn" onclick="ignorarPendente('${emailSafe}')">Ignorar</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function aprovarPendente(email){
+  const { error } = await sb.from('authorized_users').insert({ email, tier: 'mestre' });
+  if(error && error.code !== '23505'){
+    mostrarStatusAdmin('Erro ao aprovar: ' + error.message, false);
+    return;
+  }
+  await sb.from('access_requests').delete().eq('email', email);
+  mostrarStatusAdmin(`${email} aprovado.`, true);
+  carregarListaAdmin();
+}
+
+async function ignorarPendente(email){
+  await sb.from('access_requests').delete().eq('email', email);
+  mostrarStatusAdmin(`Solicitação de ${email} removida da fila.`, true);
+  carregarPendentes();
 }
 
 function renderTabelaAdmin(lista){
