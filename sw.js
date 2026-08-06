@@ -35,6 +35,11 @@ self.addEventListener('fetch', (event) => {
   // só intercepta GET; deixa POST/etc (chamadas ao Supabase) passarem direto
   if (req.method !== 'GET') return;
 
+  // ignora esquemas que o Cache API não suporta (chrome-extension://, etc,
+  // geralmente vindos de extensões do navegador, não do app em si)
+  const url = new URL(req.url);
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
   event.respondWith(
     fetch(req)
       .then((res) => {
