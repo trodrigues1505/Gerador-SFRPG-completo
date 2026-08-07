@@ -4,9 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ficha de Personagem — Street Fighter RPG</title>
-<link rel="manifest" id="pwa-manifest">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#c8161d">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;600;700&display=swap');
@@ -23,6 +24,170 @@
 html,body{margin:0;padding:0;}
 body{background:var(--bg); color:var(--ink); font-family:var(--font-body);}
 #app{max-width:1180px; margin:0 auto; padding:16px 16px 60px;}
+
+.appbar{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;}
+.appbar h1{font-family:var(--font-display); color:#eee0c0; letter-spacing:2px; font-size:1.5rem; margin:0;}
+.appbar h1 span{color:var(--red);}
+.appbar h1 small{font-family:var(--font-mono); font-size:.6rem; color:#a4927c; letter-spacing:1px; margin-left:8px;}
+nav.tabs{display:flex; gap:6px; flex-wrap:wrap;}
+nav.tabs button{font-family:var(--font-display); letter-spacing:1px; font-size:1.05rem; background:#241d18; color:#a4927c; border:1px solid #3a2f27; padding:7px 16px; cursor:pointer;}
+nav.tabs button.active{background:var(--red); color:#fff; border-color:var(--red);}
+.toolbtn{font-family:var(--font-body); font-size:.72rem; text-transform:uppercase; letter-spacing:.5px; font-weight:600; background:#241d18; color:#c9b48f; border:1px solid #3a2f27; padding:7px 12px; cursor:pointer;}
+.toolbtn:hover{border-color:var(--gold);}
+section.tab{display:none;}
+section.tab.active{display:block;}
+
+/* ---------- MODE BAR ---------- */
+.modebar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
+.modepill{
+  font-family:var(--font-body); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.4px;
+  background:#241d18; color:#a4927c; border:2px solid #3a2f27; padding:7px 14px; cursor:pointer; border-radius:20px;
+  display:flex; align-items:center; gap:6px;
+}
+.modepill .sw{width:10px; height:10px; border-radius:50%; display:inline-block;}
+.modepill[data-mode="normal"] .sw{background:#1a1a1a; border:1px solid #888;}
+.modepill[data-mode="bonus"] .sw{background:var(--red);}
+.modepill[data-mode="xp"] .sw{background:#2a5c8a;}
+.modepill.active[data-mode="normal"]{border-color:#ccc; background:#3a352d; color:#fff;}
+.modepill.active[data-mode="bonus"]{border-color:var(--red); background:#4a1613; color:#fff;}
+.modepill.active[data-mode="xp"]{border-color:#2a5c8a; background:#132c40; color:#fff;}
+.modepill b{font-family:var(--font-mono); font-weight:700;}
+.modepill input{width:52px; background:#0d0a08; border:1px solid #3a2f27; color:#ece2d0; padding:2px 5px; font-family:var(--font-mono); font-size:.72rem;}
+.modehint{font-family:var(--font-mono); font-size:.68rem; color:#a4927c; margin:-6px 0 12px;}
+
+/* ---------- SHEET ---------- */
+.sheet{background:var(--paper); border:7px solid var(--red); border-radius:3px; padding:18px 22px 22px; box-shadow:0 10px 40px rgba(0,0,0,.5); position:relative;}
+.sheet-logo{text-align:center; margin-bottom:6px;}
+.sheet-logo .t1{font-family:var(--font-display); font-size:3rem; letter-spacing:4px; color:var(--red); text-shadow:2px 2px 0 var(--ink); line-height:1;}
+.sheet-logo .t2{font-family:var(--font-mono); font-size:.7rem; letter-spacing:6px; color:var(--dim); text-transform:uppercase;}
+
+.infogrid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 18px; border-bottom:3px solid var(--red); padding-bottom:10px; margin-bottom:8px;}
+.infoline{display:flex; align-items:baseline; gap:6px; margin-bottom:3px; border-bottom:1px dotted #999; padding-bottom:1px;}
+.infoline b{font-size:.72rem; text-transform:uppercase; color:var(--red-dk); white-space:nowrap; letter-spacing:.5px;}
+.infoline input, .infoline select{border:none; background:transparent; font-family:var(--font-body); font-size:.9rem; color:var(--ink); flex:1; min-width:0; padding:1px 2px;}
+.infoline input:focus, .infoline select:focus{outline:none; background:#fff8e0;}
+
+.banner{background:var(--red); color:#fff; font-family:var(--font-display); letter-spacing:3px; font-size:1.25rem; text-align:center; padding:3px 0; margin:12px 0 8px; text-transform:uppercase;}
+.banner small{font-family:var(--font-mono); letter-spacing:0; font-size:.58rem; opacity:.85; text-transform:none;}
+.banner.sub{font-size:1.02rem; letter-spacing:2px; margin:8px 0 6px;}
+
+.cols3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 16px;}
+.colhead{font-family:var(--font-display); color:var(--red-dk); font-size:1.02rem; letter-spacing:1px; border-bottom:1px solid var(--red); margin-bottom:4px; display:flex; justify-content:space-between; align-items:baseline;}
+.colhead .pts{font-family:var(--font-mono); font-size:.6rem; color:var(--dim); text-transform:none; letter-spacing:0;}
+
+.row{display:flex; justify-content:space-between; align-items:center; gap:6px; padding:2px 0; font-size:.83rem;}
+.row .rname{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.rmbtn{background:none; border:none; color:var(--red); cursor:pointer; font-size:.7rem; padding:0 3px; opacity:.4;}
+.rmbtn:hover{opacity:1;}
+.dotsrow{display:flex; gap:2px; align-items:center; flex:0 0 auto;}
+.dotsrow .gap{width:6px;}
+.pdot{width:12px; height:12px; border-radius:50%; border:1.4px solid var(--ink); cursor:pointer; display:inline-block; flex:0 0 auto; background:transparent;}
+.pdot.n{background:var(--ink);}
+.pdot.b{background:var(--red); border-color:var(--red);}
+.pdot.x{background:#2a5c8a; border-color:#2a5c8a;}
+.pdot.ro{cursor:default; opacity:.9;}
+.addline{display:flex; gap:6px; margin-top:4px;}
+.addline input{flex:1; font-size:.78rem; font-family:var(--font-body); border:none; border-bottom:1px dotted #999; background:transparent;}
+.addline button{font-size:.66rem; background:none; border:1px solid var(--red); color:var(--red-dk); padding:1px 8px; cursor:pointer;}
+
+/* macro 2-column layout for Vantagens+Finais vs Manobras+Experiência */
+.macro2col{display:grid; grid-template-columns:2fr 1.15fr; gap:0 18px; align-items:start;}
+.macro-right{border-left:2px solid var(--red); padding-left:14px;}
+.cols2{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
+
+.finalsgrid{display:grid; grid-template-columns:1fr 1fr; gap:0 18px; margin-top:4px;}
+.tracklabel{font-family:var(--font-display); color:var(--red-dk); font-size:1.0rem; letter-spacing:1px; display:flex; justify-content:space-between;}
+.tracklabel .basewrap{font-family:var(--font-mono); font-size:.58rem; color:var(--dim);}
+.trackdots{display:flex; flex-wrap:wrap; gap:2px; margin:3px 0 8px;}
+.situacao{display:flex; gap:12px; flex-wrap:wrap; font-size:.76rem; margin-top:4px;}
+.situacao label{color:var(--red-dk); font-weight:600; margin-right:3px;}
+.situacao input{width:44px; border:none; border-bottom:1px dotted #999; background:transparent; font-family:var(--font-body);}
+
+.manobrasbox{border:1px solid var(--red); padding:6px 8px; min-height:230px;}
+.manobra-tag{display:flex; justify-content:space-between; border-bottom:1px dotted #ccc; font-size:.78rem; padding:2px 0; gap:6px;}
+.manobra-tag .orig{font-family:var(--font-mono); font-size:.58rem; padding:0 5px; border-radius:8px; white-space:nowrap;}
+.orig.normal{background:#dcecd9; color:#255e25;} .orig.bonus{background:#f6dad6; color:#8f2a20;} .orig.xp{background:#d6e6f6; color:#1f4d7a;}
+.xpbox{border:1px solid var(--red); padding:8px; margin-top:8px; font-size:.8rem;}
+.xpbox .row{font-size:.78rem;}
+
+.small{font-size:.72rem; color:var(--dim);}
+.legend{display:flex; gap:14px; font-size:.66rem; color:var(--dim); font-family:var(--font-mono); margin:4px 0 8px; flex-wrap:wrap;}
+.legend .dotex{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;}
+
+details.ledgerbox{margin-top:14px; border-top:1px solid var(--red); padding-top:8px;}
+details.ledgerbox summary{cursor:pointer; font-family:var(--font-display); letter-spacing:1px; color:var(--red-dk); font-size:1rem;}
+table.led{width:100%; border-collapse:collapse; font-size:.75rem; font-family:var(--font-mono); margin-top:8px;}
+table.led th, table.led td{border-bottom:1px solid #ccc; padding:4px 6px; text-align:left;}
+table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
+.tag{padding:1px 7px; border-radius:9px; font-size:.6rem; text-transform:uppercase;}
+.tag.normal{background:#dcecd9; color:#255e25;} .tag.bonus{background:#f6dad6; color:#8f2a20;} .tag.xp{background:#d6e6f6; color:#1f4d7a;}
+
+/* picker (dark box embedded in light sheet — needs its own readable palette) */
+.picker-dark{background:#1c1714; border:1px solid #3a2f27; padding:8px; color:#ece2d0;}
+.picker-dark input{width:100%; margin-bottom:6px; font-size:.8rem; padding:5px; background:#0d0a08; color:#ece2d0; border:1px solid #3a2f27;}
+.pick-list{max-height:360px; overflow-y:auto; border:1px solid #3a2f27; padding:8px; background:#161210;}
+.pick-cat{font-family:var(--font-display); letter-spacing:1px; color:#c79a3f; margin:8px 0 3px; font-size:1rem;}
+.pick-item{display:flex; justify-content:space-between; align-items:center; padding:4px 6px; font-size:.82rem; border-bottom:1px solid #3a2f27; color:#ece2d0;}
+.pick-item .small{color:#a4927c;}
+.pick-item button{font-family:var(--font-body); font-weight:600; text-transform:uppercase; font-size:.65rem; background:#5e1a17; border:1px solid #a52620; color:#ece2d0; padding:4px 8px; cursor:pointer; white-space:nowrap;}
+.pick-item button:disabled{opacity:.4; cursor:default;}
+
+/* warnings */
+.warnbox{border:1px solid var(--bad); background:#fdeceb; color:#7a1a12; padding:9px 12px; margin-bottom:12px; font-size:.82rem; font-family:var(--font-mono);}
+
+/* ---------- CARTAS (dark tab) ---------- */
+.dark{color:#ece2d0;}
+.card2{background:#1c1714; border:1px solid #3a2f27; border-radius:2px; padding:16px 18px; margin-bottom:14px;}
+.card2 h2{font-family:var(--font-display); color:#c79a3f; letter-spacing:1.5px; font-size:1.4rem; margin:0 0 10px; text-transform:uppercase;}
+.card2 h2 small{font-family:var(--font-mono); font-size:.62rem; color:#a4927c; text-transform:none;}
+.btn{font-family:var(--font-body); font-weight:600; text-transform:uppercase; font-size:.75rem; letter-spacing:.4px; background:#5e1a17; border:1px solid #a52620; color:#ece2d0; padding:7px 13px; cursor:pointer;}
+.btn:hover{background:#a52620;}
+.btn.gold{background:#7a6127; border-color:#c79a3f;} .btn.gold:hover{background:#c79a3f; color:#151210;}
+.btn.ghost{background:transparent; border-color:#3a2f27; color:#a4927c;}
+.btn.small{padding:4px 9px; font-size:.65rem;}
+.btn.danger{background:transparent; border-color:#b3241c; color:#e18e83;}
+.cards-wrap{display:flex; flex-wrap:wrap; gap:20px;}
+.combat-card{width:280px; height:392px; background:linear-gradient(160deg,#221a14,#14100d); border:3px solid #c79a3f; position:relative; padding:10px; display:flex; flex-direction:column; color:#ece2d0; font-family:var(--font-body);}
+.combat-card .cc-head{text-align:center; font-family:var(--font-display); font-size:1rem; color:#c79a3f; border-bottom:1px solid #7a6127; padding-bottom:4px;}
+.combat-card .cc-name{text-align:center; font-size:.65rem; color:#a4927c; font-family:var(--font-mono); text-transform:uppercase; margin-bottom:4px;}
+.combat-card .cc-move{text-align:center; font-family:var(--font-display); font-size:1.5rem; letter-spacing:1px; color:#fff; margin:2px 0 6px; text-shadow:0 0 8px rgba(165,38,32,.7);}
+.combat-card .cc-portrait{flex:1; margin:0 auto 8px; width:150px; height:150px; clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); background:#0d0a08 center/cover no-repeat; border:2px solid #a52620; display:flex; align-items:center; justify-content:center; color:#a4927c; font-size:.65rem; text-align:center;}
+.combat-card .cc-portrait img{width:100%; height:100%; object-fit:cover;}
+.combat-card .cc-stats{display:flex; justify-content:space-around; margin-bottom:6px;}
+.combat-card .cc-stat{text-align:center;}
+.combat-card .cc-stat .lbl{font-family:var(--font-mono); font-size:.58rem; color:#c79a3f; text-transform:uppercase; letter-spacing:1px;}
+.combat-card .cc-stat .val{font-family:var(--font-display); font-size:1.6rem; color:#fff; line-height:1;}
+.combat-card .cc-special{font-size:.64rem; color:#a4927c; border-top:1px solid #7a6127; padding-top:5px; min-height:34px; text-align:center; line-height:1.25;}
+.combat-card .cc-foot{position:absolute; bottom:4px; right:8px; font-family:var(--font-mono); font-size:.55rem; color:#7a6127;}
+.card-controls{width:280px; display:flex; flex-direction:column; gap:6px; margin-top:8px;}
+
+@media print{
+  .appbar, nav.tabs, .no-print, #btn-logout{display:none !important;}
+  body{background:#fff; margin:0;}
+  section.tab{display:block !important;}
+  .sheet{box-shadow:none;}
+
+  @page{ size:A4; margin:8mm; }
+
+  #app{max-width:none !important; width:100% !important; margin:0 !important; padding:0 !important;}
+
+  .cards-wrap{
+    display:grid !important;
+    grid-template-columns:repeat(3, 1fr);
+    gap:5mm;
+    width:100%;
+  }
+  .combat-card{
+    width:100% !important;
+    height:auto !important;
+    aspect-ratio:280/392;
+    break-inside:avoid; page-break-inside:avoid;
+  }
+  .cards-wrap > div:nth-child(9n){
+    break-after:page; page-break-after:always;
+  }
+}
+@media(max-width:820px){ .cols3{grid-template-columns:1fr;} .macro2col{grid-template-columns:1fr;} .macro-right{border-left:none; border-top:2px solid var(--red); padding-left:0; padding-top:10px; margin-top:10px;} .infogrid{grid-template-columns:1fr;} .cols2{grid-template-columns:1fr;} .finalsgrid{grid-template-columns:1fr;} }
 
 /* ---------- GATE DE ACESSO (Supabase Auth) ---------- */
 #gate{
@@ -71,271 +236,10 @@ body{background:var(--bg); color:var(--ink); font-family:var(--font-body);}
 #admin-status{font-family:var(--font-mono); font-size:.75rem; margin-top:8px; min-height:18px;}
 .status-ok{color:#5fa864;}
 .status-err{color:var(--bad);}
-
-/* ---------- BARRA SUPERIOR ---------- */
-.appbar{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;}
-.appbar h1{font-family:var(--font-display); color:#eee0c0; letter-spacing:2px; font-size:1.5rem; margin:0;}
-.appbar h1 span{color:var(--red);}
-.appbar h1 small{font-family:var(--font-mono); font-size:.6rem; color:#a4927c; letter-spacing:1px; margin-left:8px;}
-nav.tabs{display:flex; gap:6px; flex-wrap:wrap;}
-nav.tabs button{font-family:var(--font-display); letter-spacing:1px; font-size:1.05rem; background:#241d18; color:#a4927c; border:1px solid #3a2f27; padding:7px 16px; cursor:pointer;}
-nav.tabs button.active{background:var(--red); color:#fff; border-color:var(--red);}
-.toolbtn{font-family:var(--font-body); font-size:.72rem; text-transform:uppercase; letter-spacing:.5px; font-weight:600; background:#241d18; color:#c9b48f; border:1px solid #3a2f27; padding:7px 12px; cursor:pointer;}
-.toolbtn:hover{border-color:var(--gold);}
-section.tab{display:none;}
-section.tab.active{display:block;}
-
-/* ---------- MODAL SYSTEM ---------- */
-.sf-modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,.68); z-index:9999; display:none; align-items:center; justify-content:center; padding:18px;}
-.sf-modal-overlay.show{display:flex;}
-.sf-modal-box{background:#1c1714; color:#ece2d0; border:2px solid #c79a3f; border-radius:4px; padding:20px 22px; max-width:480px; width:100%; max-height:85vh; overflow-y:auto; font-family:var(--font-body);}
-.sf-modal-box h3{font-family:var(--font-display); letter-spacing:1px; color:#c79a3f; margin:0 0 10px; font-size:1.3rem;}
-.sf-modal-box p{font-size:.85rem; line-height:1.5;}
-.sf-modal-box label{display:block; font-size:.7rem; text-transform:uppercase; color:#a4927c; margin:8px 0 3px;}
-.sf-modal-box input, .sf-modal-box select, .sf-modal-box textarea{width:100%; padding:7px 9px; background:#0d0a08; color:#ece2d0; border:1px solid #3a2f27; font-family:var(--font-body);}
-.sf-modal-actions{display:flex; gap:8px; justify-content:flex-end; margin-top:14px;}
-.sf-list-item{display:flex; justify-content:space-between; align-items:center; padding:7px 8px; border-bottom:1px solid #3a2f27; font-size:.85rem;}
-.sf-list-item:hover{background:#241d18;}
-.sf-list-item .lbl{cursor:pointer; flex:1;}
-
-/* ---------- MODE BAR ---------- */
-.modebar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
-.modepill{font-family:var(--font-body); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.4px; background:#241d18; color:#a4927c; border:2px solid #3a2f27; padding:7px 14px; cursor:pointer; border-radius:20px; display:flex; align-items:center; gap:6px;}
-.modepill .sw{width:10px; height:10px; border-radius:50%; display:inline-block;}
-.modepill[data-mode="normal"] .sw{background:#1a1a1a; border:1px solid #888;}
-.modepill[data-mode="bonus"] .sw{background:var(--red);}
-.modepill[data-mode="xp"] .sw{background:#2a5c8a;}
-.modepill.active[data-mode="normal"]{border-color:#ccc; background:#3a352d; color:#fff;}
-.modepill.active[data-mode="bonus"]{border-color:var(--red); background:#4a1613; color:#fff;}
-.modepill.active[data-mode="xp"]{border-color:#2a5c8a; background:#132c40; color:#fff;}
-.modepill b{font-family:var(--font-mono); font-weight:700;}
-.modepill input{width:52px; background:#0d0a08; border:1px solid #3a2f27; color:#ece2d0; padding:2px 5px; font-family:var(--font-mono); font-size:.72rem;}
-.modehint{font-family:var(--font-mono); font-size:.68rem; color:#a4927c; margin:-6px 0 12px;}
-
-/* ---------- FICHA ---------- */
-.sheet{background:var(--paper); border:7px solid var(--red); border-radius:3px; padding:18px 22px 22px; box-shadow:0 10px 40px rgba(0,0,0,.5); position:relative;}
-.sheet-logo{text-align:center; margin-bottom:6px;}
-.sheet-logo .t1{font-family:var(--font-display); font-size:3rem; letter-spacing:4px; color:var(--red); text-shadow:2px 2px 0 var(--ink); line-height:1;}
-.sheet-logo .t2{font-family:var(--font-mono); font-size:.7rem; letter-spacing:6px; color:var(--dim); text-transform:uppercase;}
-
-.infogrid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 18px; border-bottom:3px solid var(--red); padding-bottom:10px; margin-bottom:8px;}
-.infoline{display:flex; align-items:baseline; gap:6px; margin-bottom:3px; border-bottom:1px dotted #999; padding-bottom:1px;}
-.infoline b{font-size:.72rem; text-transform:uppercase; color:var(--red-dk); white-space:nowrap; letter-spacing:.5px;}
-.infoline input, .infoline select{border:none; background:transparent; font-family:var(--font-body); font-size:.9rem; color:var(--ink); flex:1; min-width:0; padding:1px 2px;}
-.infoline input:focus, .infoline select:focus{outline:none; background:#fff8e0;}
-
-.banner{background:var(--red); color:#fff; font-family:var(--font-display); letter-spacing:3px; font-size:1.25rem; text-align:center; padding:3px 0; margin:12px 0 8px; text-transform:uppercase;}
-.banner small{font-family:var(--font-mono); letter-spacing:0; font-size:.58rem; opacity:.85; text-transform:none;}
-.banner.sub{font-size:1.02rem; letter-spacing:2px; margin:8px 0 6px;}
-
-.cols3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 16px;}
-.colhead{font-family:var(--font-display); color:var(--red-dk); font-size:1.02rem; letter-spacing:1px; border-bottom:1px solid var(--red); margin-bottom:4px; display:flex; justify-content:space-between; align-items:baseline;}
-.colhead .pts{font-family:var(--font-mono); font-size:.6rem; color:var(--dim); text-transform:none; letter-spacing:0;}
-.colhead .pts.over{color:var(--bad); font-weight:700;}
-
-.row{display:grid; grid-template-columns:108px 1fr auto; align-items:center; column-gap:6px; padding:2px 0; font-size:.81rem;}
-.row .rname{position:relative; white-space:nowrap;}
-.row .rname .rtext{display:inline-block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; vertical-align:bottom;}
-.row .rname.over{color:var(--bad); font-weight:700;}
-.rmbtn{background:none; border:none; color:var(--red); cursor:pointer; font-size:.7rem; padding:0 3px; opacity:.4;}
-.rmbtn:hover{opacity:1;}
-.dotsrow{display:flex; gap:2px; align-items:center; flex:0 0 auto;}
-.dotsrow .gap{width:6px;}
-.pdot{width:12px; height:12px; border-radius:50%; border:1.4px solid var(--ink); cursor:pointer; display:inline-block; flex:0 0 auto; background:transparent;}
-.pdot.n{background:var(--ink);}
-.pdot.b{background:var(--red); border-color:var(--red);}
-.pdot.x{background:#2a5c8a; border-color:#2a5c8a;}
-.pdot.ro{cursor:default; opacity:.9;}
-.addline{display:flex; gap:6px; margin-top:4px;}
-.addline input{flex:1; font-size:.78rem; font-family:var(--font-body); border:none; border-bottom:1px dotted #999; background:transparent;}
-.addline button{font-size:.66rem; background:none; border:1px solid var(--red); color:var(--red-dk); padding:1px 8px; cursor:pointer;}
-
-.macro2col{display:grid; grid-template-columns:2fr 1.15fr; gap:0 18px; align-items:start;}
-.macro-right{border-left:2px solid var(--red); padding-left:14px;}
-.cols2{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
-
-.finalsgrid{display:grid; grid-template-columns:1fr 1fr; gap:0 18px; margin-top:4px;}
-.tracklabel{font-family:var(--font-display); color:var(--red-dk); font-size:1.0rem; letter-spacing:1px; display:flex; justify-content:space-between;}
-.tracklabel .basewrap{font-family:var(--font-mono); font-size:.58rem; color:var(--dim);}
-.tracklabel .basewrap.over{color:var(--bad); font-weight:700;}
-.trackdots{display:flex; flex-wrap:wrap; gap:2px; margin:3px 0 8px;}
-.trackdots.check-row{margin:-6px 0 8px;}
-.trackdots.check-row input[type=checkbox]{width:12px; height:12px; margin:0; flex:0 0 auto; accent-color:var(--red-dk);}
-.situacao{display:flex; gap:12px; flex-wrap:wrap; font-size:.76rem; margin-top:4px;}
-.situacao label{color:var(--red-dk); font-weight:600; margin-right:3px;}
-.situacao input{width:44px; border:none; border-bottom:1px dotted #999; background:transparent; font-family:var(--font-body);}
-
-.manobrasbox{border:1px solid var(--red); padding:6px 8px; min-height:230px;}
-.manobra-tag{display:flex; justify-content:space-between; border-bottom:1px dotted #ccc; font-size:.78rem; padding:2px 0; gap:6px;}
-.manobra-tag.semrequisito{background:#fbeceb;}
-.manobra-tag .orig{font-family:var(--font-mono); font-size:.58rem; padding:0 5px; border-radius:8px; white-space:nowrap;}
-.orig.normal{background:#dcecd9; color:#255e25;} .orig.bonus{background:#f6dad6; color:#8f2a20;} .orig.xp{background:#d6e6f6; color:#1f4d7a;}
-.orig.warn{background:var(--bad); color:#fff;}
-.xpbox{border:1px solid var(--red); padding:8px; margin-top:8px; font-size:.8rem;}
-.xpbox .row{grid-template-columns:1fr auto; font-size:.78rem;}
-
-.small{font-size:.72rem; color:var(--dim); overflow-wrap:break-word; word-break:break-word;}
-#raca-info{overflow-wrap:break-word; word-break:break-word; line-height:1.4;}
-.infoline, .colhead, .tracklabel, .banner{overflow-wrap:break-word;}
-.legend{display:flex; gap:14px; font-size:.66rem; color:var(--dim); font-family:var(--font-mono); margin:4px 0 8px; flex-wrap:wrap;}
-.legend .dotex{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;}
-
-details.ledgerbox{margin-top:14px; border-top:1px solid var(--red); padding-top:8px;}
-details.ledgerbox summary{cursor:pointer; font-family:var(--font-display); letter-spacing:1px; color:var(--red-dk); font-size:1rem;}
-table.led{width:100%; border-collapse:collapse; font-size:.75rem; font-family:var(--font-mono); margin-top:8px;}
-table.led th, table.led td{border-bottom:1px solid #ccc; padding:4px 6px; text-align:left;}
-table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
-.tag{padding:1px 7px; border-radius:9px; font-size:.6rem; text-transform:uppercase;}
-.tag.normal{background:#dcecd9; color:#255e25;} .tag.bonus{background:#f6dad6; color:#8f2a20;} .tag.xp{background:#d6e6f6; color:#1f4d7a;}
-
-/* picker */
-.picker-dark{background:#1c1714; border:1px solid #3a2f27; padding:8px; color:#ece2d0;}
-.picker-dark input{width:100%; margin-bottom:6px; font-size:.8rem; padding:5px; background:#0d0a08; color:#ece2d0; border:1px solid #3a2f27;}
-.pick-list{max-height:360px; overflow-y:auto; border:1px solid #3a2f27; padding:8px; background:#161210;}
-.pick-cat{font-family:var(--font-display); letter-spacing:1px; color:#c79a3f; margin:8px 0 3px; font-size:1rem; display:flex; justify-content:space-between; align-items:center;}
-.pick-cat button{font-size:.6rem; text-transform:uppercase; background:#5e1a17; color:#ece2d0; border:1px solid #a52620; padding:2px 8px; cursor:pointer;}
-.pick-item{position:relative; display:flex; justify-content:space-between; align-items:center; padding:4px 6px; font-size:.82rem; border-bottom:1px solid #3a2f27; color:#ece2d0;}
-.pick-item .small{color:#a4927c;}
-.movetip-name{cursor:pointer; text-decoration:underline dotted #c79a3f; color:#ece2d0;}
-.movetip-name:hover{color:#c79a3f;}
-.pick-item button{font-family:var(--font-body); font-weight:600; text-transform:uppercase; font-size:.65rem; background:#5e1a17; border:1px solid #a52620; color:#ece2d0; padding:4px 8px; cursor:pointer; white-space:nowrap;}
-.pick-item button:disabled{opacity:.4; cursor:default;}
-.movetip{cursor:help; border-bottom:1px dotted #7a6127;}
-.movetip-pop{display:none; position:absolute; z-index:600; background:#100d0b; color:#ece2d0; border:1px solid #c79a3f; padding:10px 12px; width:280px; font-size:.72rem; line-height:1.45; border-radius:3px; box-shadow:0 8px 22px rgba(0,0,0,.6); top:100%; left:0; margin-top:4px;}
-.pick-item:hover .movetip-pop{display:block;}
-.movetip-pop b{color:#c79a3f;}
-.movetip-pop .mt-row{display:flex; justify-content:space-between; margin-top:4px; font-family:var(--font-mono); font-size:.68rem;}
-
-.warnbox{border:1px solid var(--bad); background:#fdeceb; color:#7a1a12; padding:9px 12px; margin-bottom:12px; font-size:.82rem; font-family:var(--font-mono);}
-
-/* ---------- CARTAS ---------- */
-.dark{color:#ece2d0;}
-.card2{background:#1c1714; border:1px solid #3a2f27; border-radius:2px; padding:16px 18px; margin-bottom:14px;}
-.card2 h2{font-family:var(--font-display); color:#c79a3f; letter-spacing:1.5px; font-size:1.4rem; margin:0 0 10px; text-transform:uppercase;}
-.card2 h2 small{font-family:var(--font-mono); font-size:.62rem; color:#a4927c; text-transform:none;}
-.btn{font-family:var(--font-body); font-weight:600; text-transform:uppercase; font-size:.75rem; letter-spacing:.4px; background:#5e1a17; border:1px solid #a52620; color:#ece2d0; padding:7px 13px; cursor:pointer;}
-.btn:hover{background:#a52620;}
-.btn.gold{background:#7a6127; border-color:#c79a3f;} .btn.gold:hover{background:#c79a3f; color:#151210;}
-.btn.ghost{background:transparent; border-color:#3a2f27; color:#a4927c;}
-.btn.small{padding:4px 9px; font-size:.65rem;}
-.btn.danger{background:transparent; border-color:#b3241c; color:#e18e83;}
-.cards-wrap{display:flex; flex-wrap:wrap; gap:22px;}
-.combat-card{
-  width:300px; height:410px; background:linear-gradient(160deg,#221a14,#14100d); border:3px solid #c79a3f;
-  position:relative; padding:14px; display:flex; flex-direction:column; color:#ece2d0; font-family:var(--font-body);
-}
-.combat-card .cc-head{text-align:center; font-family:var(--font-display); font-size:.95rem; color:#c79a3f; border-bottom:1px solid #7a6127; padding-bottom:4px;}
-.combat-card .cc-name{text-align:center; font-size:.62rem; color:#a4927c; font-family:var(--font-mono); text-transform:uppercase; margin-bottom:2px;}
-.combat-card .cc-move{text-align:center; font-family:var(--font-display); font-size:1.4rem; letter-spacing:1px; color:#fff; margin:2px 0 6px; text-shadow:0 0 8px rgba(165,38,32,.7);}
-.combat-card .cc-portrait{
-  flex:1; margin:0 auto 8px; width:150px; height:150px; overflow:hidden; position:relative;
-  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-  background:#0d0a08; border:2px solid #a52620; display:flex; align-items:center; justify-content:center; color:#a4927c; font-size:.6rem; text-align:center;
-}
-.combat-card .cc-portrait img{position:absolute; top:50%; left:50%; min-width:100%; min-height:100%; object-fit:cover; cursor:grab; user-select:none; -webkit-user-drag:none;}
-.combat-card .cc-portrait img:active{cursor:grabbing;}
-.combat-card .cc-stats{display:flex; justify-content:space-around; margin-bottom:6px;}
-.combat-card .cc-stat{text-align:center;}
-.combat-card .cc-stat .lbl{font-family:var(--font-mono); font-size:.56rem; color:#c79a3f; text-transform:uppercase; letter-spacing:1px;}
-.combat-card .cc-stat .val{font-family:var(--font-display); font-size:1.5rem; color:#fff; line-height:1;}
-.combat-card .cc-special{font-size:.62rem; color:#a4927c; border-top:1px solid #7a6127; padding-top:5px; min-height:30px; text-align:center; line-height:1.25;}
-.combat-card .cc-foot{position:absolute; bottom:6px; right:10px; font-family:var(--font-mono); font-size:.54rem; color:#7a6127;}
-.card-controls{width:300px; display:flex; flex-direction:column; gap:6px; margin-top:8px; background:#161210; border:1px solid #3a2f27; padding:10px;}
-.card-controls .zoomrow{display:flex; align-items:center; gap:8px;}
-.card-controls .zoomrow input[type=range]{flex:1;}
-.card-controls label{font-size:.65rem; text-transform:uppercase; color:#a4927c;}
-.card-controls .zoomrow .zoomval{font-family:var(--font-mono); font-size:.7rem; color:#ece2d0; width:38px; text-align:right;}
-
-.movetip{cursor:help; border-bottom:1px dotted #7a6127; position:relative;}
-.movetip:hover .movetip-pop{display:block;}
-
-/* ---------- IMPRESSÃO ---------- */
-@page{ size:A4 portrait; margin:5mm; }
-@media print{
-  #app{max-width:none !important; width:100% !important; padding:0 !important; margin:0 !important;}
-  .sheet{padding:8px 12px 10px; border-width:4px;}
-  .sheet-logo{margin-bottom:1px;}
-  .sheet-logo .t1{font-size:1.9rem;}
-  .sheet-logo .t2{font-size:.6rem;}
-  .banner{margin:5px 0 3px; padding:1px 0; font-size:.95rem; letter-spacing:2px;}
-  .banner.sub{font-size:.82rem; margin:4px 0 3px;}
-  .infogrid{padding-bottom:4px; margin-bottom:3px;}
-  .infoline{margin-bottom:0; font-size:.82rem;}
-  .infoline b{font-size:.64rem;}
-  .row{padding:0; font-size:.74rem;}
-  .colhead{margin-bottom:1px; font-size:.9rem;}
-  .addline, .no-print{display:none !important;}
-  details.ledgerbox{display:none !important;}
-  .legend{margin:1px 0 3px; font-size:.58rem;}
-  .situacao{margin-top:1px; font-size:.7rem;}
-  .pdot{width:10px; height:10px;}
-  .trackdots{gap:1px; margin:2px 0 4px;}
-  .trackdots.check-row{margin:-4px 0 4px;}
-  .trackdots.check-row input[type=checkbox]{width:10px; height:10px;}
-  .tracklabel{font-size:.9rem;}
-  .manobrasbox{min-height:0; padding:4px 6px;}
-  .manobra-tag{font-size:.7rem;}
-  .small{font-size:.62rem;}
-
-  /* Força 3 colunas na ficha */
-  .cols3{grid-template-columns:1fr 1fr 1fr !important;}
-  .macro2col{grid-template-columns:2fr 1.15fr !important;}
-  .infogrid{grid-template-columns:1fr 1fr 1fr !important;}
-  .cols2{grid-template-columns:1fr 1fr !important;}
-  .finalsgrid{grid-template-columns:1fr 1fr !important;}
-  .macro-right{border-left:2px solid var(--red) !important; border-top:none !important; padding-left:14px !important; padding-top:0 !important; margin-top:0 !important;}
-
-  /* Oculta a aba de cartas na impressão da ficha */
-  section.tab{display:none !important;}
-  section.tab.active{display:block !important;}
-
-  /* Impressão específica de cartas (9 por página) */
-  body.print-cards-mode section.tab{display:none !important;}
-  body.print-cards-mode section.tab[data-tab="cartas"]{display:block !important;}
-  body.print-cards-mode .card2, body.print-cards-mode .no-print{display:none !important;}
-  body.print-cards-mode .cards-wrap{
-    display:grid !important;
-    grid-template-columns:repeat(3,63mm);
-    grid-auto-rows:88mm;
-    gap:3mm;
-    justify-content:center;
-  }
-  body.print-cards-mode .combat-card{
-    width:63mm !important; height:88mm !important; clip-path:none !important; border-radius:2.5mm;
-    padding:2.5mm 3mm !important; font-size:6.2px; break-inside:avoid; page-break-inside:avoid;
-  }
-  body.print-cards-mode .combat-card .cc-move{font-size:9px;}
-  body.print-cards-mode .combat-card .cc-stat .val{font-size:11px;}
-  body.print-cards-mode .combat-card .cc-portrait{width:60px; height:60px;}
-  body.print-cards-mode .card-controls{display:none !important;}
-}
-
-@media screen and (max-width:820px){ .cols3{grid-template-columns:1fr;} .macro2col{grid-template-columns:1fr;} .macro-right{border-left:none; border-top:2px solid var(--red); padding-left:0; padding-top:10px; margin-top:10px;} .infogrid{grid-template-columns:1fr;} .cols2{grid-template-columns:1fr;} .finalsgrid{grid-template-columns:1fr;} }
-@media screen and (max-width:520px){
-  #app{padding:8px;}
-  .appbar{gap:6px;}
-  .appbar h1{font-size:1.15rem;}
-  .appbar h1 small{display:block; margin-left:0;}
-  .toolbtn{padding:6px 9px; font-size:.66rem;}
-  .modebar{gap:5px;}
-  .modepill{padding:6px 9px; font-size:.68rem; flex:1 1 auto; justify-content:center;}
-  .modepill input{width:40px;}
-  .sheet{padding:12px 10px 16px; border-width:5px;}
-  .sheet-logo .t1{font-size:1.9rem; letter-spacing:2px;}
-  .infoline{flex-wrap:wrap;}
-  .infoline b{width:100%;}
-  .row{grid-template-columns:82px 1fr auto; font-size:.74rem;}
-  .pdot{width:10px; height:10px;}
-  .banner{font-size:1rem; letter-spacing:1.5px;}
-  .cards-wrap{justify-content:center;}
-  .combat-card, .card-controls{width:92vw; max-width:320px;}
-  .grid3, .grid2{grid-template-columns:1fr;}
-}
 </style>
 </head>
 <body>
 
-<!-- ============================================================ GATE ============================================================ -->
 <div id="gate">
   <div class="gate-logo">GUERREIRO <span style="color:#eee0c0;">MUNDIAL</span></div>
   <p id="gate-msg">Verificando acesso...</p>
@@ -349,17 +253,12 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
 
 <button id="btn-logout" style="display:none;" onclick="fazerLogout()">Sair</button>
 
-<!-- ============================================================ APP ============================================================ -->
 <div id="app" style="display:none;">
 
   <div class="appbar no-print">
-    <h1>GUERREIRO <span>MUNDIAL</span><small>gerador de fichas · sfrpg 2ª ed. · conteúdo não oficial cortesia de <a href="https://www.sfrpg.com.br" target="_blank" style="color:#c79a3f;">sfrpg.com.br</a> e "The G-File" (Matt Meade)</small></h1>
+    <h1>GUERREIRO <span>MUNDIAL</span><small>gerador de fichas · sfrpg 2ª ed.</small></h1>
     <div style="display:flex; gap:6px; flex-wrap:wrap;">
-      <button class="toolbtn" id="install-btn" onclick="installApp()">📲 Instalar</button>
-      <button class="toolbtn" onclick="openLibraryModal()">📚 Biblioteca</button>
-      <button class="toolbtn" onclick="exportJSON()">⇩ Exportar ficha</button>
-      <label class="toolbtn" style="cursor:pointer;">⇧ Importar<input type="file" accept=".json" style="display:none" onchange="importJSON(event)"></label>
-      <button class="toolbtn" onclick="smartPrint()">🖶 Imprimir</button>
+      <button class="toolbtn" onclick="window.print()">🖶 Imprimir</button>
     </div>
   </div>
 
@@ -381,8 +280,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
     </button>
   </div>
   <div class="modehint no-print" id="mode-hint"></div>
-  <div class="modehint no-print" id="unofficial-note" style="display:none;">* = estilo/manobra não oficial da White Wolf (criação de fãs, sfrpg.com.br)</div>
-  <div id="warnings" class="no-print"></div>
+  <div id="warnings"></div>
 
   <div class="sheet">
     <div class="sheet-logo"><div class="t1">STREET FIGHTER</div><div class="t2">Guerreiro Mundial · RPG 2ª Edição</div></div>
@@ -392,13 +290,6 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
         <div class="infoline"><b>Nome</b><input id="c_nome" oninput="onSheetChange()"></div>
         <div class="infoline"><b>Jogador</b><input id="c_jogador" oninput="onSheetChange()"></div>
         <div class="infoline"><b>Crônica</b><input id="c_cronica" oninput="onSheetChange()"></div>
-        <div class="infoline"><b>Modo Racial</b>
-          <select id="c_racamodo" onchange="onRacaModoChange()">
-            <option value="">— nenhum (humano padrão) —</option>
-            <option value="Tarkatan">Tarkatan</option>
-            <option value="Shokan">Shokan</option>
-          </select>
-        </div>
       </div>
       <div>
         <div class="infoline"><b>Estilo</b><select id="c_estilo" onchange="onEstiloChange()"></select></div>
@@ -411,8 +302,6 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
         <div class="infoline"><b>Assinatura</b><input id="c_assinatura" oninput="onSheetChange()"></div>
       </div>
     </div>
-    <div class="small" id="raca-info" style="margin:0 0 2px;"></div>
-    <div id="raca-bonus-btn" class="no-print"></div>
     <div class="infoline" style="max-width:340px; margin-top:2px;"><b>Retrato</b><input type="file" accept="image/*" onchange="onPortraitUpload(event)" style="font-size:.72rem;"></div>
 
     <div class="banner">Atributos</div>
@@ -428,11 +317,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
           <div>
             <div class="colhead">Antecedentes <span class="pts" id="ant-pts"></span></div>
             <div id="ant-rows"></div>
-            <div id="ciber-panel"></div>
-            <select id="ant-known" onchange="if(this.value){ addAntecedenteNamed(this.value); this.value=''; }" style="width:100%; margin-top:4px; font-size:.76rem; padding:3px;">
-              <option value="">— escolher antecedente conhecido... —</option>
-            </select>
-            <div class="addline"><input id="ant-new" placeholder="ou digite um personalizado"><button onclick="addAntecedente()">+</button></div>
+            <div class="addline"><input id="ant-new" placeholder="novo antecedente"><button onclick="addAntecedente()">+</button></div>
           </div>
           <div>
             <div class="colhead">Técnicas <span class="pts" id="tec-pts"></span></div>
@@ -448,28 +333,20 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
             <div class="trackdots" id="dots-gloria"></div>
             <div class="tracklabel">Honra</div>
             <div class="trackdots" id="dots-honra"></div>
-            <div class="tracklabel" style="margin-top:4px;">Glória Temporária</div>
-            <div class="trackdots" id="dots-gloriaTemp"></div>
-            <div class="trackdots check-row" id="check-gloriaTemp"></div>
-            <div class="tracklabel">Honra Temporária</div>
-            <div class="trackdots" id="dots-honraTemp"></div>
-            <div class="trackdots check-row" id="check-honraTemp"></div>
           </div>
           <div>
             <div class="tracklabel">Chi <span class="basewrap">estilo: <span id="chi-base-view">3</span></span></div>
             <div class="trackdots" id="dots-chi"></div>
             <div class="tracklabel">Força de Vontade <span class="basewrap">estilo: <span id="fv-base-view">4</span></span></div>
             <div class="trackdots" id="dots-fv"></div>
-            <div class="tracklabel">Saúde</div>
-            <div class="trackdots" id="dots-saude"></div>
-            <div class="trackdots check-row" id="check-saude"></div>
           </div>
         </div>
+        <div class="tracklabel">Saúde</div>
+        <div class="trackdots" id="dots-saude"></div>
         <div class="legend">
           <span><i class="dotex" style="background:var(--ink);"></i>normal</span>
           <span><i class="dotex" style="background:var(--red);"></i>bônus</span>
           <span><i class="dotex" style="background:#2a5c8a;"></i>experiência</span>
-          <span>☐ marque durante a sessão (dano sofrido / pontos gastos)</span>
         </div>
         <div class="situacao">
           <div><label>Divisão</label>
@@ -488,11 +365,8 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
       <div class="macro-right">
         <div class="colhead">Manobras Especiais <span class="pts" id="man-pts"></span></div>
         <div class="manobrasbox" id="man-box"></div>
-        <div class="no-print" style="display:flex; gap:6px; margin-top:6px;">
-          <button class="toolbtn" style="flex:1;" onclick="toggleManobraPicker()">+ Escolher Manobra</button>
-          <button class="toolbtn" style="flex:1;" onclick="openCustomManobraModal()">+ Criar Personalizada</button>
-        </div>
-        <div id="manobra-picker" class="picker-dark no-print" style="display:none; margin-top:8px;">
+        <button class="toolbtn" style="margin-top:6px; width:100%;" onclick="toggleManobraPicker()">+ Escolher Manobra Especial</button>
+        <div id="manobra-picker" class="picker-dark" style="display:none; margin-top:8px;">
           <input id="manobra-search" placeholder="filtrar por nome..." oninput="renderManobraPicker()">
           <div class="pick-list" id="manobra-picker-list"></div>
         </div>
@@ -514,10 +388,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
     </details>
 
     <div class="small" style="text-align:center; margin-top:10px; border-top:1px solid var(--red); padding-top:6px;">
-      Atributos: 7/5/3 (máx. 5/Atributo) · Habilidades: 9/7/4 (máx. 3/Habilidade) · Antecedentes: 5 · Técnicas: 8 (máx. 3/Técnica) · Renome inicial: 3 (Glória+Honra) · Chi/FdV: por Estilo · Bônus: 15
-    </div>
-    <div class="small" style="text-align:center; margin-top:4px;">
-      Estilos e manobras marcados com * são conteúdo não oficial de fãs, cortesia de <b>sfrpg.com.br</b> (Fernando Jr. e comunidade) e de <b>"The G-File"</b> (Matt Meade) — não pertencem à White Wolf/Talismã nem a este gerador.
+      Atributos: 7/5/3 · Habilidades: 9/7/4 · Antecedentes: 5 · Técnicas: 8 · Chi/Força de Vontade: por Estilo · Pontos de Bônus: 15
     </div>
   </div>
   </section>
@@ -538,20 +409,8 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
         <button class="btn small" onclick="addSpecialCardBlank('Movimento')">+ Movimento</button>
         <button class="btn small" onclick="addSpecialCardBlank('Apresamento')">+ Apresamento</button>
         <button class="btn gold small" onclick="addSpecialFromSheet()">+ Manobra da ficha</button>
-        <button class="btn small" onclick="addHibridoCard('Bite')">+ Bite (Híbrido)</button>
-        <button class="btn small" onclick="addHibridoCard('Claw')">+ Claw (Híbrido)</button>
         <button class="btn ghost small" onclick="addBlankCard()">+ Feito / em branco</button>
-        <button class="btn gold small" style="margin-left:auto;" onclick="printCardsA4()">🖶 Imprimir A4 (tam. carta)</button>
       </div>
-      <hr style="border-color:#3a2f27; margin:14px 0;">
-      <h2 style="font-size:1.1rem;">Manobras com Arma <small>Cap.7 — sistema oficial (não é gambiarra)</small></h2>
-      <div class="small" style="font-family:var(--font-mono); color:#a4927c;">Escolha a arma e a Técnica de Arma correspondente na sua ficha (crie-a em Vantagens → Técnicas → "técnica de arma"). Jab/Strong/Fierce somam os modificadores da arma; Golpe Furioso/Aparar/Desarme/Movimento usam a fórmula fixa do livro.</div>
-      <div class="grid3" style="margin-top:10px;">
-        <div><label>Arma</label><select id="arma-select" onchange="onArmaSelect()"></select></div>
-        <div><label>Sua Técnica de Arma (da ficha)</label><select id="arma-tecnica-select"></select></div>
-        <div style="display:flex; align-items:flex-end;"><span class="small" id="arma-info"></span></div>
-      </div>
-      <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;" id="arma-buttons"></div>
     </div>
     <div class="cards-wrap" id="cards-wrap"></div>
   </section>
@@ -592,9 +451,6 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   </section>
 
 </div>
-
-<!-- ============================================================ MODAL ============================================================ -->
-<div id="sf-modal-overlay" class="sf-modal-overlay"><div class="sf-modal-box" id="sf-modal-box"></div></div>
 
 <script>
 /* =========================================================================
@@ -637,7 +493,7 @@ async function checarAcesso(){
 
     if(registro.tier === 'admin'){
       document.getElementById('tab-admin-btn').style.display = 'inline-block';
-      carregarListaAdmin();
+      carregarListaAdmin(); // a policy de RLS decide se essa leitura realmente retorna dados
     }
   } else {
     gateMsg.textContent = `Login OK (${user.email}), mas este e-mail não está autorizado. Sua solicitação foi registrada — aguarde a liberação do mestre.`;
@@ -652,6 +508,7 @@ async function checarAcesso(){
 }
 
 async function registrarTentativa(email){
+  // upsert: se já tentou antes, só atualiza o horário da última tentativa
   await sb.from('access_requests')
     .upsert({ email, last_attempt_at: new Date().toISOString() }, { onConflict: 'email' });
 }
@@ -667,10 +524,12 @@ function fazerLogout(){
   sb.auth.signOut().then(() => { window.location.reload(); });
 }
 
-/* ---- painel admin ---- */
+/* ---- painel admin: só aparece se registro.tier === 'admin' acima ----
+   segurança real: policy "somente admin gerencia lista" no Supabase,
+   não a exibição da aba aqui no front-end. */
 async function carregarListaAdmin(){
   const { data, error } = await sb.from('authorized_users').select('*').order('added_at', { ascending: false });
-  if(error){ return; }
+  if(error){ return; } // não-admin real: RLS bloqueou, tabela fica vazia
   renderTabelaAdmin(data || []);
   carregarPendentes();
 }
@@ -679,6 +538,8 @@ async function carregarPendentes(){
   const { data: pendentes } = await sb.from('access_requests').select('*').order('last_attempt_at', { ascending: false });
   const { data: autorizados } = await sb.from('authorized_users').select('email');
   const emailsAutorizados = new Set((autorizados || []).map(u => u.email));
+  // esconde da fila quem já foi aprovado (limpeza acontece no aprovarPendente,
+  // mas isso cobre o caso de a linha antiga não ter sido removida ainda)
   const lista = (pendentes || []).filter(p => !emailsAutorizados.has(p.email));
   renderTabelaPendentes(lista);
 }
@@ -789,57 +650,10 @@ async function removerUsuario(email){
 
 checarAcesso();
 
-/* =========================================================================
-   PWA — instalação como app
-   ========================================================================= */
-let deferredInstallPrompt=null;
-(function setupPWA(){
-  try{
-    const iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" fill="#c8161d"/><text x="96" y="120" font-size="90" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold">SF</text></svg>';
-    const iconUrl = 'data:image/svg+xml,'+encodeURIComponent(iconSvg);
-    const manifest = {
-      name:'Guerreiro Mundial — Ficha SFRPG', short_name:'Guerreiro Mundial',
-      start_url:'.', display:'standalone', background_color:'#0c0a08', theme_color:'#c8161d',
-      icons:[{src:iconUrl, sizes:'192x192', type:'image/svg+xml'},{src:iconUrl, sizes:'512x512', type:'image/svg+xml'}]
-    };
-    const manifestBlob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
-    document.getElementById('pwa-manifest').setAttribute('href', URL.createObjectURL(manifestBlob));
-  }catch(e){}
-  try{
-    if('serviceWorker' in navigator){
-      const swCode = "self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());self.addEventListener('fetch',e=>{});";
-      const swBlob = new Blob([swCode], {type:'text/javascript'});
-      navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
-    }
-  }catch(e){}
-})();
-window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredInstallPrompt=e; });
-function installApp(){
-  if(deferredInstallPrompt){
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.finally(()=>{ deferredInstallPrompt=null; });
-  } else {
-    sfAlert('Seu navegador não ofereceu o prompt automático agora — isso é normal ao abrir o arquivo direto do computador (file://) ou dentro deste preview do chat. Para instalar mesmo assim: <br><br><b>Chrome/Edge (computador):</b> menu ⋮ → "Instalar app" (ou ícone de instalação na barra de endereço).<br><b>Android:</b> menu ⋮ → "Adicionar à tela inicial".<br><b>iPhone/Safari:</b> botão Compartilhar → "Adicionar à Tela de Início".<br><br>Dica: funciona melhor se você hospedar este arquivo .html num servidor (mesmo um simples) em vez de abri-lo direto do disco.','📲 Instalar como app');
-  }
-}
-
-/* =========================================================================
-   MODAL SYSTEM
-   ========================================================================= */
-function showModal(html, opts){
-  opts=opts||{};
-  const overlay=document.getElementById('sf-modal-overlay');
-  document.getElementById('sf-modal-box').innerHTML=html;
-  overlay.classList.add('show');
-  overlay.onclick=(e)=>{ if(e.target===overlay && !opts.noBackdropClose) closeModal(); };
-}
-function closeModal(){ document.getElementById('sf-modal-overlay').classList.remove('show'); }
-function sfAlert(message,title){
-  showModal(`<h3>${title||'Aviso'}</h3><p>${message}</p><div class="sf-modal-actions"><button class="btn gold" onclick="closeModal()">Fechar</button></div>`);
-}
-function sfConfirm(message,onYes,title){
-  showModal(`<h3>${title||'Confirmar'}</h3><p>${message}</p><div class="sf-modal-actions"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn gold" id="sf-confirm-yes">Confirmar</button></div>`,{noBackdropClose:true});
-  document.getElementById('sf-confirm-yes').onclick=()=>{ closeModal(); onYes(); };
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.warn('SW falhou:', err));
+  });
 }
 
 /* =========================================================================
@@ -853,1068 +667,602 @@ const DEFAULT_SKILLS = {'Talentos':['Prontidão','Interrogação','Intimidação
 const TECNICAS_BASE = ['Soco','Chute','Bloqueio','Apresamento','Esportes','Foco'];
 const BONUS_COST = {atributo:5, habilidade:2, antecedente:1, tecnica:5, poder:4, renomeTemp:1, chi:1, fv:1, saude:3};
 
-// Sistema de Armas (Cap.7) — cada arma tem sua própria Técnica e modificadores fixos.
-// [Técnica genérica, Velocidade, Dano, Movimento, Especial]
-const ARMAS_CATALOGO = {
- 'Bastão':['Bastão',0,2,1,''],
- 'Bastão Longo':['Bastão',0,2,1,''],
- 'Nunchaku':['Cabos Conectados',1,2,0,''],
- 'Espada Longa / Espada Larga':['Espada',-1,4,0,''],
- 'Rapieira':['Esgrima',2,1,1,''],
- 'Katana':['Espada',1,3,0,''],
- 'Lança':['Lança',0,3,1,''],
- 'Faca':['Faca',2,1,0,''],
- 'Canivete':['Faca',2,1,0,'Facilmente transportado'],
- 'Bagh Nakh (Garras do Tigre)':['Faca',1,1,0,''],
- 'Cassetete':['Armas de Impacto',1,0,1,''],
- 'Bokken':['Espada',1,3,0,''],
- 'Soco Inglês':['Soco',0,1,0,'Deve se combinar com Manobras de Soco'],
- 'Arco Grande':['Arquearia',1,2,0,'Alcance: 110m'],
- 'Arco Pequeno':['Arquearia',2,1,0,'Alcance: 80m'],
- 'Yumi':['Arquearia',0,4,0,'Alcance: 135m'],
- 'Faca Borboleta':['Espada',0,2,0,''],
- 'Cestus':['Soco',0,2,0,'Combina com Manobras de Soco; +1 Absorção ao Bloquear'],
- 'Corrente':['Corrente/Chicote',0,2,-2,'Alcance: 2 hexágonos'],
- 'Chakram':['Arremesso',1,1,-3,''],
- 'Porrete':['Armas de Impacto',0,2,0,''],
- 'Faca de Combate':['Faca',0,3,0,''],
- 'Estrangulador':['Apresamento',-3,4,0,'Apresamento Sustentado; não pode ser absorvido'],
- 'Espada Gancho':['Espada',0,3,0,'+2 dados para Desarme'],
- 'Katar':['Faca/Soco',2,3,0,'+1 Absorção ao Bloquear armas cortantes'],
- 'Kris':['Faca',2,2,0,''],
- 'Kusari':['Corrente/Chicote',0,2,-1,'Alcance 2; +1 dado para Desarme'],
- 'Kusarigama':['Corrente/Chicote',0,3,-2,'Alcance 2; +1 dado para Desarme'],
- 'Naginata':['Lança',0,4,0,''],
- 'Ninjato':['Espada',1,2,1,''],
- 'Pata':['Espada',-2,3,0,'+2 Absorção ao Bloquear'],
- 'Navalha':['Faca',2,2,0,''],
- 'Sabre':['Espada',1,3,0,''],
- 'Sabre (de exibição)':['Espada',1,1,1,'+1 Absorção ao Bloquear'],
- 'Sai':['Faca',1,0,0,'+1 Absorção ao Bloquear; +2 dados para Desarme'],
- 'Shikomi-Zue (ponta de madeira)':['Bastão',0,2,0,''],
- 'Shikomi-Zue (lâmina)':['Lança',1,1,0,''],
- 'Shinai':['Espada',1,3,0,''],
- 'Machado Pequeno':['Machado',1,2,0,'Pode ser arremessado'],
- 'Shuko':['Soco',0,1,0,'Combina com Manobras de Soco'],
- 'Shuriken':['Arremesso',2,-2,0,'Pode arremessar múltiplos'],
- 'Foice':['Faca',0,3,0,''],
- 'Corrente de Aço':['Corrente/Chicote',-1,3,0,'Alcance 3; +2 dados para Desarme'],
- 'Faca de Botão':['Faca',2,2,0,''],
- 'Faca de Arremessar':['Arremesso',0,0,0,''],
- 'Tonfa':['Armas de Impacto/Soco',0,1,0,'+1 Absorção ao Bloquear'],
- 'Wakizashi':['Faca',1,2,0,''],
- 'Chicote':['Corrente/Chicote',-1,2,0,'Alcance 6; +2 dados para Desarme']
+const MANOBRAS_GERAIS = {
+  'Soco':[['Buffalo Punch',2],['Ducking Fierce',2],['Ear Pop',3],['Elbow Smash',2],['Haymaker',2],['Head Butt',2],
+    ['Knife Hand Strike',5],['Lunging Punch',3],['Monkey Grab Punch',2],['Power Uppercut',1],['Shockwave',4],
+    ['Spinning Back Fist',2],['Spinning Knuckle',4],['Triple Strike',2],['Widowmaker',1]],
+  'Chute':[['Backflip Kick',4],['Cartwheel Kick',3],['Double-Hit Kick',2],['Double-Hit Knee',2],['Flash Kick',5],
+    ['Flying Knee Thrust',2],['Flying Thrust Kick',5],['Foot Sweep',2],['Forward Backflip Kick',3],['Forward Flip Knee',4],
+    ['Handstand Kick',2],['Heel Stamp',3],['Reverse Frontal Kick',3],['Slide Kick',3],['Spinning Foot Sweep',2],['Wounded Knee',3]],
+  'Bloqueio':[['Deflecting Punch',2],['Energy Reflection',4],['Kick Defense',1],['Maka Wara',5],['Missile Reflection',2],['Punch Defense',1]],
+  'Apresamento':[['Air Throw',3],['Air Suplex',3],['Arm/Wrist Lock',3],['Back Roll Throw',2],['Bear Hug',3],['Brain Cracker',2],
+    ['Choke Throw',3],['Disengage',4],['Eye Rake',2],['Face Slam',5],['Flying Tackle',2],['Grappling Defense',5],['Hair Throw',3],
+    ['Head Bite',3],['Head Butt Hold',3],['Improved Pin',4],['Knee Basher',3],['Neck Choke',3],['Pile Driver',4],['Pin',5],
+    ['Push',2],['Sleeper',5],['Suplex',2],['Thigh Press',3],['Throw',1]],
+  'Esportes':[['Air Smash',2],['Backflip',4],['Breakfall',2],['Disarming',3],['Flying Body Spear',4],['Flying Head Butt',3],
+    ['Flying Heel Stomp',4],['Jump',1],['Jumping Shoulder Butt',2],['Kippup',1],['Light Feet',5],['Rolling Attack',5],
+    ['Tumbling Attack',5],['Vertical Rolling Attack',4],['Wall Spring',2]],
+  'Foco':[['Acid Breath',4],['Cobra Charm',4],['Fireball',5],['Ice Blast',4],['Mind Reading',4],['Musical Accompaniment',2],
+    ['Psychokinetic Channeling',5],['Regeneration',3],['Repeating Fireball',4],['Shock Treatment',4],['Sonic Boom',4],
+    ['Stunning Shout',4],['Telepathy',3],['Toughskin',4],['Zen No Mind',4]]
 };
-// Manobras Básicas armadas: as 3 primeiras somam os modificadores da arma escolhida por cima;
-// Golpe Furioso/Aparar/Desarme/Movimento usam a fórmula fixa do livro (Técnica de Arma entra no lugar de Soco/Vigor).
-const WEAPON_MANEUVERS = [
- {name:'Jab (arma)', vel:2, dano:-1, mov:0, addWeaponMods:true},
- {name:'Strong (arma)', vel:0, dano:1, mov:0, addWeaponMods:true},
- {name:'Fierce (arma)', vel:-1, dano:3, mov:-1, addWeaponMods:true},
- {name:'Golpe Furioso', vel:-2, dano:4, mov:-3, addWeaponMods:false, custo:'1 Força de Vontade', especial:'"Mate ou morra" — use só quando a história pedir. Se bem-sucedido, pode ter efeito dramático e dá 1 ponto temporário de Glória.'},
- {name:'Aparar', vel:4, dano:null, mov:0, addWeaponMods:false, isAparar:true},
- {name:'Desarme', vel:-1, dano:null, mov:-2, addWeaponMods:false, isDesarme:true},
- {name:'Movimento (arma)', vel:3, dano:null, mov:3, addWeaponMods:false},
- {name:'Apresamento (arma)', vel:0, dano:null, mov:1, addWeaponMods:true, isApresamentoArma:true, especial:'Caso raro — a maioria das armas não se presta a apresamentos. Segue a mesma lógica do Apresamento desarmado, mas com a Técnica de Arma no lugar da Técnica Apresamento.'}
-];
 
-// ===== ATRIBUTOS, HABILIDADES, TÉCNICAS (descrições) =====
-const ATTR_INFO = {
- 'Força':'Capacidade física de erguer peso e causar dano corporal; é somada à Parada de Dados de dano em combate corpo a corpo.',
- 'Destreza':'Velocidade, reflexos e coordenação motora — a agilidade para se mover e manipular objetos com precisão.',
- 'Vigor':'Resistência física e mental: por quanto tempo você mantém esforço e quanto dano consegue suportar.',
- 'Carisma':'Aptidão para envolver e criar um elo emocional genuíno com outras pessoas.',
- 'Manipulação':'Aptidão para influenciar, convencer ou enganar alguém de forma ativa e direta.',
- 'Aparência':'Atratividade física e força de presença — o quanto você chama atenção e como é percebido à primeira vista.',
- 'Percepção':'Consciência do ambiente ao redor; notar detalhes e mudanças mesmo sem prestar atenção ativa.',
- 'Inteligência':'Capacidade de raciocínio lógico, memória e aprendizado formal.',
- 'Raciocínio':'Rapidez de pensamento — reação a situações novas, sagacidade e esperteza.'
+// Chi/FV Inicial conferidos com a tabela de referências (Ryu, Ken, Chun-Li, etc). Estilos sem lista própria
+// de Manobras Especiais localizada nas fontes do projeto usam o catálogo geral em "Outras manobras".
+const STYLES = {
+ "Aikidô":{chi:5,fv:2,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[],Esportes:[],Foco:[]}},
+ "Baraqah":{chi:4,fv:3,moves:{Soco:[["Ear Pop",2],["Hundred Hand Slap",5],["Monkey Grab Punch",1],["Spinning Back Fist",1],["Spinning Knuckle",3]],Chute:[["Foot Sweep",1],["Wounded Knee",2]],Bloqueio:[["Deflecting Punch",1],["Energy Reflection",3],["Maka Wara",3]],Apresamento:[["Back Roll Throw",1],["Grappling Defense",3],["Dislocate Limb",2],["Improved Pin",2],["Pin",3],["Sleeper",3]],Esportes:[["Breakfall",1]],Foco:[["Balance",3],["Chi Push",5],["Ghost Form",5],["Levitation",4],["Mind Reading",3],["Zen No Mind",3],["Psychokinetic Channeling",4],["Regeneration",1],["Telepathy",2]]}},
+ "Boxe":{chi:1,fv:6,moves:{Soco:[["Dashing Punch",4],["Dashing Uppercut",1],["Fist Sweep",2],["Head Butt",1],["Heart Punch",4],["Hyper Fist",4],["Lunging Punch",2],["Rekka Ken",5],["Turn Punch",4]],Chute:[],Bloqueio:[["Deflecting Punch",1]],Apresamento:[["Brain Cracker",1],["Head Bite",1],["Head Butt Hold",2]],Esportes:[["Jumping Shoulder Butt",1]],Foco:[["Toughskin",3]]}},
+ "Forças Especiais":{chi:1,fv:6,moves:{Soco:[["Heart Punch",3],["Hyper Fist",5],["Knife Hand Strike",4],["Spinning Backfist",1],["Spinning Clothesline",5],["Spinning Knuckle",2],["Turbo Spinning Clothesline",4]],Chute:[["Ax Kick",3],["Backflip Kick",3],["Double Dread Kick",4],["Flash Kick",4],["Flying Knee Thrust",1],["Flying Thrust Kick",3],["Foot Sweep",1],["Forward Flip Knee",3],["Handstand Kick",1],["Lightning Leg",5],["Spinning Foot Sweep",1],["Tiger Knee",5]],Bloqueio:[],Apresamento:[["Air Throw",2],["Arm/Wrist Lock",2],["Dislocate Limb",3],["Hair Throw",2],["Improved Pin",3],["Knee Basher",2],["Neck Choke",1],["Pile Driver",3],["Pin",4],["Sleeper",4],["Suplex",1],["Thigh Press",2]],Esportes:[["Cannon Drill",4],["Disarming",2],["Ground Fighting",4]],Foco:[]}},
+ "Jeet Kune Dô":{chi:1,fv:6,moves:{Soco:[["Dragon Punch",5],["Ear Pop",2],["Hundred Hand Slap",5],["Hyper Fist",5],["Monkey Grab Punch",1]],Chute:[["Backflip Kick",2],["Flying Knee Thrust",1],["Foot Sweep",1],["Forward Flip Knee",3],["Hurricane Kick",5],["Lightning Leg",4],["Scissor Kick",3],["Stepping Front Kick",3],["Tiger Knee",5]],Bloqueio:[["Deflecting Punch",1],["Maka Wara",3]],Apresamento:[["Air Throw",2],["Grappling Defense",4],["Pin",3]],Esportes:[["Backflip",2],["Drunken Monkey Roll",1],["Light Feet",3],["Wall Spring",1]],Foco:[["Chi Kung Healing",4],["Zen No Mind",3]]}},
+ "Jiu-Jitsu (Judô)":{chi:3,fv:4,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[["Back Roll Throw",1]],Esportes:[["Breakfall",1]],Foco:[]}},
+ "Kabaddi":{chi:5,fv:2,moves:{Soco:[["Head Butt",1]],Chute:[["Slide Kick",2]],Bloqueio:[["Energy Reflection",3],["San He",3]],Apresamento:[["Air Suplex",2],["Arm/Wrist Lock",2],["Brain Cracker",1],["Dislocate Limb",3],["Head Butt Hold",2],["Push",1]],Esportes:[["Cannon Drill",5],["Flying Body Spear",2]],Foco:[["Balance",3],["Chi Kung Healing",3],["Chi Push",5],["Cobra Charm",2],["Extendible Limbs",4],["Fireball",3],["Flying Fireball",3],["Flight",5],["Ghost Form",5],["Improved Fireball",5],["Inferno Strike",5],["Leech",3],["Levitation",3],["Mind Reading",3],["Psychic Vise",5],["Regeneration",1],["Telepathy",2],["Yoga Flame",3],["Yoga Teleport",5]]}},
+ "Karatê Shotokan":{chi:3,fv:4,moves:{Soco:[["Dragon Punch",4],["Flaming Dragon Punch",4],["Knife Hand Strike",3],["Lunging Punch",2]],Chute:[["Air Hurricane Kick",1],["Ax Kick",4],["Double Dread Kick",4],["Foot Sweep",1],["Hurricane Kick",4],["Whirlwind Kick",5]],Bloqueio:[["Energy Reflection",3],["Maka Wara",3],["San He",4]],Apresamento:[["Back Roll Throw",1],["Pin",3]],Esportes:[],Foco:[["Balance",4],["Chi Kung Healing",4],["Fireball",3],["Flying Fireball",2],["Improved Fireball",3],["Inferno Strike",5],["Levitation",4],["Stunning Shout",2]]}},
+ "Kickboxe":{chi:2,fv:5,moves:{Soco:[["Dashing Punch",5],["Dashing Uppercut",2],["Fist Sweep",2],["Heart Punch",4],["Hyper Fist",4],["Lunging Punch",2],["Rekka Ken",5],["Spinning Backfist",1],["Spinning Knuckle",3],["Turn Punch",5]],Chute:[["Ax Kick",3],["Double Dread Kick",3],["Double-Hit Kick",1],["Flying Knee Thrust",1],["Reverse Frontal Kick",1],["Slide Kick",2],["Stepping Front Kick",4],["Tiger Knee",5],["Wounded Knee",2]],Bloqueio:[["Deflecting Punch",1]],Apresamento:[["Back Roll Throw",1],["Brain Cracker",1],["Knee Basher",2]],Esportes:[],Foco:[]}},
+ "Kung Fu":{chi:4,fv:3,moves:{Soco:[["Dim Mak",4],["Dragon Punch",5],["Heart Punch",4],["Hundred Hand Slap",5],["Knife Hand Strike",3],["Monkey Grab Punch",1],["Rekka Ken",4]],Chute:[["Air Hurricane Kick",1],["Ax Kick",4],["Backflip Kick",3],["Double Dread Kick",4],["Double Hit Kick",1],["Dragon Kick",5],["Forward Backflip Kick",2],["Forward Flip Knee",3],["Hurricane Kick",5],["Lightning Leg",4],["Stepping Front Kick",3]],Bloqueio:[["Deflecting Punch",1],["Maka Wara",3],["San He",3]],Apresamento:[["Grappling Defense",4],["Hair Throw",2],["Improved Pin",3],["Pin",3],["Rising Storm Crow",5]],Esportes:[["Disarming",2],["Drunken Monkey Roll",1]],Foco:[["Balance",3],["Chi Kung Healing",3],["Chi Push",5],["Fireball",4],["Flying Fireball",3],["Improved Fireball",5],["Leech",4],["Levitation",4],["Regeneration",2],["Zen No Mind",3]]}},
+ "Kung Fu do Corvo Majestoso":{chi:3,fv:4,moves:{Soco:[["Crow Beats his Wings",4],["Dim Mak",5],["Dragon Punch",5],["Monkey Grab Punch",1],["Rekka Ken",5],["Triple Strike",1]],Chute:[["Air Hurricane Kick",1],["Backflip Kick",3],["Double Dread Kick",3],["Double-Hit Kick",1],["Flash Kick",4],["Flying Thrust Kick",4],["Great Wall of China",5],["Hurricane Kick",5],["Lightning Leg",4],["Stepping Front Kick",3],["Whirlwind Kick",5]],Bloqueio:[["San He",4]],Apresamento:[["Air Throw",2],["Crow's Talon (Iron Claw)",4],["Grappling Defense",4],["Hair Throw",2],["Rising Storm Crow",4]],Esportes:[["Air Smash",1],["Cannon Drill",5],["Drunken Monkey Roll",2],["Flying Body Spear",3],["Landing Crow",3],["Rolling Attack",4],["Wall Spring",1]],Foco:[["Chi Kung Healing",4],["Fireball",4],["Flying Fireball",3],["Improved Fireball",5],["Stunning Shout",3]]}},
+ "Ler Drit":{chi:5,fv:2,moves:{Soco:[["Ducking Fierce",1],["Hyper Fist",5],["Spinning Knuckle",3]],Chute:[["Double Dread Kick",4],["Flying Knee Thrust",1],["Forward Flip Knee",3],["Forward Slide Kick",2],["Scissor Kick",3],["Slide Kick",2],["Stepping Front Kick",4]],Bloqueio:[["San He",3]],Apresamento:[["Grappling Defense",4],["Iron Claw",5]],Esportes:[["Flying Body Spear",3],["Flying Heel Stomp",3],["Flying Punch",3]],Foco:[["Blind",3],["Cobra Charm",3],["Flight",4],["Mind Control",5],["Mind Reading",3],["Psycho Crusher",5],["Psychic Rage",3],["Psychic Vise",4],["Psychokinetic Channeling",3],["Regeneration",2],["Stunning Shout",3],["Telepathy",2]]}},
+ "Lua":{chi:3,fv:4,moves:{Soco:[["Dim Mak",4]],Chute:[["Backflip Kick",3],["Double Hit Knee",1],["Wounded Knee",2]],Bloqueio:[["Energy Reflection",3]],Apresamento:[["Choke Throw",2],["Disengage",2],["Dislocate Limb",2],["Eye Rake",1],["Grappling Defense",3],["Head Bite",2],["Improved Pin",2],["Iron Claw",4],["Neck Choke",2],["Pin",2],["Sleeper",3]],Esportes:[["Light Feet",3]],Foco:[["Balance",3],["Chi Kung Healing",3],["Chi Push",5],["Fireball",4],["Ghost Form",5],["Leech",3],["Levitation",3],["Mind Reading",3],["Musical Accompaniment",1],["Regeneration",2],["Toughskin",3]]}},
+ "Luta-Livre":{chi:1,fv:6,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[],Esportes:[],Foco:[]}},
+ "Luta-Livre Nativo Americana":{chi:3,fv:4,moves:{Soco:[["Buffalo Punch",1],["Ear Pop",2],["Heart Punch",2],["Shockwave",3],["Spinning Clothesline",4]],Chute:[["Wounded Knee",2]],Bloqueio:[],Apresamento:[["Air Throw",2],["Back Breaker",2],["Bear Hug",1],["Brain Cracker",1],["Disengage",2],["Dislocate Limb",3],["Face Slam",2],["Grappling Defense",3],["Iron Claw",4],["Neck Choke",1],["Pile Driver",3],["Sleeper",3],["Spinning Pile Driver",5],["Stomach Pump",3],["Storm Hammer",5],["Suplex",1],["Thigh Press",2]],Esportes:[["Air Smash",1],["Diving Hawk",4],["Ground Fighting",3],["Thunderstrike",1]],Foco:[["Chi Kung Healing",4],["Chi Push",5],["Ghost Form",5],["Regeneration",2],["Thunderclap",4]]}},
+ "Ninjitsu":{chi:5,fv:2,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[],Esportes:[],Foco:[]}},
+ "Ninjitsu Espanhol":{chi:2,fv:5,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[],Esportes:[],Foco:[]}},
+ "Pankration":{chi:1,fv:6,moves:{Soco:[["Buffalo Punch",1],["Ducking Fierce",1],["Ear Pop",2],["Fist Sweep",2],["Head Butt",1],["Spinning Back Fist",1]],Chute:[["Double Hit Knee",1],["Flying Knee Thrust",1],["Foot Sweep",1],["Slide Kick",2],["Wounded Knee",2]],Bloqueio:[["Maka Wara",3]],Apresamento:[["Air Throw",2],["Back Breaker",2],["Bear Hug",1],["Brain Cracker",1],["Choke Throw",2],["Disengage",2],["Dislocate Limb",2],["Grappling Defense",3],["Head Bite",2],["Improved Pin",3],["Knee Basher",2],["Neck Choke",2],["Pin",2],["Stomach Pump",3],["Suplex",1]],Esportes:[["Air Smash",1],["Breakfall",1],["Flying Heel Stomp",3],["Ground Fighting",2],["Thunderstrike",1]],Foco:[["Toughskin",2]]}},
+ "Sanbo":{chi:1,fv:6,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[],Esportes:[],Foco:[]}},
+ "Savate":{chi:2,fv:5,moves:{Soco:[["Dashing Punch",4],["Dashing Uppercut",2],["Spinning Backfist",1],["Spinning Knuckle",3],["Turn Punch",4]],Chute:[["Ax Kick",2],["Double-Hit Kick",1],["Flying Thrust Kick",4],["Lightning Leg",5],["Reverse Frontal Kick",1],["Slide Kick",2]],Bloqueio:[["Deflecting Punch",1]],Apresamento:[],Esportes:[["Displacement",2],["Esquives",2]],Foco:[]}},
+ "Silat":{chi:4,fv:3,moves:{Soco:[],Chute:[],Bloqueio:[["San He",3]],Apresamento:[["Dislocate Limb",3]],Esportes:[],Foco:[["Zen No Mind",3]]}},
+ "Sumô":{chi:2,fv:5,moves:{Soco:[["Ear Pop",2],["Head Butt",1],["Heart Punch",3],["Hundred Hand Slap",4]],Chute:[["Double-Hit Kick",1],["Foot Sweep",1],["Spinning Foot Sweep",1]],Bloqueio:[["Maka Wara",3],["San He",3]],Apresamento:[["Bear Hug",1],["Face Slam",2],["Head Butt Hold",2],["Knee Basher",2],["Sleeper",4]],Esportes:[["Air Smash",1],["Flying Head Butt",2],["Jumping Shoulder Butt",1]],Foco:[["Stunning Shout",2],["Toughskin",2]]}},
+ "Tai Chi Chuan":{chi:6,fv:1,moves:{Soco:[["Dim Mak",4],["Monkey Grab Punch",1]],Chute:[["Foot Sweep",1],["Slide Kick",2],["Spinning Foot Sweep",1]],Bloqueio:[["Deflecting Punch",1],["Energy Reflection",2],["Missile Reflection",1],["San He",2]],Apresamento:[["Air Throw",2],["Back Roll Throw",1],["Disengage",3],["Dislocate Limb",3],["Grappling Defense",3],["Improved Pin",3],["Pin",2]],Esportes:[["Breakfall",1]],Foco:[["Balance",2],["Chi Kung Healing",2],["Chi Push",5],["Ghost Form",5],["Levitation",4],["Stunning Shout",3],["Telepathy",2],["Zen No Mind",2]]}},
+ "Thai Kickboxe (Muay Thai)":{chi:2,fv:5,moves:{Soco:[["Dragon Punch (Tiger Uppercut)",5],["Elbow Smash",1],["Flaming Dragon Punch",4],["Spinning Back Fist",1],["Turn Punch",4]],Chute:[["Double Dread Kick",3],["Double-Hit Kick",1],["Double-Hit Knee",1],["Flying Knee Thrust",1],["Foot Sweep",1],["Lightning Leg",4],["Tiger Knee",4],["Wounded Knee",2]],Bloqueio:[["Maka Wara",3]],Apresamento:[["Brain Cracker",1],["Head Butt Hold",2],["Knee Basher",2]],Esportes:[["Jumping Shoulder Butt",1]],Foco:[["Chi Kung Healing",4],["Fireball (Tiger Fireball)",4],["Toughskin",3],["Zen No Mind",3]]}},
+ "Wu Shu":{chi:3,fv:4,moves:{Soco:[["Rekka Ken",5],["Spinning Knuckle",3]],Chute:[["Air Hurricane Kick",1],["Ax Kick",4],["Backflip Kick",2],["Cartwheel Kick",2],["Double-Hit Kick",1],["Flying Thrust Kick",4],["Forward Backflip Kick",1],["Forward Flip Knee",2],["Great Wall of China",5],["Handstand Kick",1],["Hurricane Kick",5],["Lightning Leg",3],["Reverse Frontal Kick",2],["Scissor Kick",4],["Stepping Front Kick",4],["Whirlwind Kick",4]],Bloqueio:[["Maka Wara",4],["San He",3]],Apresamento:[["Air Throw",2],["Back Roll Throw",1],["Improved Pin",3],["Pin",3]],Esportes:[["Backflip",2],["Cannon Drill",5],["Displacement",4],["Drunken Monkey Roll",2],["Flying Heel Stomp",3],["Rolling Attack",3],["Vertical Rolling Attack",2],["Wall Spring",1]],Foco:[["Balance",2],["Chi Kung Healing",4],["Fireball",4],["Flying Fireball",2],["Improved Fireball",5],["Levitation",4]]}},
+ "Personalizado / Outro":{chi:3,fv:4,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[],Esportes:[],Foco:[]}}
 };
-const SKILL_INFO = {
- 'Prontidão':'Sua consciência do que ocorre ao redor mesmo sem se concentrar nisso; capacidade de permanecer alerta por longos períodos.',
- 'Interrogação':'Capacidade de extrair informação por meios honestos ou não — ameaças, truques e questionamento persistente.',
- 'Intimidação':'Sobrepujar psicologicamente alguém através de sugestões sutis ou ameaças diretas, irradiando autoridade.',
- 'Perspicácia':'Avaliar forças e fraquezas de um oponente observando-o — inclusive descobrir detalhes de seu estilo de luta.',
- 'Manha':'Misturar-se ao ambiente sem chamar atenção; conhecimento das ruas, fofocas e gírias do submundo.',
- 'Lábia':'Esconder suas motivações e decifrar as dos outros; a arte de convencer, mentir bem e extrair segredos sem que percebam.',
- 'Luta às Cegas':'Sentidos apurados o bastante para perceber um oponente por som e pressão do ar mesmo sem enxergá-lo.',
- 'Condução':'Capacidade de dirigir veículos terrestres, do carro popular ao automóvel de corrida.',
- 'Liderança':'Fazer pessoas seguirem seus comandos por exemplo e autoridade — não só técnica, mas presença de líder.',
- 'Segurança':'Arrombar fechaduras, desativar alarmes, ligar carros sem chave e outras formas de superar sistemas de proteção.',
- 'Furtividade':'Esgueirar-se ou esconder-se sem ser visto nem ouvido; testado normalmente contra a Percepção de outro personagem.',
- 'Sobrevivência':'Buscar abrigo, encontrar rotas e se virar em áreas selvagens — inclui rastrear e limita a Furtividade no campo.',
- 'Arena':'Noção de quem patrocina quais torneios, onde e quando ocorrem, e como cada arena favorece certos estilos.',
- 'Computador':'Operação e programação de computadores, incluindo projetar seus próprios sistemas.',
- 'Investigação':'Notar detalhes que outros ignoram; capacidade de pesquisar, entrevistar e agir como detetive.',
- 'Medicina':'Prestar assistência médica, de primeiros socorros básicos até compreensão avançada de práticas médicas.',
- 'Mistérios':'Conhecimento dos segredos e lendas estranhas do mundo — nem tudo é fantasia pura no universo de Street Fighter.',
- 'Estilos':'Conhecimento sobre outras artes marciais — o que cada estilo pode e não pode fazer, mesmo sem tê-lo estudado.'
-};
-const TECNICA_INFO = {
- 'Soco':'Todo golpe envolvendo as mãos — diretos, laterais, perfurantes — e, em geral, o braço.',
- 'Chute':'A maioria dos movimentos com pernas e pés; cada estilo dá ênfase diferente aos chutes.',
- 'Bloqueio':'Funciona diferente das outras Técnicas: não causa dano, mas quanto mais pontos, mais dano você absorve e detém.',
- 'Apresamento':'Chaves e projeções que podem derrubar um oponente rapidamente; exige chegar perto do alvo.',
- 'Esportes':'Sua mobilidade — quão alto salta, quão longe avança numa arremetida e quão rápido recua.',
- 'Foco':'Canalização da mente e do espírito; quanto mais desenvolvido, mais Chi um Street Fighter consegue direcionar para feitos sobrenaturais.'
-};
-  <!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ficha de Personagem — Street Fighter RPG</title>
-<link rel="manifest" id="pwa-manifest">
-<meta name="theme-color" content="#c8161d">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;600;700&display=swap');
 
-:root{
-  --red:#c8161d; --red-dk:#8f0f14; --ink:#1a1a1a; --paper:#fdfaf3;
-  --gold:#8a6b1f; --dim:#6b6458; --bad:#b3241c;
-  --bg:#0c0a08;
-  --font-display:'Bebas Neue', sans-serif;
-  --font-body:'Oswald', sans-serif;
-  --font-mono:'JetBrains Mono', monospace;
-}
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{background:var(--bg); color:var(--ink); font-family:var(--font-body);}
-#app{max-width:1180px; margin:0 auto; padding:16px 16px 60px;}
-
-/* ---------- GATE DE ACESSO (Supabase Auth) ---------- */
-#gate{
-  position:fixed; inset:0; z-index:9999;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  background:var(--bg); color:#eee0c0; font-family:var(--font-body);
-  gap:18px; text-align:center; padding:20px;
-}
-#gate .gate-logo{font-family:var(--font-display); font-size:2.4rem; letter-spacing:3px; color:var(--red); text-shadow:2px 2px 0 #1a1a1a;}
-#gate-msg{font-size:.95rem; color:#c9b48f; max-width:420px; line-height:1.5;}
-#btn-login{
-  font-family:var(--font-display); letter-spacing:1.5px; font-size:1.1rem;
-  background:var(--red); color:#fff; border:none; padding:12px 30px;
-  cursor:pointer; border-radius:2px;
-}
-#btn-login:hover{background:var(--red-dk);}
-#btn-switch{
-  font-family:var(--font-body); letter-spacing:.5px; font-size:.8rem;
-  background:none; color:#a4927c; border:1px solid #3a2f27; padding:8px 18px;
-  cursor:pointer; text-transform:uppercase;
-}
-#btn-switch:hover{border-color:var(--gold); color:#eee0c0;}
-.gate-links{display:none; flex-direction:column; gap:8px; margin-top:6px;}
-.gate-links a{color:#e0a04a; font-size:.85rem; text-decoration:none; border-bottom:1px solid transparent;}
-.gate-links a:hover{border-bottom-color:#e0a04a;}
-#btn-logout{
-  position:fixed; top:10px; right:10px; z-index:9998;
-  font-family:var(--font-body); font-size:.68rem; text-transform:uppercase;
-  background:#241d18; color:#a4927c; border:1px solid #3a2f27; padding:5px 10px; cursor:pointer;
-}
-#btn-logout:hover{border-color:var(--gold);}
-
-/* ---------- PAINEL ADMIN ---------- */
-.admin-card{background:#171310; border:1px solid #3a2f27; border-radius:4px; padding:16px 18px; margin-bottom:18px; color:#ece2d0;}
-.admin-card h2{font-family:var(--font-display); letter-spacing:1px; font-size:1.1rem; color:var(--red); margin:0 0 10px; border-bottom:1px solid #3a2f27; padding-bottom:6px;}
-.addrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:4px;}
-.addrow input[type=email]{flex:1; min-width:200px; background:#0d0a08; border:1px solid #3a2f27; color:#ece2d0; padding:8px 10px; font-family:var(--font-body); font-size:.9rem;}
-.addrow select{background:#0d0a08; border:1px solid #3a2f27; color:#ece2d0; padding:8px 10px; font-family:var(--font-body); font-size:.85rem;}
-.admin-hint{font-family:var(--font-mono); font-size:.66rem; color:#a4927c; margin-top:4px;}
-.admin-table{width:100%; border-collapse:collapse; margin-top:10px;}
-.admin-table th{text-align:left; font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.5px; color:#a4927c; border-bottom:1px solid #3a2f27; padding:6px 8px;}
-.admin-table td{padding:8px; border-bottom:1px solid #241d18; font-size:.85rem; color:#ece2d0;}
-.admin-table td.email{font-family:var(--font-mono); font-size:.78rem;}
-.admin-rmbtn{background:none; border:1px solid var(--bad); color:var(--bad); padding:3px 10px; font-size:.68rem; cursor:pointer; text-transform:uppercase; letter-spacing:.4px;}
-.admin-rmbtn:hover{background:var(--bad); color:#fff;}
-#admin-status{font-family:var(--font-mono); font-size:.75rem; margin-top:8px; min-height:18px;}
-.status-ok{color:#5fa864;}
-.status-err{color:var(--bad);}
-
-/* ---------- BARRA SUPERIOR ---------- */
-.appbar{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;}
-.appbar h1{font-family:var(--font-display); color:#eee0c0; letter-spacing:2px; font-size:1.5rem; margin:0;}
-.appbar h1 span{color:var(--red);}
-.appbar h1 small{font-family:var(--font-mono); font-size:.6rem; color:#a4927c; letter-spacing:1px; margin-left:8px;}
-nav.tabs{display:flex; gap:6px; flex-wrap:wrap;}
-nav.tabs button{font-family:var(--font-display); letter-spacing:1px; font-size:1.05rem; background:#241d18; color:#a4927c; border:1px solid #3a2f27; padding:7px 16px; cursor:pointer;}
-nav.tabs button.active{background:var(--red); color:#fff; border-color:var(--red);}
-.toolbtn{font-family:var(--font-body); font-size:.72rem; text-transform:uppercase; letter-spacing:.5px; font-weight:600; background:#241d18; color:#c9b48f; border:1px solid #3a2f27; padding:7px 12px; cursor:pointer;}
-.toolbtn:hover{border-color:var(--gold);}
-section.tab{display:none;}
-section.tab.active{display:block;}
-
-/* ---------- MODAL SYSTEM ---------- */
-.sf-modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,.68); z-index:9999; display:none; align-items:center; justify-content:center; padding:18px;}
-.sf-modal-overlay.show{display:flex;}
-.sf-modal-box{background:#1c1714; color:#ece2d0; border:2px solid #c79a3f; border-radius:4px; padding:20px 22px; max-width:480px; width:100%; max-height:85vh; overflow-y:auto; font-family:var(--font-body);}
-.sf-modal-box h3{font-family:var(--font-display); letter-spacing:1px; color:#c79a3f; margin:0 0 10px; font-size:1.3rem;}
-.sf-modal-box p{font-size:.85rem; line-height:1.5;}
-.sf-modal-box label{display:block; font-size:.7rem; text-transform:uppercase; color:#a4927c; margin:8px 0 3px;}
-.sf-modal-box input, .sf-modal-box select, .sf-modal-box textarea{width:100%; padding:7px 9px; background:#0d0a08; color:#ece2d0; border:1px solid #3a2f27; font-family:var(--font-body);}
-.sf-modal-actions{display:flex; gap:8px; justify-content:flex-end; margin-top:14px;}
-.sf-list-item{display:flex; justify-content:space-between; align-items:center; padding:7px 8px; border-bottom:1px solid #3a2f27; font-size:.85rem;}
-.sf-list-item:hover{background:#241d18;}
-.sf-list-item .lbl{cursor:pointer; flex:1;}
-
-/* ---------- MODE BAR ---------- */
-.modebar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
-.modepill{font-family:var(--font-body); font-weight:600; font-size:.78rem; text-transform:uppercase; letter-spacing:.4px; background:#241d18; color:#a4927c; border:2px solid #3a2f27; padding:7px 14px; cursor:pointer; border-radius:20px; display:flex; align-items:center; gap:6px;}
-.modepill .sw{width:10px; height:10px; border-radius:50%; display:inline-block;}
-.modepill[data-mode="normal"] .sw{background:#1a1a1a; border:1px solid #888;}
-.modepill[data-mode="bonus"] .sw{background:var(--red);}
-.modepill[data-mode="xp"] .sw{background:#2a5c8a;}
-.modepill.active[data-mode="normal"]{border-color:#ccc; background:#3a352d; color:#fff;}
-.modepill.active[data-mode="bonus"]{border-color:var(--red); background:#4a1613; color:#fff;}
-.modepill.active[data-mode="xp"]{border-color:#2a5c8a; background:#132c40; color:#fff;}
-.modepill b{font-family:var(--font-mono); font-weight:700;}
-.modepill input{width:52px; background:#0d0a08; border:1px solid #3a2f27; color:#ece2d0; padding:2px 5px; font-family:var(--font-mono); font-size:.72rem;}
-.modehint{font-family:var(--font-mono); font-size:.68rem; color:#a4927c; margin:-6px 0 12px;}
-
-/* ---------- FICHA ---------- */
-.sheet{background:var(--paper); border:7px solid var(--red); border-radius:3px; padding:18px 22px 22px; box-shadow:0 10px 40px rgba(0,0,0,.5); position:relative;}
-.sheet-logo{text-align:center; margin-bottom:6px;}
-.sheet-logo .t1{font-family:var(--font-display); font-size:3rem; letter-spacing:4px; color:var(--red); text-shadow:2px 2px 0 var(--ink); line-height:1;}
-.sheet-logo .t2{font-family:var(--font-mono); font-size:.7rem; letter-spacing:6px; color:var(--dim); text-transform:uppercase;}
-
-.infogrid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 18px; border-bottom:3px solid var(--red); padding-bottom:10px; margin-bottom:8px;}
-.infoline{display:flex; align-items:baseline; gap:6px; margin-bottom:3px; border-bottom:1px dotted #999; padding-bottom:1px;}
-.infoline b{font-size:.72rem; text-transform:uppercase; color:var(--red-dk); white-space:nowrap; letter-spacing:.5px;}
-.infoline input, .infoline select{border:none; background:transparent; font-family:var(--font-body); font-size:.9rem; color:var(--ink); flex:1; min-width:0; padding:1px 2px;}
-.infoline input:focus, .infoline select:focus{outline:none; background:#fff8e0;}
-
-.banner{background:var(--red); color:#fff; font-family:var(--font-display); letter-spacing:3px; font-size:1.25rem; text-align:center; padding:3px 0; margin:12px 0 8px; text-transform:uppercase;}
-.banner small{font-family:var(--font-mono); letter-spacing:0; font-size:.58rem; opacity:.85; text-transform:none;}
-.banner.sub{font-size:1.02rem; letter-spacing:2px; margin:8px 0 6px;}
-
-.cols3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 16px;}
-.colhead{font-family:var(--font-display); color:var(--red-dk); font-size:1.02rem; letter-spacing:1px; border-bottom:1px solid var(--red); margin-bottom:4px; display:flex; justify-content:space-between; align-items:baseline;}
-.colhead .pts{font-family:var(--font-mono); font-size:.6rem; color:var(--dim); text-transform:none; letter-spacing:0;}
-.colhead .pts.over{color:var(--bad); font-weight:700;}
-
-.row{display:grid; grid-template-columns:108px 1fr auto; align-items:center; column-gap:6px; padding:2px 0; font-size:.81rem;}
-.row .rname{position:relative; white-space:nowrap;}
-.row .rname .rtext{display:inline-block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; vertical-align:bottom;}
-.row .rname.over{color:var(--bad); font-weight:700;}
-.rmbtn{background:none; border:none; color:var(--red); cursor:pointer; font-size:.7rem; padding:0 3px; opacity:.4;}
-.rmbtn:hover{opacity:1;}
-.dotsrow{display:flex; gap:2px; align-items:center; flex:0 0 auto;}
-.dotsrow .gap{width:6px;}
-.pdot{width:12px; height:12px; border-radius:50%; border:1.4px solid var(--ink); cursor:pointer; display:inline-block; flex:0 0 auto; background:transparent;}
-.pdot.n{background:var(--ink);}
-.pdot.b{background:var(--red); border-color:var(--red);}
-.pdot.x{background:#2a5c8a; border-color:#2a5c8a;}
-.pdot.ro{cursor:default; opacity:.9;}
-.addline{display:flex; gap:6px; margin-top:4px;}
-.addline input{flex:1; font-size:.78rem; font-family:var(--font-body); border:none; border-bottom:1px dotted #999; background:transparent;}
-.addline button{font-size:.66rem; background:none; border:1px solid var(--red); color:var(--red-dk); padding:1px 8px; cursor:pointer;}
-
-.macro2col{display:grid; grid-template-columns:2fr 1.15fr; gap:0 18px; align-items:start;}
-.macro-right{border-left:2px solid var(--red); padding-left:14px;}
-.cols2{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
-
-.finalsgrid{display:grid; grid-template-columns:1fr 1fr; gap:0 18px; margin-top:4px;}
-.tracklabel{font-family:var(--font-display); color:var(--red-dk); font-size:1.0rem; letter-spacing:1px; display:flex; justify-content:space-between;}
-.tracklabel .basewrap{font-family:var(--font-mono); font-size:.58rem; color:var(--dim);}
-.tracklabel .basewrap.over{color:var(--bad); font-weight:700;}
-.trackdots{display:flex; flex-wrap:wrap; gap:2px; margin:3px 0 8px;}
-.trackdots.check-row{margin:-6px 0 8px;}
-.trackdots.check-row input[type=checkbox]{width:12px; height:12px; margin:0; flex:0 0 auto; accent-color:var(--red-dk);}
-.situacao{display:flex; gap:12px; flex-wrap:wrap; font-size:.76rem; margin-top:4px;}
-.situacao label{color:var(--red-dk); font-weight:600; margin-right:3px;}
-.situacao input{width:44px; border:none; border-bottom:1px dotted #999; background:transparent; font-family:var(--font-body);}
-
-.manobrasbox{border:1px solid var(--red); padding:6px 8px; min-height:230px;}
-.manobra-tag{display:flex; justify-content:space-between; border-bottom:1px dotted #ccc; font-size:.78rem; padding:2px 0; gap:6px;}
-.manobra-tag.semrequisito{background:#fbeceb;}
-.manobra-tag .orig{font-family:var(--font-mono); font-size:.58rem; padding:0 5px; border-radius:8px; white-space:nowrap;}
-.orig.normal{background:#dcecd9; color:#255e25;} .orig.bonus{background:#f6dad6; color:#8f2a20;} .orig.xp{background:#d6e6f6; color:#1f4d7a;}
-.orig.warn{background:var(--bad); color:#fff;}
-.xpbox{border:1px solid var(--red); padding:8px; margin-top:8px; font-size:.8rem;}
-.xpbox .row{grid-template-columns:1fr auto; font-size:.78rem;}
-
-.small{font-size:.72rem; color:var(--dim); overflow-wrap:break-word; word-break:break-word;}
-#raca-info{overflow-wrap:break-word; word-break:break-word; line-height:1.4;}
-.infoline, .colhead, .tracklabel, .banner{overflow-wrap:break-word;}
-.legend{display:flex; gap:14px; font-size:.66rem; color:var(--dim); font-family:var(--font-mono); margin:4px 0 8px; flex-wrap:wrap;}
-.legend .dotex{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle;}
-
-details.ledgerbox{margin-top:14px; border-top:1px solid var(--red); padding-top:8px;}
-details.ledgerbox summary{cursor:pointer; font-family:var(--font-display); letter-spacing:1px; color:var(--red-dk); font-size:1rem;}
-table.led{width:100%; border-collapse:collapse; font-size:.75rem; font-family:var(--font-mono); margin-top:8px;}
-table.led th, table.led td{border-bottom:1px solid #ccc; padding:4px 6px; text-align:left;}
-table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
-.tag{padding:1px 7px; border-radius:9px; font-size:.6rem; text-transform:uppercase;}
-.tag.normal{background:#dcecd9; color:#255e25;} .tag.bonus{background:#f6dad6; color:#8f2a20;} .tag.xp{background:#d6e6f6; color:#1f4d7a;}
-
-/* picker */
-.picker-dark{background:#1c1714; border:1px solid #3a2f27; padding:8px; color:#ece2d0;}
-.picker-dark input{width:100%; margin-bottom:6px; font-size:.8rem; padding:5px; background:#0d0a08; color:#ece2d0; border:1px solid #3a2f27;}
-.pick-list{max-height:360px; overflow-y:auto; border:1px solid #3a2f27; padding:8px; background:#161210;}
-.pick-cat{font-family:var(--font-display); letter-spacing:1px; color:#c79a3f; margin:8px 0 3px; font-size:1rem; display:flex; justify-content:space-between; align-items:center;}
-.pick-cat button{font-size:.6rem; text-transform:uppercase; background:#5e1a17; color:#ece2d0; border:1px solid #a52620; padding:2px 8px; cursor:pointer;}
-.pick-item{position:relative; display:flex; justify-content:space-between; align-items:center; padding:4px 6px; font-size:.82rem; border-bottom:1px solid #3a2f27; color:#ece2d0;}
-.pick-item .small{color:#a4927c;}
-.movetip-name{cursor:pointer; text-decoration:underline dotted #c79a3f; color:#ece2d0;}
-.movetip-name:hover{color:#c79a3f;}
-.pick-item button{font-family:var(--font-body); font-weight:600; text-transform:uppercase; font-size:.65rem; background:#5e1a17; border:1px solid #a52620; color:#ece2d0; padding:4px 8px; cursor:pointer; white-space:nowrap;}
-.pick-item button:disabled{opacity:.4; cursor:default;}
-.movetip{cursor:help; border-bottom:1px dotted #7a6127;}
-.movetip-pop{display:none; position:absolute; z-index:600; background:#100d0b; color:#ece2d0; border:1px solid #c79a3f; padding:10px 12px; width:280px; font-size:.72rem; line-height:1.45; border-radius:3px; box-shadow:0 8px 22px rgba(0,0,0,.6); top:100%; left:0; margin-top:4px;}
-.pick-item:hover .movetip-pop{display:block;}
-.movetip-pop b{color:#c79a3f;}
-.movetip-pop .mt-row{display:flex; justify-content:space-between; margin-top:4px; font-family:var(--font-mono); font-size:.68rem;}
-
-.warnbox{border:1px solid var(--bad); background:#fdeceb; color:#7a1a12; padding:9px 12px; margin-bottom:12px; font-size:.82rem; font-family:var(--font-mono);}
-
-/* ---------- CARTAS ---------- */
-.dark{color:#ece2d0;}
-.card2{background:#1c1714; border:1px solid #3a2f27; border-radius:2px; padding:16px 18px; margin-bottom:14px;}
-.card2 h2{font-family:var(--font-display); color:#c79a3f; letter-spacing:1.5px; font-size:1.4rem; margin:0 0 10px; text-transform:uppercase;}
-.card2 h2 small{font-family:var(--font-mono); font-size:.62rem; color:#a4927c; text-transform:none;}
-.btn{font-family:var(--font-body); font-weight:600; text-transform:uppercase; font-size:.75rem; letter-spacing:.4px; background:#5e1a17; border:1px solid #a52620; color:#ece2d0; padding:7px 13px; cursor:pointer;}
-.btn:hover{background:#a52620;}
-.btn.gold{background:#7a6127; border-color:#c79a3f;} .btn.gold:hover{background:#c79a3f; color:#151210;}
-.btn.ghost{background:transparent; border-color:#3a2f27; color:#a4927c;}
-.btn.small{padding:4px 9px; font-size:.65rem;}
-.btn.danger{background:transparent; border-color:#b3241c; color:#e18e83;}
-.cards-wrap{display:flex; flex-wrap:wrap; gap:22px;}
-.combat-card{
-  width:300px; height:410px; background:linear-gradient(160deg,#221a14,#14100d); border:3px solid #c79a3f;
-  position:relative; padding:14px; display:flex; flex-direction:column; color:#ece2d0; font-family:var(--font-body);
-}
-.combat-card .cc-head{text-align:center; font-family:var(--font-display); font-size:.95rem; color:#c79a3f; border-bottom:1px solid #7a6127; padding-bottom:4px;}
-.combat-card .cc-name{text-align:center; font-size:.62rem; color:#a4927c; font-family:var(--font-mono); text-transform:uppercase; margin-bottom:2px;}
-.combat-card .cc-move{text-align:center; font-family:var(--font-display); font-size:1.4rem; letter-spacing:1px; color:#fff; margin:2px 0 6px; text-shadow:0 0 8px rgba(165,38,32,.7);}
-.combat-card .cc-portrait{
-  flex:1; margin:0 auto 8px; width:150px; height:150px; overflow:hidden; position:relative;
-  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-  background:#0d0a08; border:2px solid #a52620; display:flex; align-items:center; justify-content:center; color:#a4927c; font-size:.6rem; text-align:center;
-}
-.combat-card .cc-portrait img{position:absolute; top:50%; left:50%; min-width:100%; min-height:100%; object-fit:cover; cursor:grab; user-select:none; -webkit-user-drag:none;}
-.combat-card .cc-portrait img:active{cursor:grabbing;}
-.combat-card .cc-stats{display:flex; justify-content:space-around; margin-bottom:6px;}
-.combat-card .cc-stat{text-align:center;}
-.combat-card .cc-stat .lbl{font-family:var(--font-mono); font-size:.56rem; color:#c79a3f; text-transform:uppercase; letter-spacing:1px;}
-.combat-card .cc-stat .val{font-family:var(--font-display); font-size:1.5rem; color:#fff; line-height:1;}
-.combat-card .cc-special{font-size:.62rem; color:#a4927c; border-top:1px solid #7a6127; padding-top:5px; min-height:30px; text-align:center; line-height:1.25;}
-.combat-card .cc-foot{position:absolute; bottom:6px; right:10px; font-family:var(--font-mono); font-size:.54rem; color:#7a6127;}
-.card-controls{width:300px; display:flex; flex-direction:column; gap:6px; margin-top:8px; background:#161210; border:1px solid #3a2f27; padding:10px;}
-.card-controls .zoomrow{display:flex; align-items:center; gap:8px;}
-.card-controls .zoomrow input[type=range]{flex:1;}
-.card-controls label{font-size:.65rem; text-transform:uppercase; color:#a4927c;}
-.card-controls .zoomrow .zoomval{font-family:var(--font-mono); font-size:.7rem; color:#ece2d0; width:38px; text-align:right;}
-
-.movetip{cursor:help; border-bottom:1px dotted #7a6127; position:relative;}
-.movetip:hover .movetip-pop{display:block;}
-
-/* ---------- IMPRESSÃO ---------- */
-@page{ size:A4 portrait; margin:5mm; }
-@media print{
-  #app{max-width:none !important; width:100% !important; padding:0 !important; margin:0 !important;}
-  .sheet{padding:8px 12px 10px; border-width:4px;}
-  .sheet-logo{margin-bottom:1px;}
-  .sheet-logo .t1{font-size:1.9rem;}
-  .sheet-logo .t2{font-size:.6rem;}
-  .banner{margin:5px 0 3px; padding:1px 0; font-size:.95rem; letter-spacing:2px;}
-  .banner.sub{font-size:.82rem; margin:4px 0 3px;}
-  .infogrid{padding-bottom:4px; margin-bottom:3px;}
-  .infoline{margin-bottom:0; font-size:.82rem;}
-  .infoline b{font-size:.64rem;}
-  .row{padding:0; font-size:.74rem;}
-  .colhead{margin-bottom:1px; font-size:.9rem;}
-  .addline, .no-print{display:none !important;}
-  details.ledgerbox{display:none !important;}
-  .legend{margin:1px 0 3px; font-size:.58rem;}
-  .situacao{margin-top:1px; font-size:.7rem;}
-  .pdot{width:10px; height:10px;}
-  .trackdots{gap:1px; margin:2px 0 4px;}
-  .trackdots.check-row{margin:-4px 0 4px;}
-  .trackdots.check-row input[type=checkbox]{width:10px; height:10px;}
-  .tracklabel{font-size:.9rem;}
-  .manobrasbox{min-height:0; padding:4px 6px;}
-  .manobra-tag{font-size:.7rem;}
-  .small{font-size:.62rem;}
-
-  /* Força 3 colunas na ficha */
-  .cols3{grid-template-columns:1fr 1fr 1fr !important;}
-  .macro2col{grid-template-columns:2fr 1.15fr !important;}
-  .infogrid{grid-template-columns:1fr 1fr 1fr !important;}
-  .cols2{grid-template-columns:1fr 1fr !important;}
-  .finalsgrid{grid-template-columns:1fr 1fr !important;}
-  .macro-right{border-left:2px solid var(--red) !important; border-top:none !important; padding-left:14px !important; padding-top:0 !important; margin-top:0 !important;}
-
-  /* Oculta a aba de cartas na impressão da ficha */
-  section.tab{display:none !important;}
-  section.tab.active{display:block !important;}
-
-  /* Impressão específica de cartas (9 por página) */
-  body.print-cards-mode section.tab{display:none !important;}
-  body.print-cards-mode section.tab[data-tab="cartas"]{display:block !important;}
-  body.print-cards-mode .card2, body.print-cards-mode .no-print{display:none !important;}
-  body.print-cards-mode .cards-wrap{
-    display:grid !important;
-    grid-template-columns:repeat(3,63mm);
-    grid-auto-rows:88mm;
-    gap:3mm;
-    justify-content:center;
-  }
-  body.print-cards-mode .combat-card{
-    width:63mm !important; height:88mm !important; clip-path:none !important; border-radius:2.5mm;
-    padding:2.5mm 3mm !important; font-size:6.2px; break-inside:avoid; page-break-inside:avoid;
-  }
-  body.print-cards-mode .combat-card .cc-move{font-size:9px;}
-  body.print-cards-mode .combat-card .cc-stat .val{font-size:11px;}
-  body.print-cards-mode .combat-card .cc-portrait{width:60px; height:60px;}
-  body.print-cards-mode .card-controls{display:none !important;}
-}
-
-@media screen and (max-width:820px){ .cols3{grid-template-columns:1fr;} .macro2col{grid-template-columns:1fr;} .macro-right{border-left:none; border-top:2px solid var(--red); padding-left:0; padding-top:10px; margin-top:10px;} .infogrid{grid-template-columns:1fr;} .cols2{grid-template-columns:1fr;} .finalsgrid{grid-template-columns:1fr;} }
-@media screen and (max-width:520px){
-  #app{padding:8px;}
-  .appbar{gap:6px;}
-  .appbar h1{font-size:1.15rem;}
-  .appbar h1 small{display:block; margin-left:0;}
-  .toolbtn{padding:6px 9px; font-size:.66rem;}
-  .modebar{gap:5px;}
-  .modepill{padding:6px 9px; font-size:.68rem; flex:1 1 auto; justify-content:center;}
-  .modepill input{width:40px;}
-  .sheet{padding:12px 10px 16px; border-width:5px;}
-  .sheet-logo .t1{font-size:1.9rem; letter-spacing:2px;}
-  .infoline{flex-wrap:wrap;}
-  .infoline b{width:100%;}
-  .row{grid-template-columns:82px 1fr auto; font-size:.74rem;}
-  .pdot{width:10px; height:10px;}
-  .banner{font-size:1rem; letter-spacing:1.5px;}
-  .cards-wrap{justify-content:center;}
-  .combat-card, .card-controls{width:92vw; max-width:320px;}
-  .grid3, .grid2{grid-template-columns:1fr;}
-}
-</style>
-</head>
-<body>
-
-<!-- ============================================================ GATE ============================================================ -->
-<div id="gate">
-  <div class="gate-logo">GUERREIRO <span style="color:#eee0c0;">MUNDIAL</span></div>
-  <p id="gate-msg">Verificando acesso...</p>
-  <button id="btn-login" style="display:none;">Entrar com Google</button>
-  <button id="btn-switch" style="display:none;" onclick="fazerLogout()">Trocar de conta</button>
-  <div id="gate-links" class="gate-links">
-    <a href="https://chat.whatsapp.com/JDdsv2WyNhBIX0062SYrDo" target="_blank" rel="noopener">💬 Entrar no grupo do WhatsApp</a>
-    <a href="https://apoia.se/avin" target="_blank" rel="noopener">⭐ Assinar o nível Mestre no Apoia.se</a>
-  </div>
-</div>
-
-<button id="btn-logout" style="display:none;" onclick="fazerLogout()">Sair</button>
-
-<!-- ============================================================ APP ============================================================ -->
-<div id="app" style="display:none;">
-
-  <div class="appbar no-print">
-    <h1>GUERREIRO <span>MUNDIAL</span><small>gerador de fichas · sfrpg 2ª ed. · conteúdo não oficial cortesia de <a href="https://www.sfrpg.com.br" target="_blank" style="color:#c79a3f;">sfrpg.com.br</a> e "The G-File" (Matt Meade)</small></h1>
-    <div style="display:flex; gap:6px; flex-wrap:wrap;">
-      <button class="toolbtn" id="install-btn" onclick="installApp()">📲 Instalar</button>
-      <button class="toolbtn" onclick="openLibraryModal()">📚 Biblioteca</button>
-      <button class="toolbtn" onclick="exportJSON()">⇩ Exportar ficha</button>
-      <label class="toolbtn" style="cursor:pointer;">⇧ Importar<input type="file" accept=".json" style="display:none" onchange="importJSON(event)"></label>
-      <button class="toolbtn" onclick="smartPrint()">🖶 Imprimir</button>
-    </div>
-  </div>
-
-  <nav class="tabs no-print">
-    <button data-tab="ficha" class="active">Ficha</button>
-    <button data-tab="cartas">Cartas de Combate</button>
-    <button data-tab="admin" id="tab-admin-btn" style="display:none; background:var(--red);">⚙ Admin</button>
-  </nav>
-
-  <!-- ============================================================ FICHA ============================================================ -->
-  <section class="tab active" data-tab="ficha">
-
-  <div class="modebar no-print">
-    <button class="modepill active" data-mode="normal" onclick="setMode('normal')"><span class="sw"></span>Pontos Normais</button>
-    <button class="modepill" data-mode="bonus" onclick="setMode('bonus')"><span class="sw"></span>Pontos de Bônus <b id="pill-bonus">15</b>/15</button>
-    <button class="modepill" data-mode="xp" onclick="setMode('xp')"><span class="sw"></span>Pontos de Experiência <b id="pill-xp">0</b>/<span id="pill-xp-total">0</span>
-      <input id="xp-add-input" type="number" placeholder="+XP" onclick="event.stopPropagation()">
-      <button onclick="event.stopPropagation(); addXPQuick();" style="border:none;background:#2a5c8a;color:#fff;border-radius:10px;padding:2px 8px;cursor:pointer;">+</button>
-    </button>
-  </div>
-  <div class="modehint no-print" id="mode-hint"></div>
-  <div class="modehint no-print" id="unofficial-note" style="display:none;">* = estilo/manobra não oficial da White Wolf (criação de fãs, sfrpg.com.br)</div>
-  <div id="warnings" class="no-print"></div>
-
-  <div class="sheet">
-    <div class="sheet-logo"><div class="t1">STREET FIGHTER</div><div class="t2">Guerreiro Mundial · RPG 2ª Edição</div></div>
-
-    <div class="infogrid">
-      <div>
-        <div class="infoline"><b>Nome</b><input id="c_nome" oninput="onSheetChange()"></div>
-        <div class="infoline"><b>Jogador</b><input id="c_jogador" oninput="onSheetChange()"></div>
-        <div class="infoline"><b>Crônica</b><input id="c_cronica" oninput="onSheetChange()"></div>
-        <div class="infoline"><b>Modo Racial</b>
-          <select id="c_racamodo" onchange="onRacaModoChange()">
-            <option value="">— nenhum (humano padrão) —</option>
-            <option value="Tarkatan">Tarkatan</option>
-            <option value="Shokan">Shokan</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <div class="infoline"><b>Estilo</b><select id="c_estilo" onchange="onEstiloChange()"></select></div>
-        <div class="infoline"><b>Escola</b><input id="c_escola" oninput="onSheetChange()"></div>
-        <div class="infoline"><b>Equipe</b><input id="c_equipe" oninput="onSheetChange()"></div>
-      </div>
-      <div>
-        <div class="infoline"><b>Time</b><input id="c_time" oninput="onSheetChange()"></div>
-        <div class="infoline"><b>Conceito</b><input id="c_conceito" oninput="onSheetChange()"></div>
-        <div class="infoline"><b>Assinatura</b><input id="c_assinatura" oninput="onSheetChange()"></div>
-      </div>
-    </div>
-    <div class="small" id="raca-info" style="margin:0 0 2px;"></div>
-    <div id="raca-bonus-btn" class="no-print"></div>
-    <div class="infoline" style="max-width:340px; margin-top:2px;"><b>Retrato</b><input type="file" accept="image/*" onchange="onPortraitUpload(event)" style="font-size:.72rem;"></div>
-
-    <div class="banner">Atributos</div>
-    <div class="cols3" id="attr-block"></div>
-
-    <div class="banner">Habilidades</div>
-    <div class="cols3" id="skill-block"></div>
-
-    <div class="banner">Vantagens <small>Antecedentes: 5 · Técnicas: 8 · Manobras: 7 PP</small></div>
-    <div class="macro2col">
-      <div class="macro-left">
-        <div class="cols2">
-          <div>
-            <div class="colhead">Antecedentes <span class="pts" id="ant-pts"></span></div>
-            <div id="ant-rows"></div>
-            <div id="ciber-panel"></div>
-            <select id="ant-known" onchange="if(this.value){ addAntecedenteNamed(this.value); this.value=''; }" style="width:100%; margin-top:4px; font-size:.76rem; padding:3px;">
-              <option value="">— escolher antecedente conhecido... —</option>
-            </select>
-            <div class="addline"><input id="ant-new" placeholder="ou digite um personalizado"><button onclick="addAntecedente()">+</button></div>
-          </div>
-          <div>
-            <div class="colhead">Técnicas <span class="pts" id="tec-pts"></span></div>
-            <div id="tec-rows"></div>
-            <div class="addline"><input id="tec-new" placeholder="técnica de arma"><button onclick="addTecnicaCustom()">+</button></div>
-          </div>
-        </div>
-
-        <div class="banner sub">Renome, Chi, Força de Vontade &amp; Saúde</div>
-        <div class="finalsgrid">
-          <div>
-            <div class="tracklabel">Glória</div>
-            <div class="trackdots" id="dots-gloria"></div>
-            <div class="tracklabel">Honra</div>
-            <div class="trackdots" id="dots-honra"></div>
-            <div class="tracklabel" style="margin-top:4px;">Glória Temporária</div>
-            <div class="trackdots" id="dots-gloriaTemp"></div>
-            <div class="trackdots check-row" id="check-gloriaTemp"></div>
-            <div class="tracklabel">Honra Temporária</div>
-            <div class="trackdots" id="dots-honraTemp"></div>
-            <div class="trackdots check-row" id="check-honraTemp"></div>
-          </div>
-          <div>
-            <div class="tracklabel">Chi <span class="basewrap">estilo: <span id="chi-base-view">3</span></span></div>
-            <div class="trackdots" id="dots-chi"></div>
-            <div class="tracklabel">Força de Vontade <span class="basewrap">estilo: <span id="fv-base-view">4</span></span></div>
-            <div class="trackdots" id="dots-fv"></div>
-            <div class="tracklabel">Saúde</div>
-            <div class="trackdots" id="dots-saude"></div>
-            <div class="trackdots check-row" id="check-saude"></div>
-          </div>
-        </div>
-        <div class="legend">
-          <span><i class="dotex" style="background:var(--ink);"></i>normal</span>
-          <span><i class="dotex" style="background:var(--red);"></i>bônus</span>
-          <span><i class="dotex" style="background:#2a5c8a;"></i>experiência</span>
-          <span>☐ marque durante a sessão (dano sofrido / pontos gastos)</span>
-        </div>
-        <div class="situacao">
-          <div><label>Divisão</label>
-            <select id="s_divisao" onchange="onSheetChange()" style="font-family:var(--font-body); font-size:.76rem;">
-              <option>Nenhuma</option><option>Estilo Livre</option><option>Tradicional</option><option>Duelistas</option><option>Guerreiros Mundiais</option>
-            </select>
-          </div>
-          <div><label>Posto</label><input id="s_posto"></div>
-          <div><label>Vitórias</label><input id="s_vit"></div>
-          <div><label>Derrotas</label><input id="s_der"></div>
-          <div><label>Empates</label><input id="s_emp"></div>
-          <div><label>KOs</label><input id="s_ko"></div>
-        </div>
-      </div>
-
-      <div class="macro-right">
-        <div class="colhead">Manobras Especiais <span class="pts" id="man-pts"></span></div>
-        <div class="manobrasbox" id="man-box"></div>
-        <div class="no-print" style="display:flex; gap:6px; margin-top:6px;">
-          <button class="toolbtn" style="flex:1;" onclick="toggleManobraPicker()">+ Escolher Manobra</button>
-          <button class="toolbtn" style="flex:1;" onclick="openCustomManobraModal()">+ Criar Personalizada</button>
-        </div>
-        <div id="manobra-picker" class="picker-dark no-print" style="display:none; margin-top:8px;">
-          <input id="manobra-search" placeholder="filtrar por nome..." oninput="renderManobraPicker()">
-          <div class="pick-list" id="manobra-picker-list"></div>
-        </div>
-
-        <div class="colhead" style="margin-top:14px;">Experiência</div>
-        <div class="xpbox" id="xp-box"></div>
-      </div>
-    </div>
-
-    <details class="ledgerbox no-print">
-      <summary>▾ Livro-razão (auditoria completa, ponto a ponto)</summary>
-      <div style="margin:8px 0;">
-        <button class="toolbtn" style="background:#eee;color:#333;" onclick="ledgerFilter='all'; renderLedger();">Tudo</button>
-        <button class="toolbtn" style="background:#eee;color:#333;" onclick="ledgerFilter='normal'; renderLedger();">Normais</button>
-        <button class="toolbtn" style="background:#eee;color:#333;" onclick="ledgerFilter='bonus'; renderLedger();">Bônus</button>
-        <button class="toolbtn" style="background:#eee;color:#333;" onclick="ledgerFilter='xp'; renderLedger();">XP</button>
-      </div>
-      <table class="led" id="ledger-table"></table>
-    </details>
-
-    <div class="small" style="text-align:center; margin-top:10px; border-top:1px solid var(--red); padding-top:6px;">
-      Atributos: 7/5/3 (máx. 5/Atributo) · Habilidades: 9/7/4 (máx. 3/Habilidade) · Antecedentes: 5 · Técnicas: 8 (máx. 3/Técnica) · Renome inicial: 3 (Glória+Honra) · Chi/FdV: por Estilo · Bônus: 15
-    </div>
-    <div class="small" style="text-align:center; margin-top:4px;">
-      Estilos e manobras marcados com * são conteúdo não oficial de fãs, cortesia de <b>sfrpg.com.br</b> (Fernando Jr. e comunidade) e de <b>"The G-File"</b> (Matt Meade) — não pertencem à White Wolf/Talismã nem a este gerador.
-    </div>
-  </div>
-  </section>
-
-  <!-- ============================================================ CARTAS ============================================================ -->
-  <section class="tab dark" data-tab="cartas">
-    <div class="card2 no-print">
-      <h2>Montar Cartas de Combate</h2>
-      <div class="small" style="font-family:var(--font-mono); color:#a4927c;">Velocidade = Destreza + mod · Dano = Força + Técnica + mod · Movimento = Esportes + mod (Cap.7).</div>
-      <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;">
-        <button class="btn small" onclick="addBasicCard('Jab','Soco',2,-1,0)">+ Jab</button>
-        <button class="btn small" onclick="addBasicCard('Strong','Soco',0,1,0)">+ Strong</button>
-        <button class="btn small" onclick="addBasicCard('Fierce','Soco',-1,3,-1)">+ Fierce</button>
-        <button class="btn small" onclick="addBasicCard('Short','Chute',1,0,0)">+ Short</button>
-        <button class="btn small" onclick="addBasicCard('Forward','Chute',0,2,-1)">+ Forward</button>
-        <button class="btn small" onclick="addBasicCard('Roundhouse','Chute',-2,4,-1)">+ Roundhouse</button>
-        <button class="btn small" onclick="addSpecialCardBlank('Bloqueio')">+ Bloqueio</button>
-        <button class="btn small" onclick="addSpecialCardBlank('Movimento')">+ Movimento</button>
-        <button class="btn small" onclick="addSpecialCardBlank('Apresamento')">+ Apresamento</button>
-        <button class="btn gold small" onclick="addSpecialFromSheet()">+ Manobra da ficha</button>
-        <button class="btn small" onclick="addHibridoCard('Bite')">+ Bite (Híbrido)</button>
-        <button class="btn small" onclick="addHibridoCard('Claw')">+ Claw (Híbrido)</button>
-        <button class="btn ghost small" onclick="addBlankCard()">+ Feito / em branco</button>
-        <button class="btn gold small" style="margin-left:auto;" onclick="printCardsA4()">🖶 Imprimir A4 (tam. carta)</button>
-      </div>
-      <hr style="border-color:#3a2f27; margin:14px 0;">
-      <h2 style="font-size:1.1rem;">Manobras com Arma <small>Cap.7 — sistema oficial (não é gambiarra)</small></h2>
-      <div class="small" style="font-family:var(--font-mono); color:#a4927c;">Escolha a arma e a Técnica de Arma correspondente na sua ficha (crie-a em Vantagens → Técnicas → "técnica de arma"). Jab/Strong/Fierce somam os modificadores da arma; Golpe Furioso/Aparar/Desarme/Movimento usam a fórmula fixa do livro.</div>
-      <div class="grid3" style="margin-top:10px;">
-        <div><label>Arma</label><select id="arma-select" onchange="onArmaSelect()"></select></div>
-        <div><label>Sua Técnica de Arma (da ficha)</label><select id="arma-tecnica-select"></select></div>
-        <div style="display:flex; align-items:flex-end;"><span class="small" id="arma-info"></span></div>
-      </div>
-      <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;" id="arma-buttons"></div>
-    </div>
-    <div class="cards-wrap" id="cards-wrap"></div>
-  </section>
-
-  <!-- ============================================================ ADMIN ============================================================ -->
-  <section class="tab dark" data-tab="admin">
-    <div class="admin-card no-print">
-      <h2>Solicitações pendentes <span id="admin-pend-contagem" class="admin-hint"></span></h2>
-      <table class="admin-table">
-        <thead><tr><th>E-mail</th><th>Última tentativa</th><th></th></tr></thead>
-        <tbody id="tabela-pendentes"></tbody>
-      </table>
-      <div id="admin-pend-empty" style="display:none;" class="admin-hint">Nenhuma solicitação pendente.</div>
-    </div>
-
-    <div class="admin-card no-print">
-      <h2>Controle de acesso — apoiadores autorizados</h2>
-      <div class="addrow">
-        <input type="email" id="novo-email" placeholder="email@gmail.com">
-        <select id="novo-tier">
-          <option value="mestre">mestre</option>
-          <option value="admin">admin</option>
-        </select>
-        <button class="toolbtn" style="background:var(--red); color:#fff;" onclick="adicionarUsuario()">+ Liberar acesso</button>
-      </div>
-      <div class="admin-hint">O e-mail precisa ser exatamente o mesmo usado no login Google da pessoa.</div>
-      <div id="admin-status"></div>
-    </div>
-
-    <div class="admin-card no-print">
-      <h2>Usuários autorizados <span id="admin-contagem" class="admin-hint"></span></h2>
-      <table class="admin-table">
-        <thead><tr><th>E-mail</th><th>Tier</th><th>Adicionado em</th><th></th></tr></thead>
-        <tbody id="tabela-usuarios"></tbody>
-      </table>
-      <div id="admin-empty" style="display:none;" class="admin-hint">Nenhum usuário cadastrado ainda.</div>
-    </div>
-  </section>
-
-</div>
-
-<!-- ============================================================ MODAL ============================================================ -->
-<div id="sf-modal-overlay" class="sf-modal-overlay"><div class="sf-modal-box" id="sf-modal-box"></div></div>
-
-<script>
 /* =========================================================================
-   GATE DE ACESSO — Supabase Auth (login Google) + tabela authorized_users
+   ESTADO
    ========================================================================= */
-const SUPABASE_URL = 'https://mggqfxevqwckliqzhahe.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nZ3FmeGV2cXdja2xpcXpoYWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5OTIwOTcsImV4cCI6MjEwMTU2ODA5N30.q5XpqV4pGQlB6D5j36ASCRZDmwImzdB-KjqSvAFWCcE';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let state = {
+  concept:{nome:'',jogador:'',cronica:'',estilo:'Karatê Shotokan',escola:'',equipe:'',time:'',conceito:'',assinatura:''},
+  situacao:{divisao:'Nenhuma',posto:'',vit:'',der:'',emp:'',ko:''},
+  portrait:null,
+  attrPriority:{Físicos:null,Sociais:null,Mentais:null},
+  skillPriority:{Talentos:null,Perícias:null,Conhecimentos:null},
+  skills:[], antecedentes:[], tecnicasCustom:[], manobras:[],
+  renome:{gloria:0,honra:0},
+  xpPool:0, ledger:[]
+};
+let ledgerFilter='all', uid=1, currentMode='normal';
+function nextId(){return uid++;}
+function seedSkills(){ state.skills=[]; Object.entries(DEFAULT_SKILLS).forEach(([cat,list])=>list.forEach(nome=>state.skills.push({id:nextId(),nome,categoria:cat}))); }
+seedSkills();
 
-async function checarAcesso(){
-  const gate = document.getElementById('gate');
-  const gateMsg = document.getElementById('gate-msg');
-  const btnLogin = document.getElementById('btn-login');
-  const btnLogout = document.getElementById('btn-logout');
-  const app = document.getElementById('app');
+/* =========================================================================
+   LEDGER + POOLS
+   ========================================================================= */
+function ledgerSum(key,tipo){ return state.ledger.filter(e=>e.key===key && (tipo?e.tipo===tipo:true)).reduce((a,e)=>a+e.pontos,0); }
+function ledgerAdd(entry){ entry.id=nextId(); entry.ts=new Date().toLocaleString('pt-BR'); state.ledger.push(entry); }
+function levelOf(key,base){ return base+ledgerSum(key,'normal')+ledgerSum(key,'bonus')+ledgerSum(key,'xp'); }
+function removeLedgerEntryQuiet(id){ const i=state.ledger.findIndex(e=>e.id===id); if(i>-1) state.ledger.splice(i,1); }
+function removeLedgerEntry(id){ removeLedgerEntryQuiet(id); renderAll(); }
+function removeTopmostPoint(key){
+  const x=ledgerSum(key,'xp'), b=ledgerSum(key,'bonus');
+  const tipo = x>0?'xp':(b>0?'bonus':'normal');
+  const entries = state.ledger.filter(e=>e.key===key && e.tipo===tipo);
+  if(entries.length) removeLedgerEntryQuiet(entries[entries.length-1].id);
+}
+function setNormalTo(key,characteristic,label,target,nota){
+  const current=ledgerSum(key,'normal'); const delta=target-current;
+  if(delta>0){ for(let i=0;i<delta;i++) ledgerAdd({characteristic,key,label,tipo:'normal',pontos:1,custo:0,nota:nota||'Criação'}); }
+  else if(delta<0){ for(let i=0;i<-delta;i++){ const es=state.ledger.filter(e=>e.key===key&&e.tipo==='normal'); if(es.length) removeLedgerEntryQuiet(es[es.length-1].id); } }
+}
+function bonusSpentTotal(){ return state.ledger.filter(e=>e.tipo==='bonus').reduce((a,e)=>a+e.custo,0); }
+function bonusRemaining(){ return 15-bonusSpentTotal(); }
+function xpSpentTotal(){ return state.ledger.filter(e=>e.tipo==='xp' && e.custo>0).reduce((a,e)=>a+e.custo,0); }
+function xpRemaining(){ return state.xpPool-xpSpentTotal(); }
 
-  const { data: { user } } = await sb.auth.getUser();
+/* =========================================================================
+   MODE BAR
+   ========================================================================= */
+function setMode(m){ currentMode=m; renderModeBar(); }
+function renderModeBar(){
+  document.querySelectorAll('.modepill').forEach(p=>p.classList.toggle('active', p.dataset.mode===currentMode));
+  document.getElementById('pill-bonus').textContent = bonusRemaining();
+  document.getElementById('pill-xp').textContent = xpRemaining();
+  document.getElementById('pill-xp-total').textContent = state.xpPool;
+  const hints = {
+    normal:'Modo Normal: clique nos pontinhos para preencher a ficha na criação (gasta o orçamento de cada categoria).',
+    bonus:'Modo Bônus: clique no próximo pontinho vazio de qualquer característica para gastar 1 dos 15 Pontos de Bônus (custo por característica, Cap.3).',
+    xp:'Modo Experiência: clique no próximo pontinho vazio para gastar Experiência (custo cresce com o nível atual, Cap.4). Registre XP ganho no campo ao lado.'
+  };
+  document.getElementById('mode-hint').textContent = hints[currentMode];
+}
+function addXPQuick(){
+  const input=document.getElementById('xp-add-input'); const v=parseInt(input.value);
+  if(!v||v<=0) return;
+  state.xpPool+=v;
+  ledgerAdd({characteristic:'XP Ganho',key:'__xp_gain__',label:'+XP',tipo:'xp',pontos:0,custo:-v,nota:'XP ganho'});
+  input.value=''; renderAll();
+}
 
-  if(!user){
-    gateMsg.textContent = 'Acesso restrito a apoiadores do perfil Mestre. Faça login com sua conta Google cadastrada.';
-    btnLogin.style.display = 'inline-block';
-    document.getElementById('btn-switch').style.display = 'none';
-    document.getElementById('gate-links').style.display = 'none';
-    btnLogout.style.display = 'none';
-    app.style.display = 'none';
-    gate.style.display = 'flex';
-    return;
-  }
-
-  const { data: registro } = await sb
-    .from('authorized_users')
-    .select('email, tier')
-    .eq('email', user.email)
-    .maybeSingle();
-
-  if(registro){
-    gate.style.display = 'none';
-    app.style.display = 'block';
-    btnLogout.style.display = 'block';
-
-    if(registro.tier === 'admin'){
-      document.getElementById('tab-admin-btn').style.display = 'inline-block';
-      carregarListaAdmin();
+/* =========================================================================
+   GENERIC DOT-CLICK FACTORY (Normal / Bônus / XP, tudo no mesmo pontinho)
+   ========================================================================= */
+function dotsHTML(filled, groupSizes, onClickFn){
+  let html=''; let idx=0; const totalFilled=filled.n+filled.b+filled.x;
+  groupSizes.forEach((g,gi)=>{
+    for(let i=0;i<g;i++){
+      idx++;
+      let cls='pdot';
+      if(idx<=filled.n) cls+=' n'; else if(idx<=filled.n+filled.b) cls+=' b'; else if(idx<=totalFilled) cls+=' x';
+      const ro = idx>filled.n && idx<totalFilled; // interior bônus/xp dots: só o topo é editável
+      html+=`<span class="${cls}${ro?' ro':''}" ${ro?'':`onclick="${onClickFn}(${idx})"`}></span>`;
     }
-  } else {
-    gateMsg.textContent = `Login OK (${user.email}), mas este e-mail não está autorizado. Sua solicitação foi registrada — aguarde a liberação do mestre.`;
-    btnLogin.style.display = 'none';
-    document.getElementById('btn-switch').style.display = 'inline-block';
-    document.getElementById('gate-links').style.display = 'flex';
-    btnLogout.style.display = 'none';
-    app.style.display = 'none';
-    gate.style.display = 'flex';
-    registrarTentativa(user.email);
-  }
+    if(gi<groupSizes.length-1) html+='<span class="gap"></span>';
+  });
+  return html;
 }
-
-async function registrarTentativa(email){
-  await sb.from('access_requests')
-    .upsert({ email, last_attempt_at: new Date().toISOString() }, { onConflict: 'email' });
+function makeDotClickFn(opts){
+  // opts: key, characteristic, label, base, noNormal(bool), bonusCost(number), xpCostFn(currentLevel)=>number
+  return function(idx){
+    const n=ledgerSum(opts.key,'normal'), b=ledgerSum(opts.key,'bonus'), x=ledgerSum(opts.key,'xp');
+    const total=opts.base+n+b+x;
+    if(idx<=opts.base) return;
+    if(idx===total){ removeTopmostPoint(opts.key); renderAll(); return; }
+    if(idx<total){
+      if(idx<=opts.base+n) setNormalTo(opts.key,opts.characteristic,opts.label, idx-opts.base, 'Criação');
+      renderAll(); return;
+    }
+    // idx > total: tentando adicionar um ponto
+    if(currentMode==='normal'){
+      if(opts.noNormal) return;
+      setNormalTo(opts.key,opts.characteristic,opts.label, idx-opts.base, 'Criação');
+    } else if(currentMode==='bonus'){
+      if(idx>total+1) return;
+      const custo=opts.bonusCost;
+      if(custo>bonusRemaining()){ alert(`Faltam Pontos de Bônus (custo ${custo}, restam ${bonusRemaining()}).`); return; }
+      ledgerAdd({characteristic:opts.characteristic,key:opts.key,label:opts.label,tipo:'bonus',pontos:1,custo,nota:'Bônus'});
+    } else if(currentMode==='xp'){
+      if(idx>total+1) return;
+      const custo=opts.xpCostFn(total);
+      if(custo>xpRemaining()){ alert(`Experiência insuficiente (custo ${custo}, restam ${xpRemaining()}).`); return; }
+      ledgerAdd({characteristic:opts.characteristic,key:opts.key,label:opts.label,tipo:'xp',pontos:1,custo,nota:'XP'});
+    }
+    renderAll();
+  };
 }
+const xpFnAtributo = lvl => lvl>=5? lvl*6 : lvl*4;
+const xpFnHabilidade = lvl => lvl===0? 3 : (lvl>=5? lvl*4 : lvl*2);
+const xpFnAntecedente = lvl => lvl===0? 2 : lvl*1;
+const xpFnTecnica = lvl => lvl===0? 3 : (lvl>=5? lvl*5 : lvl*3);
+const xpFnChiFv = lvl => lvl;
+const xpFnSaude = () => 4;
 
-document.getElementById('btn-login').addEventListener('click', () => {
-  sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.href.split('#')[0].split('?')[0] }
+/* =========================================================================
+   TABS
+   ========================================================================= */
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('section.tab').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelector(`section.tab[data-tab="${btn.dataset.tab}"]`).classList.add('active');
   });
 });
 
-function fazerLogout(){
-  sb.auth.signOut().then(() => { window.location.reload(); });
+/* =========================================================================
+   CONCEITO / SITUAÇÃO
+   ========================================================================= */
+function populateEstiloSelect(){
+  const sel=document.getElementById('c_estilo'); sel.innerHTML='';
+  Object.keys(STYLES).forEach(name=>{ const op=document.createElement('option'); op.value=name; op.textContent=name; sel.appendChild(op); });
+  sel.value=state.concept.estilo;
 }
-
-/* ---- painel admin ---- */
-async function carregarListaAdmin(){
-  const { data, error } = await sb.from('authorized_users').select('*').order('added_at', { ascending: false });
-  if(error){ return; }
-  renderTabelaAdmin(data || []);
-  carregarPendentes();
+function onEstiloChange(){ state.concept.estilo=document.getElementById('c_estilo').value; renderAll(); }
+function onSheetChange(){
+  state.concept.nome=document.getElementById('c_nome').value;
+  state.concept.jogador=document.getElementById('c_jogador').value;
+  state.concept.cronica=document.getElementById('c_cronica').value;
+  state.concept.escola=document.getElementById('c_escola').value;
+  state.concept.equipe=document.getElementById('c_equipe').value;
+  state.concept.time=document.getElementById('c_time').value;
+  state.concept.conceito=document.getElementById('c_conceito').value;
+  state.concept.assinatura=document.getElementById('c_assinatura').value;
+  state.situacao.divisao=document.getElementById('s_divisao').value;
+  state.situacao.posto=document.getElementById('s_posto').value;
+  state.situacao.vit=document.getElementById('s_vit').value;
+  state.situacao.der=document.getElementById('s_der').value;
+  state.situacao.emp=document.getElementById('s_emp').value;
+  state.situacao.ko=document.getElementById('s_ko').value;
+  renderCards();
 }
-
-async function carregarPendentes(){
-  const { data: pendentes } = await sb.from('access_requests').select('*').order('last_attempt_at', { ascending: false });
-  const { data: autorizados } = await sb.from('authorized_users').select('email');
-  const emailsAutorizados = new Set((autorizados || []).map(u => u.email));
-  const lista = (pendentes || []).filter(p => !emailsAutorizados.has(p.email));
-  renderTabelaPendentes(lista);
+function onPortraitUpload(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const reader=new FileReader(); reader.onload=e=>{ state.portrait=e.target.result; renderCards(); }; reader.readAsDataURL(file);
 }
-
-function renderTabelaPendentes(lista){
-  const tbody = document.getElementById('tabela-pendentes');
-  const empty = document.getElementById('admin-pend-empty');
-  const contagem = document.getElementById('admin-pend-contagem');
-  tbody.innerHTML = '';
-  contagem.textContent = `(${lista.length})`;
-
-  if(lista.length === 0){ empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-
-  lista.forEach(p => {
-    const tr = document.createElement('tr');
-    const data = p.last_attempt_at ? new Date(p.last_attempt_at).toLocaleString('pt-BR') : '—';
-    const emailSafe = p.email.replace(/'/g,"\\'");
-    tr.innerHTML = `
-      <td class="email">${p.email}</td>
-      <td>${data}</td>
-      <td style="display:flex; gap:6px;">
-        <button class="toolbtn" style="background:var(--red); color:#fff; border-color:var(--red);" onclick="aprovarPendente('${emailSafe}')">Aprovar</button>
-        <button class="admin-rmbtn" onclick="ignorarPendente('${emailSafe}')">Ignorar</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-async function aprovarPendente(email){
-  const { error } = await sb.from('authorized_users').insert({ email, tier: 'mestre' });
-  if(error && error.code !== '23505'){
-    mostrarStatusAdmin('Erro ao aprovar: ' + error.message, false);
-    return;
-  }
-  await sb.from('access_requests').delete().eq('email', email);
-  mostrarStatusAdmin(`${email} aprovado.`, true);
-  carregarListaAdmin();
-}
-
-async function ignorarPendente(email){
-  await sb.from('access_requests').delete().eq('email', email);
-  mostrarStatusAdmin(`Solicitação de ${email} removida da fila.`, true);
-  carregarPendentes();
-}
-
-function renderTabelaAdmin(lista){
-  const tbody = document.getElementById('tabela-usuarios');
-  const empty = document.getElementById('admin-empty');
-  const contagem = document.getElementById('admin-contagem');
-  tbody.innerHTML = '';
-  contagem.textContent = `(${lista.length})`;
-
-  if(lista.length === 0){ empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-
-  lista.forEach(u => {
-    const tr = document.createElement('tr');
-    const data = u.added_at ? new Date(u.added_at).toLocaleDateString('pt-BR') : '—';
-    tr.innerHTML = `
-      <td class="email">${u.email}</td>
-      <td>${u.tier || 'mestre'}</td>
-      <td>${data}</td>
-      <td><button class="admin-rmbtn" onclick="removerUsuario('${u.email.replace(/'/g,"\\'")}')">Remover</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function mostrarStatusAdmin(msg, ok){
-  const el = document.getElementById('admin-status');
-  el.textContent = msg;
-  el.className = ok ? 'status-ok' : 'status-err';
-  setTimeout(() => { el.textContent = ''; }, 4000);
-}
-
-async function adicionarUsuario(){
-  const emailInput = document.getElementById('novo-email');
-  const tierSelect = document.getElementById('novo-tier');
-  const email = emailInput.value.trim().toLowerCase();
-  const tier = tierSelect.value;
-
-  if(!email || !email.includes('@')){
-    mostrarStatusAdmin('Digite um e-mail válido.', false);
-    return;
-  }
-
-  const { error } = await sb.from('authorized_users').insert({ email, tier });
-
-  if(error){
-    mostrarStatusAdmin(error.code === '23505' ? 'Este e-mail já está na lista.' : 'Erro: ' + error.message, false);
-    return;
-  }
-
-  emailInput.value = '';
-  mostrarStatusAdmin(`${email} liberado com sucesso.`, true);
-  carregarListaAdmin();
-}
-
-async function removerUsuario(email){
-  if(!confirm(`Remover o acesso de ${email}?`)) return;
-  const { error } = await sb.from('authorized_users').delete().eq('email', email);
-  if(error){ mostrarStatusAdmin('Erro ao remover: ' + error.message, false); return; }
-  mostrarStatusAdmin(`${email} removido.`, true);
-  carregarListaAdmin();
-}
-
-checarAcesso();
 
 /* =========================================================================
-   PWA — instalação como app
+   ATRIBUTOS
    ========================================================================= */
-let deferredInstallPrompt=null;
-(function setupPWA(){
-  try{
-    const iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" fill="#c8161d"/><text x="96" y="120" font-size="90" fill="#fff" text-anchor="middle" font-family="Arial,sans-serif" font-weight="bold">SF</text></svg>';
-    const iconUrl = 'data:image/svg+xml,'+encodeURIComponent(iconSvg);
-    const manifest = {
-      name:'Guerreiro Mundial — Ficha SFRPG', short_name:'Guerreiro Mundial',
-      start_url:'.', display:'standalone', background_color:'#0c0a08', theme_color:'#c8161d',
-      icons:[{src:iconUrl, sizes:'192x192', type:'image/svg+xml'},{src:iconUrl, sizes:'512x512', type:'image/svg+xml'}]
-    };
-    const manifestBlob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
-    document.getElementById('pwa-manifest').setAttribute('href', URL.createObjectURL(manifestBlob));
-  }catch(e){}
-  try{
-    if('serviceWorker' in navigator){
-      const swCode = "self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>self.clients.claim());self.addEventListener('fetch',e=>{});";
-      const swBlob = new Blob([swCode], {type:'text/javascript'});
-      navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
-    }
-  }catch(e){}
-})();
-window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredInstallPrompt=e; });
-function installApp(){
-  if(deferredInstallPrompt){
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.finally(()=>{ deferredInstallPrompt=null; });
+function attrPool(cat){ const p=state.attrPriority[cat]; return p?({primary:7,secondary:5,tertiary:3}[p]):0; }
+function renderAttrBlock(){
+  const el=document.getElementById('attr-block'); el.innerHTML='';
+  Object.entries(ATTR_CATS).forEach(([cat,attrs])=>{
+    const pool=attrPool(cat); const spent=attrs.reduce((a,at)=>a+ledgerSum('attr:'+at,'normal'),0);
+    const div=document.createElement('div');
+    div.innerHTML = `<div class="colhead">${cat}
+        <select onchange="setAttrPriority('${cat}',this.value)" style="font-size:.64rem; font-family:var(--font-mono); border:1px solid #ccc;">
+          <option value="">prioridade...</option>
+          <option value="primary" ${state.attrPriority[cat]==='primary'?'selected':''}>Primária (7)</option>
+          <option value="secondary" ${state.attrPriority[cat]==='secondary'?'selected':''}>Secundária (5)</option>
+          <option value="tertiary" ${state.attrPriority[cat]==='tertiary'?'selected':''}>Terciária (3)</option>
+        </select>
+      </div>
+      <div class="small">${spent}/${pool||0} pontos normais usados</div>`;
+    attrs.forEach(at=>{
+      const n=ledgerSum('attr:'+at,'normal'), b=ledgerSum('attr:'+at,'bonus'), x=ledgerSum('attr:'+at,'xp');
+      const row=document.createElement('div'); row.className='row';
+      row.innerHTML=`<span class="rname">${at}</span><span class="dotsrow">${dotsHTML({n:1+n,b,x},[5,2],'clickAttrDot_'+at)}</span>`;
+      div.appendChild(row);
+    });
+    el.appendChild(div);
+  });
+}
+function makeAttrClickFns(){
+  Object.values(ATTR_CATS).flat().forEach(at=>{
+    window['clickAttrDot_'+at] = makeDotClickFn({key:'attr:'+at,characteristic:'Atributo',label:at,base:1,noNormal:false,bonusCost:BONUS_COST.atributo,xpCostFn:xpFnAtributo});
+  });
+}
+function setAttrPriority(cat,val){
+  Object.keys(state.attrPriority).forEach(c=>{ if(c!==cat && state.attrPriority[c]===val && val!=='') state.attrPriority[c]=null; });
+  state.attrPriority[cat]=val||null; renderAll();
+}
+
+/* =========================================================================
+   HABILIDADES
+   ========================================================================= */
+function skillPool(cat){ const p=state.skillPriority[cat]; return p?({primary:9,secondary:7,tertiary:4}[p]):0; }
+function renderSkillBlock(){
+  const el=document.getElementById('skill-block'); el.innerHTML='';
+  SKILL_CATS.forEach(cat=>{
+    const pool=skillPool(cat); const catSkills=state.skills.filter(s=>s.categoria===cat);
+    const spent=catSkills.reduce((a,s)=>a+ledgerSum('skill:'+s.id,'normal'),0);
+    const div=document.createElement('div');
+    div.innerHTML = `<div class="colhead">${cat}
+        <select onchange="setSkillPriority('${cat}',this.value)" style="font-size:.64rem; font-family:var(--font-mono); border:1px solid #ccc;">
+          <option value="">prioridade...</option>
+          <option value="primary" ${state.skillPriority[cat]==='primary'?'selected':''}>Primária (9)</option>
+          <option value="secondary" ${state.skillPriority[cat]==='secondary'?'selected':''}>Secundária (7)</option>
+          <option value="tertiary" ${state.skillPriority[cat]==='tertiary'?'selected':''}>Terciária (4)</option>
+        </select>
+      </div>
+      <div class="small">${spent}/${pool||0} pontos normais usados</div>`;
+    catSkills.forEach(s=>{
+      const n=ledgerSum('skill:'+s.id,'normal'), b=ledgerSum('skill:'+s.id,'bonus'), x=ledgerSum('skill:'+s.id,'xp');
+      const row=document.createElement('div'); row.className='row';
+      row.innerHTML=`<span class="rname">${s.nome}</span><span class="dotsrow">${dotsHTML({n,b,x},[5],'clickSkillDot_'+s.id)}</span>
+        <button class="rmbtn" onclick="removeSkill(${s.id})">✕</button>`;
+      div.appendChild(row);
+    });
+    const addRow=document.createElement('div'); addRow.className='addline';
+    addRow.innerHTML=`<input placeholder="nova em ${cat}" id="newskill-${cat}"><button onclick="addSkill('${cat}')">+</button>`;
+    div.appendChild(addRow);
+    el.appendChild(div);
+  });
+}
+function addSkill(cat){ const input=document.getElementById('newskill-'+cat); const nome=input.value.trim(); if(!nome) return; state.skills.push({id:nextId(),nome,categoria:cat}); input.value=''; renderAll(); }
+function removeSkill(id){ state.ledger=state.ledger.filter(e=>e.key!=='skill:'+id); state.skills=state.skills.filter(s=>s.id!==id); renderAll(); }
+function makeSkillClickFns(){
+  state.skills.forEach(s=>{
+    window['clickSkillDot_'+s.id] = makeDotClickFn({key:'skill:'+s.id,characteristic:'Habilidade',label:s.nome,base:0,noNormal:false,bonusCost:BONUS_COST.habilidade,xpCostFn:xpFnHabilidade});
+  });
+}
+function setSkillPriority(cat,val){
+  Object.keys(state.skillPriority).forEach(c=>{ if(c!==cat && state.skillPriority[c]===val && val!=='') state.skillPriority[c]=null; });
+  state.skillPriority[cat]=val||null; renderAll();
+}
+
+/* =========================================================================
+   ANTECEDENTES / TÉCNICAS
+   ========================================================================= */
+function renderAntecedentes(){
+  const spent=state.antecedentes.reduce((a,x)=>a+ledgerSum('ant:'+x.id,'normal'),0);
+  document.getElementById('ant-pts').textContent = `${spent}/5`;
+  const el=document.getElementById('ant-rows'); el.innerHTML='';
+  state.antecedentes.forEach(a=>{
+    const n=ledgerSum('ant:'+a.id,'normal'), b=ledgerSum('ant:'+a.id,'bonus'), x=ledgerSum('ant:'+a.id,'xp');
+    const row=document.createElement('div'); row.className='row';
+    row.innerHTML=`<span class="rname">${a.nome}</span><span class="dotsrow">${dotsHTML({n,b,x},[5],'clickAntDot_'+a.id)}</span>
+      <button class="rmbtn" onclick="removeAnt(${a.id})">✕</button>`;
+    el.appendChild(row);
+  });
+}
+function addAntecedente(){ const input=document.getElementById('ant-new'); const nome=input.value.trim(); if(!nome) return; state.antecedentes.push({id:nextId(),nome}); input.value=''; renderAll(); }
+function removeAnt(id){ state.ledger=state.ledger.filter(e=>e.key!=='ant:'+id); state.antecedentes=state.antecedentes.filter(a=>a.id!==id); renderAll(); }
+function makeAntClickFns(){
+  state.antecedentes.forEach(a=>{
+    window['clickAntDot_'+a.id] = makeDotClickFn({key:'ant:'+a.id,characteristic:'Antecedente',label:a.nome,base:0,noNormal:false,bonusCost:BONUS_COST.antecedente,xpCostFn:xpFnAntecedente});
+  });
+}
+function allTecnicas(){ return TECNICAS_BASE.map(n=>({id:'base:'+n,nome:n})).concat(state.tecnicasCustom.map(t=>({id:'custom:'+t.id,nome:t.nome}))); }
+function renderTecnicas(){
+  const tecs=allTecnicas(); const spent=tecs.reduce((a,t)=>a+ledgerSum('tec:'+t.id,'normal'),0);
+  document.getElementById('tec-pts').textContent = `${spent}/8`;
+  const el=document.getElementById('tec-rows'); el.innerHTML='';
+  tecs.forEach(t=>{
+    const n=ledgerSum('tec:'+t.id,'normal'), b=ledgerSum('tec:'+t.id,'bonus'), x=ledgerSum('tec:'+t.id,'xp');
+    const row=document.createElement('div'); row.className='row';
+    const safe=t.id.replace(/[:\/]/g,'_');
+    row.innerHTML=`<span class="rname">${t.nome}</span><span class="dotsrow">${dotsHTML({n,b,x},[5,2],'clickTecDot_'+safe)}</span>
+      ${t.id.startsWith('custom:')?`<button class="rmbtn" onclick="removeTecCustom('${t.id}')">✕</button>`:''}`;
+    el.appendChild(row);
+  });
+}
+function addTecnicaCustom(){ const input=document.getElementById('tec-new'); const nome=input.value.trim(); if(!nome) return; state.tecnicasCustom.push({id:nextId(),nome}); input.value=''; renderAll(); }
+function removeTecCustom(id){ state.ledger=state.ledger.filter(e=>e.key!=='tec:'+id); state.tecnicasCustom=state.tecnicasCustom.filter(t=>('custom:'+t.id)!==id); renderAll(); }
+function makeTecClickFns(){
+  allTecnicas().forEach(t=>{
+    const safe=t.id.replace(/[:\/]/g,'_');
+    window['clickTecDot_'+safe] = makeDotClickFn({key:'tec:'+t.id,characteristic:'Técnica',label:t.nome,base:0,noNormal:false,bonusCost:BONUS_COST.tecnica,xpCostFn:xpFnTecnica});
+  });
+}
+
+/* =========================================================================
+   MANOBRAS ESPECIAIS (filtradas por Estilo, custo depende do modo)
+   ========================================================================= */
+function renderManobras(){
+  const spentNormal=state.manobras.filter(m=>m.origem==='normal').reduce((a,m)=>a+m.custo,0);
+  document.getElementById('man-pts').textContent = `${spentNormal}/7 PP`;
+  const box=document.getElementById('man-box'); box.innerHTML='';
+  if(!state.manobras.length){ box.innerHTML='<span class="small">nenhuma escolhida ainda</span>'; return; }
+  state.manobras.forEach(m=>{
+    const div=document.createElement('div'); div.className='manobra-tag';
+    div.innerHTML=`<span><b>${m.nome}</b> <span class="small">(${m.categoria}, custo ${m.custo})</span></span>
+      <span><span class="orig ${m.origem}">${m.origem}</span> <button class="rmbtn" onclick="removeManobra(${m.id})">✕</button></span>`;
+    box.appendChild(div);
+  });
+}
+function toggleManobraPicker(){ const p=document.getElementById('manobra-picker'); p.style.display=p.style.display==='none'?'block':'none'; if(p.style.display==='block') renderManobraPicker(); }
+function renderManobraPicker(){
+  const q=(document.getElementById('manobra-search').value||'').toLowerCase();
+  const el=document.getElementById('manobra-picker-list'); el.innerHTML='';
+  const estiloAtual=state.concept.estilo; const estiloMoves=STYLES[estiloAtual]?STYLES[estiloAtual].moves:{};
+  const already=nome=>state.manobras.some(m=>m.nome.toLowerCase()===nome.toLowerCase());
+  const custoLabel = currentMode==='normal' ? (c)=>`${c} PP` : currentMode==='bonus' ? (c)=>`${c*BONUS_COST.poder} bônus` : (c)=>`${c*4} xp`;
+
+  const h1=document.createElement('div'); h1.className='pick-cat'; h1.textContent=`Manobras do Estilo: ${estiloAtual}`; el.appendChild(h1);
+  let any=false;
+  Object.entries(estiloMoves).forEach(([cat,moves])=>{
+    moves.filter(([n])=>n.toLowerCase().includes(q)).forEach(([nome,custo])=>{
+      any=true;
+      const row=document.createElement('div'); row.className='pick-item';
+      row.innerHTML=`<span>${nome} <span class="small">(${cat} · ${custoLabel(custo)})</span></span>
+        <button ${already(nome)?'disabled':''} onclick="pickManobra('${nome.replace(/'/g,"\\'")}','${cat}',${custo})">${already(nome)?'já possui':'+ adicionar'}</button>`;
+      el.appendChild(row);
+    });
+  });
+  if(!any) el.innerHTML += '<div class="small" style="padding:4px 6px;">nenhuma manobra própria cadastrada para este estilo nas fontes disponíveis — veja "Outras manobras" abaixo.</div>';
+
+  const h2=document.createElement('div'); h2.className='pick-cat'; h2.textContent='Outras manobras (custo geral)'; el.appendChild(h2);
+  Object.entries(MANOBRAS_GERAIS).forEach(([cat,moves])=>{
+    moves.filter(([n])=>n.toLowerCase().includes(q)).forEach(([nome,custo])=>{
+      const row=document.createElement('div'); row.className='pick-item';
+      row.innerHTML=`<span>${nome} <span class="small">(${cat} · ${custoLabel(custo)})</span></span>
+        <button ${already(nome)?'disabled':''} onclick="pickManobra('${nome.replace(/'/g,"\\'")}','${cat}',${custo})">${already(nome)?'já possui':'+ adicionar'}</button>`;
+      el.appendChild(row);
+    });
+  });
+}
+function pickManobra(nome,cat,custoPP){
+  if(currentMode==='normal'){
+    state.manobras.push({id:nextId(),nome,categoria:cat,custo:custoPP,origem:'normal'});
+    ledgerAdd({characteristic:'Manobra Especial',key:'manobra:'+nome,label:nome,tipo:'normal',pontos:custoPP,custo:0,nota:cat});
+  } else if(currentMode==='bonus'){
+    const custo=custoPP*BONUS_COST.poder;
+    if(custo>bonusRemaining()){ alert(`Faltam Pontos de Bônus (custo ${custo}, restam ${bonusRemaining()}).`); return; }
+    state.manobras.push({id:nextId(),nome,categoria:cat,custo:custoPP,origem:'bonus'});
+    ledgerAdd({characteristic:'Manobra Especial',key:'manobra:'+nome,label:nome,tipo:'bonus',pontos:custoPP,custo,nota:cat});
   } else {
-    sfAlert('Seu navegador não ofereceu o prompt automático agora — isso é normal ao abrir o arquivo direto do computador (file://) ou dentro deste preview do chat. Para instalar mesmo assim: <br><br><b>Chrome/Edge (computador):</b> menu ⋮ → "Instalar app" (ou ícone de instalação na barra de endereço).<br><b>Android:</b> menu ⋮ → "Adicionar à tela inicial".<br><b>iPhone/Safari:</b> botão Compartilhar → "Adicionar à Tela de Início".<br><br>Dica: funciona melhor se você hospedar este arquivo .html num servidor (mesmo um simples) em vez de abri-lo direto do disco.','📲 Instalar como app');
+    const custo=custoPP*4;
+    if(custo>xpRemaining()){ alert(`Experiência insuficiente (custo ${custo}, restam ${xpRemaining()}).`); return; }
+    state.manobras.push({id:nextId(),nome,categoria:cat,custo:custoPP,origem:'xp'});
+    ledgerAdd({characteristic:'Manobra Especial',key:'manobra:'+nome,label:nome,tipo:'xp',pontos:custoPP,custo,nota:cat});
   }
+  renderAll();
+}
+function removeManobra(id){
+  const m=state.manobras.find(x=>x.id===id);
+  if(m) state.ledger=state.ledger.filter(e=>!(e.key==='manobra:'+m.nome && e.tipo===m.origem));
+  state.manobras=state.manobras.filter(x=>x.id!==id); renderAll();
 }
 
 /* =========================================================================
-   MODAL SYSTEM
+   RENOME (livre) / CHI / FV / SAÚDE (só Bônus/XP)
    ========================================================================= */
-function showModal(html, opts){
-  opts=opts||{};
-  const overlay=document.getElementById('sf-modal-overlay');
-  document.getElementById('sf-modal-box').innerHTML=html;
-  overlay.classList.add('show');
-  overlay.onclick=(e)=>{ if(e.target===overlay && !opts.noBackdropClose) closeModal(); };
+function renderFreeTrack(elId,val,key){
+  let html=''; for(let i=1;i<=10;i++){ html+=`<span class="pdot ${i<=val?'n':''}" onclick="setFreeTrack('${key}',${i})"></span>`; }
+  document.getElementById(elId).innerHTML=html;
 }
-function closeModal(){ document.getElementById('sf-modal-overlay').classList.remove('show'); }
-function sfAlert(message,title){
-  showModal(`<h3>${title||'Aviso'}</h3><p>${message}</p><div class="sf-modal-actions"><button class="btn gold" onclick="closeModal()">Fechar</button></div>`);
-}
-function sfConfirm(message,onYes,title){
-  showModal(`<h3>${title||'Confirmar'}</h3><p>${message}</p><div class="sf-modal-actions"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn gold" id="sf-confirm-yes">Confirmar</button></div>`,{noBackdropClose:true});
-  document.getElementById('sf-confirm-yes').onclick=()=>{ closeModal(); onYes(); };
+function setFreeTrack(key,idx){ const cur=state.renome[key]; state.renome[key]=(idx===cur)?idx-1:idx; renderAll(); }
+
+let clickChiFn, clickFvFn, clickSaudeFn;
+function renderFinais(){
+  renderFreeTrack('dots-gloria', state.renome.gloria, 'gloria');
+  renderFreeTrack('dots-honra', state.renome.honra, 'honra');
+  const estilo=STYLES[state.concept.estilo]||{chi:3,fv:4};
+  document.getElementById('chi-base-view').textContent=estilo.chi;
+  document.getElementById('fv-base-view').textContent=estilo.fv;
+
+  clickChiFn = makeDotClickFn({key:'chi',characteristic:'Chi',label:'Chi',base:estilo.chi,noNormal:true,bonusCost:BONUS_COST.chi,xpCostFn:xpFnChiFv});
+  clickFvFn = makeDotClickFn({key:'fv',characteristic:'Força de Vontade',label:'Força de Vontade',base:estilo.fv,noNormal:true,bonusCost:BONUS_COST.fv,xpCostFn:xpFnChiFv});
+  clickSaudeFn = makeDotClickFn({key:'saude',characteristic:'Saúde',label:'Saúde',base:10,noNormal:true,bonusCost:BONUS_COST.saude,xpCostFn:xpFnSaude});
+  window.clickChiDot = idx=>clickChiFn(idx);
+  window.clickFvDot = idx=>clickFvFn(idx);
+  window.clickSaudeDot = idx=>clickSaudeFn(idx);
+
+  const nChi=ledgerSum('chi','normal'), bChi=ledgerSum('chi','bonus'), xChi=ledgerSum('chi','xp');
+  document.getElementById('dots-chi').innerHTML = dotsHTML({n:estilo.chi+nChi,b:bChi,x:xChi},[10],'clickChiDot') + ` <span class="small">total ${estilo.chi+nChi+bChi+xChi}/10</span>`;
+  const nFv=ledgerSum('fv','normal'), bFv=ledgerSum('fv','bonus'), xFv=ledgerSum('fv','xp');
+  document.getElementById('dots-fv').innerHTML = dotsHTML({n:estilo.fv+nFv,b:bFv,x:xFv},[10],'clickFvDot') + ` <span class="small">total ${estilo.fv+nFv+bFv+xFv}/10</span>`;
+  const nSa=ledgerSum('saude','normal'), bSa=ledgerSum('saude','bonus'), xSa=ledgerSum('saude','xp');
+  document.getElementById('dots-saude').innerHTML = dotsHTML({n:10+nSa,b:bSa,x:xSa},[10,10],'clickSaudeDot') + ` <span class="small">total ${10+nSa+bSa+xSa}/20</span>`;
+
+  document.getElementById('xp-box').innerHTML = `
+    <div class="row"><span>XP ganho (total)</span><b>${state.xpPool}</b></div>
+    <div class="row"><span>XP gasto</span><b>${xpSpentTotal()}</b></div>
+    <div class="row"><span>XP disponível</span><b>${xpRemaining()}</b></div>
+    <div class="small" style="margin-top:6px;">Use o pílula "Pontos de Experiência" no topo da página para ganhar e gastar XP clicando nos pontinhos da ficha.</div>`;
 }
 
 /* =========================================================================
-   BASE DE DADOS DO SISTEMA
+   AVISOS
    ========================================================================= */
-const ATTR_CATS = {'Físicos':['Força','Destreza','Vigor'], 'Sociais':['Carisma','Manipulação','Aparência'], 'Mentais':['Percepção','Inteligência','Raciocínio']};
-const SKILL_CATS = ['Talentos','Perícias','Conhecimentos'];
-const DEFAULT_SKILLS = {'Talentos':['Prontidão','Interrogação','Intimidação','Perspicácia','Manha','Lábia'],
-  'Perícias':['Luta às Cegas','Condução','Liderança','Segurança','Furtividade','Sobrevivência'],
-  'Conhecimentos':['Arena','Computador','Investigação','Medicina','Mistérios','Estilos']};
-const TECNICAS_BASE = ['Soco','Chute','Bloqueio','Apresamento','Esportes','Foco'];
-const BONUS_COST = {atributo:5, habilidade:2, antecedente:1, tecnica:5, poder:4, renomeTemp:1, chi:1, fv:1, saude:3};
+function computeWarnings(){
+  const w=[];
+  Object.entries(ATTR_CATS).forEach(([cat,attrs])=>{
+    const pool=attrPool(cat); const spent=attrs.reduce((a,at)=>a+ledgerSum('attr:'+at,'normal'),0);
+    if(pool && spent>pool) w.push(`Atributos ${cat}: ${spent}/${pool} pontos normais — excedido.`);
+    attrs.forEach(at=>{ const noXP=1+ledgerSum('attr:'+at,'normal')+ledgerSum('attr:'+at,'bonus'); if(noXP>5) w.push(`${at} em ${noXP} sem XP — Atributos não podem passar de 5 na criação.`); });
+  });
+  SKILL_CATS.forEach(cat=>{
+    const pool=skillPool(cat); const catSkills=state.skills.filter(s=>s.categoria===cat);
+    const spent=catSkills.reduce((a,s)=>a+ledgerSum('skill:'+s.id,'normal'),0);
+    if(pool && spent>pool) w.push(`Habilidades ${cat}: ${spent}/${pool} pontos normais — excedido.`);
+    catSkills.forEach(s=>{ const n=ledgerSum('skill:'+s.id,'normal'); if(n>3) w.push(`Habilidade "${s.nome}" com ${n} pts normais — máximo 3 na criação.`);
+      const noXP=n+ledgerSum('skill:'+s.id,'bonus'); if(noXP>5) w.push(`Habilidade "${s.nome}" em ${noXP} sem XP — máximo 5 mesmo com Bônus.`); });
+  });
+  const antSpent=state.antecedentes.reduce((a,x)=>a+ledgerSum('ant:'+x.id,'normal'),0);
+  if(antSpent>5) w.push(`Antecedentes: ${antSpent}/5 — excedido.`);
+  const tecs=allTecnicas(); const tecSpent=tecs.reduce((a,t)=>a+ledgerSum('tec:'+t.id,'normal'),0);
+  if(tecSpent>8) w.push(`Técnicas: ${tecSpent}/8 — excedido.`);
+  tecs.forEach(t=>{ const n=ledgerSum('tec:'+t.id,'normal'); if(n>3) w.push(`Técnica "${t.nome}" com ${n} pts normais — máximo 3 na criação.`); });
+  const manNormal=state.manobras.filter(m=>m.origem==='normal').reduce((a,m)=>a+m.custo,0);
+  if(manNormal>7) w.push(`Manobras Especiais: ${manNormal}/7 Pontos de Poder — excedido.`);
+  if(bonusRemaining()<0) w.push(`Pontos de Bônus: ${bonusSpentTotal()}/15 — excedido.`);
+  if(xpRemaining()<0) w.push(`Experiência: gastou ${xpSpentTotal()}, só ganhou ${state.xpPool}.`);
+  const estilo=STYLES[state.concept.estilo]||{chi:3,fv:4};
+  if(levelOf('chi',estilo.chi)>10) w.push(`Chi acima de 10 (máximo permanente).`);
+  if(levelOf('fv',estilo.fv)>10) w.push(`Força de Vontade acima de 10 (máximo permanente).`);
+  if(levelOf('saude',10)>20) w.push(`Saúde acima de 20 (máximo).`);
+  return w;
+}
+function renderWarnings(){
+  const w=computeWarnings(); const el=document.getElementById('warnings');
+  el.innerHTML = w.length ? `<div class="warnbox"><b>⚠ Avisos de limite (${w.length})</b><ul style="margin:6px 0 0 18px;padding:0;">${w.map(x=>`<li>${x}</li>`).join('')}</ul></div>` : '';
+}
 
-// Sistema de Armas (Cap.7) — cada arma tem sua própria Técnica e modificadores fixos.
-// [Técnica genérica, Velocidade, Dano, Movimento, Especial]
-const ARMAS_CATALOGO = {
- 'Bastão':['Bastão',0,2,1,''],
- 'Bastão Longo':['Bastão',0,2,1,''],
- 'Nunchaku':['Cabos Conectados',1,2,0,''],
- 'Espada Longa / Espada Larga':['Espada',-1,4,0,''],
- 'Rapieira':['Esgrima',2,1,1,''],
- 'Katana':['Espada',1,3,0,''],
- 'Lança':['Lança',0,3,1,''],
- 'Faca':['Faca',2,1,0,''],
- 'Canivete':['Faca',2,1,0,'Facilmente transportado'],
- 'Bagh Nakh (Garras do Tigre)':['Faca',1,1,0,''],
- 'Cassetete':['Armas de Impacto',1,0,1,''],
- 'Bokken':['Espada',1,3,0,''],
- 'Soco Inglês':['Soco',0,1,0,'Deve se combinar com Manobras de Soco'],
- 'Arco Grande':['Arquearia',1,2,0,'Alcance: 110m'],
- 'Arco Pequeno':['Arquearia',2,1,0,'Alcance: 80m'],
- 'Yumi':['Arquearia',0,4,0,'Alcance: 135m'],
- 'Faca Borboleta':['Espada',0,2,0,''],
- 'Cestus':['Soco',0,2,0,'Combina com Manobras de Soco; +1 Absorção ao Bloquear'],
- 'Corrente':['Corrente/Chicote',0,2,-2,'Alcance: 2 hexágonos'],
- 'Chakram':['Arremesso',1,1,-3,''],
- 'Porrete':['Armas de Impacto',0,2,0,''],
- 'Faca de Combate':['Faca',0,3,0,''],
- 'Estrangulador':['Apresamento',-3,4,0,'Apresamento Sustentado; não pode ser absorvido'],
- 'Espada Gancho':['Espada',0,3,0,'+2 dados para Desarme'],
- 'Katar':['Faca/Soco',2,3,0,'+1 Absorção ao Bloquear armas cortantes'],
- 'Kris':['Faca',2,2,0,''],
- 'Kusari':['Corrente/Chicote',0,2,-1,'Alcance 2; +1 dado para Desarme'],
- 'Kusarigama':['Corrente/Chicote',0,3,-2,'Alcance 2; +1 dado para Desarme'],
- 'Naginata':['Lança',0,4,0,''],
- 'Ninjato':['Espada',1,2,1,''],
- 'Pata':['Espada',-2,3,0,'+2 Absorção ao Bloquear'],
- 'Navalha':['Faca',2,2,0,''],
- 'Sabre':['Espada',1,3,0,''],
- 'Sabre (de exibição)':['Espada',1,1,1,'+1 Absorção ao Bloquear'],
- 'Sai':['Faca',1,0,0,'+1 Absorção ao Bloquear; +2 dados para Desarme'],
- 'Shikomi-Zue (ponta de madeira)':['Bastão',0,2,0,''],
- 'Shikomi-Zue (lâmina)':['Lança',1,1,0,''],
- 'Shinai':['Espada',1,3,0,''],
- 'Machado Pequeno':['Machado',1,2,0,'Pode ser arremessado'],
- 'Shuko':['Soco',0,1,0,'Combina com Manobras de Soco'],
- 'Shuriken':['Arremesso',2,-2,0,'Pode arremessar múltiplos'],
- 'Foice':['Faca',0,3,0,''],
- 'Corrente de Aço':['Corrente/Chicote',-1,3,0,'Alcance 3; +2 dados para Desarme'],
- 'Faca de Botão':['Faca',2,2,0,''],
- 'Faca de Arremessar':['Arremesso',0,0,0,''],
- 'Tonfa':['Armas de Impacto/Soco',0,1,0,'+1 Absorção ao Bloquear'],
- 'Wakizashi':['Faca',1,2,0,''],
- 'Chicote':['Corrente/Chicote',-1,2,0,'Alcance 6; +2 dados para Desarme']
-};
-// Manobras Básicas armadas: as 3 primeiras somam os modificadores da arma escolhida por cima;
-// Golpe Furioso/Aparar/Desarme/Movimento usam a fórmula fixa do livro (Técnica de Arma entra no lugar de Soco/Vigor).
-const WEAPON_MANEUVERS = [
- {name:'Jab (arma)', vel:2, dano:-1, mov:0, addWeaponMods:true},
- {name:'Strong (arma)', vel:0, dano:1, mov:0, addWeaponMods:true},
- {name:'Fierce (arma)', vel:-1, dano:3, mov:-1, addWeaponMods:true},
- {name:'Golpe Furioso', vel:-2, dano:4, mov:-3, addWeaponMods:false, custo:'1 Força de Vontade', especial:'"Mate ou morra" — use só quando a história pedir. Se bem-sucedido, pode ter efeito dramático e dá 1 ponto temporário de Glória.'},
- {name:'Aparar', vel:4, dano:null, mov:0, addWeaponMods:false, isAparar:true},
- {name:'Desarme', vel:-1, dano:null, mov:-2, addWeaponMods:false, isDesarme:true},
- {name:'Movimento (arma)', vel:3, dano:null, mov:3, addWeaponMods:false},
- {name:'Apresamento (arma)', vel:0, dano:null, mov:1, addWeaponMods:true, isApresamentoArma:true, especial:'Caso raro — a maioria das armas não se presta a apresamentos. Segue a mesma lógica do Apresamento desarmado, mas com a Técnica de Arma no lugar da Técnica Apresamento.'}
-];
+/* =========================================================================
+   LEDGER TABLE
+   ========================================================================= */
+function renderLedger(){
+  const tbl=document.getElementById('ledger-table'); if(!tbl) return;
+  const rows=state.ledger.filter(e=>ledgerFilter==='all'||e.tipo===ledgerFilter);
+  let html=`<tr><th>#</th><th>Quando</th><th>Tipo</th><th>Característica</th><th>Alvo</th><th>Pontos</th><th>Custo</th><th>Nota</th><th></th></tr>`;
+  rows.slice().reverse().forEach(e=>{
+    html+=`<tr><td>${e.id}</td><td>${e.ts}</td><td><span class="tag ${e.tipo}">${e.tipo}</span></td><td>${e.characteristic}</td><td>${e.label}</td>
+      <td>${e.pontos>0?'+'+e.pontos:e.pontos}</td><td>${e.custo}</td><td>${e.nota||''}</td>
+      <td><button class="rmbtn" onclick="removeLedgerEntry(${e.id})">✕</button></td></tr>`;
+  });
+  tbl.innerHTML=html;
+}
 
-// ===== ATRIBUTOS, HABILIDADES, TÉCNICAS (descrições) =====
-const ATTR_INFO = {
- 'Força':'Capacidade física de erguer peso e causar dano corporal; é somada à Parada de Dados de dano em combate corpo a corpo.',
- 'Destreza':'Velocidade, reflexos e coordenação motora — a agilidade para se mover e manipular objetos com precisão.',
- 'Vigor':'Resistência física e mental: por quanto tempo você mantém esforço e quanto dano consegue suportar.',
- 'Carisma':'Aptidão para envolver e criar um elo emocional genuíno com outras pessoas.',
- 'Manipulação':'Aptidão para influenciar, convencer ou enganar alguém de forma ativa e direta.',
- 'Aparência':'Atratividade física e força de presença — o quanto você chama atenção e como é percebido à primeira vista.',
- 'Percepção':'Consciência do ambiente ao redor; notar detalhes e mudanças mesmo sem prestar atenção ativa.',
- 'Inteligência':'Capacidade de raciocínio lógico, memória e aprendizado formal.',
- 'Raciocínio':'Rapidez de pensamento — reação a situações novas, sagacidade e esperteza.'
-};
-const SKILL_INFO = {
- 'Prontidão':'Sua consciência do que ocorre ao redor mesmo sem se concentrar nisso; capacidade de permanecer alerta por longos períodos.',
- 'Interrogação':'Capacidade de extrair informação por meios honestos ou não — ameaças, truques e questionamento persistente.',
- 'Intimidação':'Sobrepujar psicologicamente alguém através de sugestões sutis ou ameaças diretas, irradiando autoridade.',
- 'Perspicácia':'Avaliar forças e fraquezas de um oponente observando-o — inclusive descobrir detalhes de seu estilo de luta.',
- 'Manha':'Misturar-se ao ambiente sem chamar atenção; conhecimento das ruas, fofocas e gírias do submundo.',
- 'Lábia':'Esconder suas motivações e decifrar as dos outros; a arte de convencer, mentir bem e extrair segredos sem que percebam.',
- 'Luta às Cegas':'Sentidos apurados o bastante para perceber um oponente por som e pressão do ar mesmo sem enxergá-lo.',
- 'Condução':'Capacidade de dirigir veículos terrestres, do carro popular ao automóvel de corrida.',
- 'Liderança':'Fazer pessoas seguirem seus comandos por exemplo e autoridade — não só técnica, mas presença de líder.',
- 'Segurança':'Arrombar fechaduras, desativar alarmes, ligar carros sem chave e outras formas de superar sistemas de proteção.',
- 'Furtividade':'Esgueirar-se ou esconder-se sem ser visto nem ouvido; testado normalmente contra a Percepção de outro personagem.',
- 'Sobrevivência':'Buscar abrigo, encontrar rotas e se virar em áreas selvagens — inclui rastrear e limita a Furtividade no campo.',
- 'Arena':'Noção de quem patrocina quais torneios, onde e quando ocorrem, e como cada arena favorece certos estilos.',
- 'Computador':'Operação e programação de computadores, incluindo projetar seus próprios sistemas.',
- 'Investigação':'Notar detalhes que outros ignoram; capacidade de pesquisar, entrevistar e agir como detetive.',
- 'Medicina':'Prestar assistência médica, de primeiros socorros básicos até compreensão avançada de práticas médicas.',
- 'Mistérios':'Conhecimento dos segredos e lendas estranhas do mundo — nem tudo é fantasia pura no universo de Street Fighter.',
- 'Estilos':'Conhecimento sobre outras artes marciais — o que cada estilo pode e não pode fazer, mesmo sem tê-lo estudado.'
-};
-const TECNICA_INFO = {
- 'Soco':'Todo golpe envolvendo as mãos — diretos, laterais, perfurantes — e, em geral, o braço.',
- 'Chute':'A maioria dos movimentos com pernas e pés; cada estilo dá ênfase diferente aos chutes.',
- 'Bloqueio':'Funciona diferente das outras Técnicas: não causa dano, mas quanto mais pontos, mais dano você absorve e detém.',
- 'Apresamento':'Chaves e projeções que podem derrubar um oponente rapidamente; exige chegar perto do alvo.',
- 'Esportes':'Sua mobilidade — quão alto salta, quão longe avança numa arremetida e quão rápido recua.',
- 'Foco':'Canalização da mente e do espírito; quanto mais desenvolvido, mais Chi um Street Fighter consegue direcionar para feitos sobrenaturais.'
-};
+/* =========================================================================
+   CARTAS DE COMBATE
+   ========================================================================= */
+let cards=[];
+function attrTotal(name){ return levelOf('attr:'+name,1); }
+function tecTotalByName(name){ const t=allTecnicas().find(x=>x.nome===name); return t?levelOf('tec:'+t.id,0):0; }
+function addBasicCard(nome,tecnica,velMod,danoMod,movMod){
+  const velocidade=attrTotal('Destreza')+velMod, dano=attrTotal('Força')+tecTotalByName(tecnica)+danoMod, movimento=tecTotalByName('Esportes')+movMod;
+  cards.push({id:nextId(),manobra:nome,tecnica,velocidade,dano,movimento,especial:''}); renderCards();
+}
+function addSpecialCardBlank(nome){
+  let vel=0,dano=0,mov=0,esp='';
+  if(nome==='Bloqueio'){ vel=attrTotal('Destreza')+4; dano=0; mov=0; esp='Sem dano; soma Técnica Bloqueio à Absorção. +2 Vel no turno seguinte.'; }
+  if(nome==='Movimento'){ vel=attrTotal('Destreza')+3; dano=0; mov=tecTotalByName('Esportes')+3; esp='Sem dano.'; }
+  if(nome==='Apresamento'){ vel=attrTotal('Destreza'); dano=attrTotal('Força')+tecTotalByName('Apresamento'); mov=1; esp='Um hexágono de Movimento.'; }
+  cards.push({id:nextId(),manobra:nome,tecnica:nome,velocidade:vel,dano,movimento:mov,especial:esp}); renderCards();
+}
+function addSpecialFromSheet(){
+  if(!state.manobras.length){ alert('Ainda não há Manobras Especiais na ficha.'); return; }
+  const nomes=state.manobras.map(m=>m.nome); const escolha=prompt('Qual Manobra Especial?\\n'+nomes.join(', ')); if(!escolha) return;
+  const m=state.manobras.find(x=>x.nome.toLowerCase()===escolha.toLowerCase()); if(!m){ alert('Não encontrada na ficha.'); return; }
+  cards.push({id:nextId(),manobra:m.nome,tecnica:m.categoria,velocidade:0,dano:0,movimento:0,especial:`Custo de Poder: ${m.custo}. Preencha os efeitos conforme o livro.`}); renderCards();
+}
+function addBlankCard(){ cards.push({id:nextId(),manobra:'Feito',tecnica:'—',velocidade:0,dano:0,movimento:0,especial:'Descreva a ação ao Narrador — ele define Velocidade e testes.'}); renderCards(); }
+function updateCard(id,field,val){ const c=cards.find(x=>x.id===id); if(!c) return; c[field]=(['velocidade','dano','movimento'].includes(field))?(parseInt(val)||0):val; renderCards(); }
+function removeCard(id){ cards=cards.filter(c=>c.id!==id); renderCards(); }
+function renderCards(){
+  const wrap=document.getElementById('cards-wrap'); if(!wrap) return; wrap.innerHTML='';
+  cards.forEach(c=>{
+    const outer=document.createElement('div');
+    const portraitHTML = state.portrait ? `<img src="${state.portrait}">` : 'sem retrato';
+    outer.innerHTML = `
+      <div class="combat-card" id="cc-${c.id}">
+        <div class="cc-head">CARTA DE COMBATE</div>
+        <div class="cc-name">${state.concept.nome||'Personagem'}</div>
+        <div class="cc-move">${c.manobra}</div>
+        <div class="cc-portrait">${portraitHTML}</div>
+        <div class="cc-stats">
+          <div class="cc-stat"><div class="lbl">Velocidade</div><div class="val">${c.velocidade}</div></div>
+          <div class="cc-stat"><div class="lbl">Dano</div><div class="val">${c.dano}</div></div>
+          <div class="cc-stat"><div class="lbl">Movimento</div><div class="val">${c.movimento}</div></div>
+        </div>
+        <div class="cc-special">${c.especial||'&nbsp;'}</div>
+        <div class="cc-foot">${c.tecnica||''}</div>
+      </div>
+      <div class="card-controls no-print">
+        <div style="display:flex; gap:6px;">
+          <input type="number" style="width:70px" value="${c.velocidade}" onchange="updateCard(${c.id},'velocidade',this.value)">
+          <input type="number" style="width:70px" value="${c.dano}" onchange="updateCard(${c.id},'dano',this.value)">
+          <input type="number" style="width:70px" value="${c.movimento}" onchange="updateCard(${c.id},'movimento',this.value)">
+        </div>
+        <textarea style="width:100%; background:#0d0a08; color:#ece2d0; border:1px solid #3a2f27;" placeholder="Especial / custo / notas" onchange="updateCard(${c.id},'especial',this.value)">${c.especial}</textarea>
+        <div style="display:flex; gap:6px;">
+          <button class="btn small danger" onclick="removeCard(${c.id})">✕</button>
+        </div>
+      </div>`;
+    wrap.appendChild(outer);
+  });
+}
+
+/* =========================================================================
+   EXPORT / IMPORT
+   ========================================================================= */
+function hydrateInputs(){
+  document.getElementById('c_nome').value=state.concept.nome||'';
+  document.getElementById('c_jogador').value=state.concept.jogador||'';
+  document.getElementById('c_cronica').value=state.concept.cronica||'';
+  document.getElementById('c_escola').value=state.concept.escola||'';
+  document.getElementById('c_equipe').value=state.concept.equipe||'';
+  document.getElementById('c_time').value=state.concept.time||'';
+  document.getElementById('c_conceito').value=state.concept.conceito||'';
+  document.getElementById('c_assinatura').value=state.concept.assinatura||'';
+  populateEstiloSelect();
+  document.getElementById('s_divisao').value=state.situacao.divisao||'Nenhuma';
+  document.getElementById('s_posto').value=state.situacao.posto||'';
+  document.getElementById('s_vit').value=state.situacao.vit||'';
+  document.getElementById('s_der').value=state.situacao.der||'';
+  document.getElementById('s_emp').value=state.situacao.emp||'';
+  document.getElementById('s_ko').value=state.situacao.ko||'';
+}
+
+/* =========================================================================
+   RENDER ALL
+   ========================================================================= */
+function renderAll(){
+  renderAttrBlock(); makeAttrClickFns();
+  renderSkillBlock(); makeSkillClickFns();
+  renderAntecedentes(); makeAntClickFns();
+  renderTecnicas(); makeTecClickFns();
+  renderManobras();
+  renderFinais();
+  renderModeBar();
+  renderLedger();
+  renderWarnings();
+  renderCards();
+}
+populateEstiloSelect();
+renderAll();
+</script>
+</body>
+</html>
