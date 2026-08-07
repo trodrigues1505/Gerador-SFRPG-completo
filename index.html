@@ -185,6 +185,15 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   cursor:pointer; border-radius:2px;
 }
 #btn-login:hover{background:var(--red-dk);}
+#btn-switch{
+  font-family:var(--font-body); letter-spacing:.5px; font-size:.8rem;
+  background:none; color:#a4927c; border:1px solid #3a2f27; padding:8px 18px;
+  cursor:pointer; text-transform:uppercase;
+}
+#btn-switch:hover{border-color:var(--gold); color:#eee0c0;}
+.gate-links{display:none; flex-direction:column; gap:8px; margin-top:6px;}
+.gate-links a{color:#e0a04a; font-size:.85rem; text-decoration:none; border-bottom:1px solid transparent;}
+.gate-links a:hover{border-bottom-color:#e0a04a;}
 #btn-logout{
   position:fixed; top:10px; right:10px; z-index:9998;
   font-family:var(--font-body); font-size:.68rem; text-transform:uppercase;
@@ -216,6 +225,11 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   <div class="gate-logo">GUERREIRO <span style="color:#eee0c0;">MUNDIAL</span></div>
   <p id="gate-msg">Verificando acesso...</p>
   <button id="btn-login" style="display:none;">Entrar com Google</button>
+  <button id="btn-switch" style="display:none;" onclick="fazerLogout()">Trocar de conta</button>
+  <div id="gate-links" class="gate-links">
+    <a href="https://chat.whatsapp.com/JDdsv2WyNhBIX0062SYrDo" target="_blank" rel="noopener">💬 Entrar no grupo do WhatsApp</a>
+    <a href="https://apoia.se/avin" target="_blank" rel="noopener">⭐ Assinar o nível Mestre no Apoia.se</a>
+  </div>
 </div>
 
 <button id="btn-logout" style="display:none;" onclick="fazerLogout()">Sair</button>
@@ -441,6 +455,8 @@ async function checarAcesso(){
   if(!user){
     gateMsg.textContent = 'Acesso restrito a apoiadores do perfil Mestre. Faça login com sua conta Google cadastrada.';
     btnLogin.style.display = 'inline-block';
+    document.getElementById('btn-switch').style.display = 'none';
+    document.getElementById('gate-links').style.display = 'none';
     btnLogout.style.display = 'none';
     app.style.display = 'none';
     gate.style.display = 'flex';
@@ -465,7 +481,9 @@ async function checarAcesso(){
   } else {
     gateMsg.textContent = `Login OK (${user.email}), mas este e-mail não está autorizado. Sua solicitação foi registrada — aguarde a liberação do mestre.`;
     btnLogin.style.display = 'none';
-    btnLogout.style.display = 'block';
+    document.getElementById('btn-switch').style.display = 'inline-block';
+    document.getElementById('gate-links').style.display = 'flex';
+    btnLogout.style.display = 'none';
     app.style.display = 'none';
     gate.style.display = 'flex';
     registrarTentativa(user.email);
