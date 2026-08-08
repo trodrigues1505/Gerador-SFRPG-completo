@@ -7,7 +7,6 @@
 <link rel="manifest" id="pwa-manifest">
 <meta name="theme-color" content="#c8161d">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;600;700&display=swap');
 
@@ -204,7 +203,6 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
 
 @page{ size:A4 portrait; margin:5mm; }
 @media print{
-  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important; }
   #app{max-width:none !important; width:100% !important; padding:0 !important; margin:0 !important;}
   .sheet{padding:8px 12px 10px; border-width:4px;}
   .sheet-logo{margin-bottom:1px;}
@@ -231,7 +229,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   .small{font-size:.62rem;}
 }
 @media print{
-  .appbar, nav.tabs, .no-print, #btn-logout, #gate{display:none !important;}
+  .appbar, nav.tabs, .no-print{display:none !important;}
   body{background:#fff;}
   section.tab{display:none !important;}
   section.tab.active{display:block !important;}
@@ -280,70 +278,11 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   body.print-cards-mode .combat-card .cc-portrait{width:60px; height:60px;}
   body.print-cards-mode .card-controls{display:none !important;}
 }
-/* ---------- GATE DE ACESSO (Supabase Auth) ---------- */
-#gate{
-  position:fixed; inset:0; z-index:9999;
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  background:var(--bg,#0c0a08); color:#eee0c0; font-family:var(--font-body);
-  gap:18px; text-align:center; padding:20px;
-}
-#gate .gate-logo{font-family:var(--font-display); font-size:2.4rem; letter-spacing:3px; color:var(--red); text-shadow:2px 2px 0 #1a1a1a;}
-#gate-msg{font-size:.95rem; color:#c9b48f; max-width:420px; line-height:1.5;}
-#btn-login{
-  font-family:var(--font-display); letter-spacing:1.5px; font-size:1.1rem;
-  background:var(--red); color:#fff; border:none; padding:12px 30px;
-  cursor:pointer; border-radius:2px;
-}
-#btn-login:hover{background:var(--red-dk);}
-#btn-switch{
-  font-family:var(--font-body); letter-spacing:.5px; font-size:.8rem;
-  background:none; color:#a4927c; border:1px solid #3a2f27; padding:8px 18px;
-  cursor:pointer; text-transform:uppercase;
-}
-#btn-switch:hover{border-color:var(--gold); color:#eee0c0;}
-.gate-links{display:none; flex-direction:column; gap:8px; margin-top:6px;}
-.gate-links a{color:#e0a04a; font-size:.85rem; text-decoration:none; border-bottom:1px solid transparent;}
-.gate-links a:hover{border-bottom-color:#e0a04a;}
-#btn-logout{
-  position:fixed; top:10px; right:10px; z-index:9998;
-  font-family:var(--font-body); font-size:.68rem; text-transform:uppercase;
-  background:#241d18; color:#a4927c; border:1px solid #3a2f27; padding:5px 10px; cursor:pointer;
-}
-#btn-logout:hover{border-color:var(--gold);}
-
-/* ---------- PAINEL ADMIN ---------- */
-.admin-card{background:#171310; border:1px solid #3a2f27; border-radius:4px; padding:16px 18px; margin-bottom:18px; color:#ece2d0;}
-.admin-card h2{font-family:var(--font-display); letter-spacing:1px; font-size:1.1rem; color:var(--red); margin:0 0 10px; border-bottom:1px solid #3a2f27; padding-bottom:6px;}
-.addrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:4px;}
-.addrow input[type=email]{flex:1; min-width:200px; background:#0d0a08; border:1px solid #3a2f27; color:#ece2d0; padding:8px 10px; font-family:var(--font-body); font-size:.9rem;}
-.addrow select{background:#0d0a08; border:1px solid #3a2f27; color:#ece2d0; padding:8px 10px; font-family:var(--font-body); font-size:.85rem;}
-.admin-hint{font-family:var(--font-mono); font-size:.66rem; color:#a4927c; margin-top:4px;}
-.admin-table{width:100%; border-collapse:collapse; margin-top:10px;}
-.admin-table th{text-align:left; font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.5px; color:#a4927c; border-bottom:1px solid #3a2f27; padding:6px 8px;}
-.admin-table td{padding:8px; border-bottom:1px solid #241d18; font-size:.85rem; color:#ece2d0;}
-.admin-table td.email{font-family:var(--font-mono); font-size:.78rem;}
-.admin-rmbtn{background:none; border:1px solid var(--bad); color:var(--bad); padding:3px 10px; font-size:.68rem; cursor:pointer; text-transform:uppercase; letter-spacing:.4px;}
-.admin-rmbtn:hover{background:var(--bad); color:#fff;}
-#admin-status{font-family:var(--font-mono); font-size:.75rem; margin-top:8px; min-height:18px;}
-.status-ok{color:#5fa864;}
-.status-err{color:var(--bad);}
 </style>
 </head>
 <body>
-<div id="gate">
-  <div class="gate-logo">GUERREIRO <span style="color:#eee0c0;">MUNDIAL</span></div>
-  <p id="gate-msg">Verificando acesso...</p>
-  <button id="btn-login" style="display:none;">Entrar com Google</button>
-  <button id="btn-switch" style="display:none;" onclick="fazerLogout()">Trocar de conta</button>
-  <div id="gate-links" class="gate-links">
-    <a href="https://chat.whatsapp.com/JDdsv2WyNhBIX0062SYrDo" target="_blank" rel="noopener">💬 Entrar no grupo do WhatsApp</a>
-    <a href="https://apoia.se/avin" target="_blank" rel="noopener">⭐ Assinar o nível Mestre no Apoia.se</a>
-  </div>
-</div>
-<button id="btn-logout" style="display:none;" onclick="fazerLogout()">Sair</button>
-
 <div id="sf-modal-overlay" class="sf-modal-overlay"><div class="sf-modal-box" id="sf-modal-box"></div></div>
-<div id="app" style="display:none;">
+<div id="app">
 
   <div class="appbar no-print">
     <h1>GUERREIRO <span>MUNDIAL</span><small>gerador de fichas · sfrpg 2ª ed. · conteúdo não oficial cortesia de <a href="https://www.sfrpg.com.br" target="_blank" style="color:#c79a3f;">sfrpg.com.br</a> e "The G-File" (Matt Meade)</small></h1>
@@ -359,7 +298,6 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   <nav class="tabs no-print">
     <button data-tab="ficha" class="active">Ficha</button>
     <button data-tab="cartas">Cartas de Combate</button>
-    <button data-tab="admin" id="tab-admin-btn" style="display:none; background:var(--red);">⚙ Admin</button>
   </nav>
 
   <!-- ============================================================ FICHA ============================================================ -->
@@ -422,7 +360,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
             <div class="colhead">Antecedentes <span class="pts" id="ant-pts"></span></div>
             <div id="ant-rows"></div>
             <div id="ciber-panel"></div>
-            <select id="ant-known" class="no-print" onchange="if(this.value){ addAntecedenteNamed(this.value); this.value=''; }" style="width:100%; margin-top:4px; font-size:.76rem; padding:3px;">
+            <select id="ant-known" onchange="if(this.value){ addAntecedenteNamed(this.value); this.value=''; }" style="width:100%; margin-top:4px; font-size:.76rem; padding:3px;">
               <option value="">— escolher antecedente conhecido... —</option>
             </select>
             <div class="addline"><input id="ant-new" placeholder="ou digite um personalizado"><button onclick="addAntecedente()">+</button></div>
@@ -549,257 +487,9 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
     <div class="cards-wrap" id="cards-wrap"></div>
   </section>
 
-  <!-- ============================================================ ADMIN ============================================================ -->
-  <section class="tab dark" data-tab="admin">
-    <div class="admin-card no-print">
-      <h2>Solicitações pendentes <span id="admin-pend-contagem" class="admin-hint"></span></h2>
-      <table class="admin-table">
-        <thead><tr><th>E-mail</th><th>Última tentativa</th><th></th></tr></thead>
-        <tbody id="tabela-pendentes"></tbody>
-      </table>
-      <div id="admin-pend-empty" style="display:none;" class="admin-hint">Nenhuma solicitação pendente.</div>
-    </div>
-
-    <div class="admin-card no-print">
-      <h2>Adicionar apoiador</h2>
-      <div class="addrow">
-        <input type="email" id="novo-email" placeholder="email@gmail.com">
-        <select id="novo-tier">
-          <option value="mestre">mestre</option>
-          <option value="admin">admin</option>
-        </select>
-        <button class="toolbtn" style="background:var(--red); color:#fff;" onclick="adicionarUsuario()">+ Liberar acesso</button>
-      </div>
-      <div class="admin-hint">O e-mail precisa ser exatamente o mesmo usado no login Google da pessoa.</div>
-      <div id="admin-status"></div>
-    </div>
-
-    <div class="admin-card no-print">
-      <h2>Usuários autorizados <span id="admin-contagem" class="admin-hint"></span></h2>
-      <table class="admin-table">
-        <thead><tr><th>E-mail</th><th>Tier</th><th>Adicionado em</th><th></th></tr></thead>
-        <tbody id="tabela-usuarios"></tbody>
-      </table>
-      <div id="admin-empty" style="display:none;" class="admin-hint">Nenhum usuário cadastrado ainda.</div>
-    </div>
-  </section>
-
 </div>
 
 <script>
-/* =========================================================================
-   GATE DE ACESSO — Supabase Auth (login Google) + tabela authorized_users
-   ========================================================================= */
-const SUPABASE_URL = 'https://mggqfxevqwckliqzhahe.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nZ3FmeGV2cXdja2xpcXpoYWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5OTIwOTcsImV4cCI6MjEwMTU2ODA5N30.q5XpqV4pGQlB6D5j36ASCRZDmwImzdB-KjqSvAFWCcE';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// trava de segurança contra a tela "Verificando acesso..." travar pra sempre:
-// se checarAcesso() não terminar em 10s (rede lenta, erro engolido, etc.),
-// mostra um botão de "tentar de novo" em vez de deixar o usuário preso.
-let _acessoResolvido = false;
-setTimeout(() => {
-  if(_acessoResolvido) return;
-  const gateMsg = document.getElementById('gate-msg');
-  gateMsg.textContent = 'Isso está demorando mais que o esperado. Pode ser lentidão de rede.';
-  const retryBtn = document.createElement('button');
-  retryBtn.id = 'btn-switch';
-  retryBtn.textContent = 'Tentar novamente';
-  retryBtn.onclick = () => window.location.reload();
-  retryBtn.style.display = 'inline-block';
-  document.getElementById('gate').appendChild(retryBtn);
-}, 10000);
-
-async function checarAcesso(){
-  try{
-    const gate = document.getElementById('gate');
-    const gateMsg = document.getElementById('gate-msg');
-    const btnLogin = document.getElementById('btn-login');
-    const btnLogout = document.getElementById('btn-logout');
-    const app = document.getElementById('app');
-
-    const { data: { user } } = await sb.auth.getUser();
-
-    if(!user){
-      gateMsg.textContent = 'Acesso restrito a apoiadores do perfil Mestre. Faça login com sua conta Google cadastrada.';
-      btnLogin.style.display = 'inline-block';
-      document.getElementById('btn-switch').style.display = 'none';
-      document.getElementById('gate-links').style.display = 'none';
-      btnLogout.style.display = 'none';
-      app.style.display = 'none';
-      gate.style.display = 'flex';
-      _acessoResolvido = true;
-      return;
-    }
-
-    const { data: registro, error: erroConsulta } = await sb
-      .from('authorized_users')
-      .select('email, tier')
-      .eq('email', user.email)
-      .maybeSingle();
-
-    if(erroConsulta) throw erroConsulta;
-
-    if(registro){
-      gate.style.display = 'none';
-      app.style.display = 'block';
-      btnLogout.style.display = 'block';
-
-      if(registro.tier === 'admin'){
-        document.getElementById('tab-admin-btn').style.display = 'inline-block';
-        carregarListaAdmin();
-      }
-    } else {
-      gateMsg.textContent = `Login OK (${user.email}), mas este e-mail não está autorizado. Sua solicitação foi registrada — aguarde a liberação do mestre.`;
-      btnLogin.style.display = 'none';
-      document.getElementById('btn-switch').style.display = 'inline-block';
-      document.getElementById('gate-links').style.display = 'flex';
-      btnLogout.style.display = 'none';
-      app.style.display = 'none';
-      gate.style.display = 'flex';
-      registrarTentativa(user.email);
-    }
-
-    _acessoResolvido = true;
-  }catch(err){
-    console.error('checarAcesso falhou:', err);
-    const gateMsg = document.getElementById('gate-msg');
-    gateMsg.textContent = 'Erro ao verificar acesso: ' + (err.message || 'desconhecido') + '. Tenta recarregar a página.';
-    _acessoResolvido = true;
-  }
-}
-
-async function registrarTentativa(email){
-  await sb.from('access_requests')
-    .upsert({ email, last_attempt_at: new Date().toISOString() }, { onConflict: 'email' });
-}
-
-document.getElementById('btn-login').addEventListener('click', () => {
-  sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.href.split('#')[0].split('?')[0] }
-  });
-});
-
-function fazerLogout(){
-  sb.auth.signOut().then(() => { window.location.reload(); });
-}
-
-/* ---- painel admin: só aparece se registro.tier === 'admin' acima ----
-   segurança real: policies do Supabase, não a exibição da aba aqui. */
-async function carregarListaAdmin(){
-  const { data, error } = await sb.from('authorized_users').select('*').order('added_at', { ascending: false });
-  if(error){ return; }
-  renderTabelaAdmin(data || []);
-  carregarPendentes();
-}
-
-async function carregarPendentes(){
-  const { data: pendentes } = await sb.from('access_requests').select('*').order('last_attempt_at', { ascending: false });
-  const { data: autorizados } = await sb.from('authorized_users').select('email');
-  const emailsAutorizados = new Set((autorizados || []).map(u => u.email));
-  const lista = (pendentes || []).filter(p => !emailsAutorizados.has(p.email));
-  renderTabelaPendentes(lista);
-}
-
-function renderTabelaPendentes(lista){
-  const tbody = document.getElementById('tabela-pendentes');
-  const empty = document.getElementById('admin-pend-empty');
-  const contagem = document.getElementById('admin-pend-contagem');
-  tbody.innerHTML = '';
-  contagem.textContent = `(${lista.length})`;
-  if(lista.length === 0){ empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  lista.forEach(p => {
-    const tr = document.createElement('tr');
-    const data = p.last_attempt_at ? new Date(p.last_attempt_at).toLocaleString('pt-BR') : '—';
-    const emailSafe = p.email.replace(/'/g,"\\'");
-    tr.innerHTML = `
-      <td class="email">${p.email}</td>
-      <td>${data}</td>
-      <td style="display:flex; gap:6px;">
-        <button class="toolbtn" style="background:var(--red); color:#fff; border-color:var(--red);" onclick="aprovarPendente('${emailSafe}')">Aprovar</button>
-        <button class="admin-rmbtn" onclick="ignorarPendente('${emailSafe}')">Ignorar</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-async function aprovarPendente(email){
-  const { error } = await sb.from('authorized_users').insert({ email, tier: 'mestre' });
-  if(error && error.code !== '23505'){
-    mostrarStatusAdmin('Erro ao aprovar: ' + error.message, false);
-    return;
-  }
-  await sb.from('access_requests').delete().eq('email', email);
-  mostrarStatusAdmin(`${email} aprovado.`, true);
-  carregarListaAdmin();
-}
-
-async function ignorarPendente(email){
-  await sb.from('access_requests').delete().eq('email', email);
-  mostrarStatusAdmin(`Solicitação de ${email} removida da fila.`, true);
-  carregarPendentes();
-}
-
-function renderTabelaAdmin(lista){
-  const tbody = document.getElementById('tabela-usuarios');
-  const empty = document.getElementById('admin-empty');
-  const contagem = document.getElementById('admin-contagem');
-  tbody.innerHTML = '';
-  contagem.textContent = `(${lista.length})`;
-  if(lista.length === 0){ empty.style.display = 'block'; return; }
-  empty.style.display = 'none';
-  lista.forEach(u => {
-    const tr = document.createElement('tr');
-    const data = u.added_at ? new Date(u.added_at).toLocaleDateString('pt-BR') : '—';
-    tr.innerHTML = `
-      <td class="email">${u.email}</td>
-      <td>${u.tier || 'mestre'}</td>
-      <td>${data}</td>
-      <td><button class="admin-rmbtn" onclick="removerUsuario('${u.email.replace(/'/g,"\\'")}')">Remover</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-function mostrarStatusAdmin(msg, ok){
-  const el = document.getElementById('admin-status');
-  el.textContent = msg;
-  el.className = ok ? 'status-ok' : 'status-err';
-  setTimeout(() => { el.textContent = ''; }, 4000);
-}
-
-async function adicionarUsuario(){
-  const emailInput = document.getElementById('novo-email');
-  const tierSelect = document.getElementById('novo-tier');
-  const email = emailInput.value.trim().toLowerCase();
-  const tier = tierSelect.value;
-  if(!email || !email.includes('@')){
-    mostrarStatusAdmin('Digite um e-mail válido.', false);
-    return;
-  }
-  const { error } = await sb.from('authorized_users').insert({ email, tier });
-  if(error){
-    mostrarStatusAdmin(error.code === '23505' ? 'Este e-mail já está na lista.' : 'Erro: ' + error.message, false);
-    return;
-  }
-  emailInput.value = '';
-  mostrarStatusAdmin(`${email} liberado com sucesso.`, true);
-  carregarListaAdmin();
-}
-
-async function removerUsuario(email){
-  if(!confirm(`Remover o acesso de ${email}?`)) return;
-  const { error } = await sb.from('authorized_users').delete().eq('email', email);
-  if(error){ mostrarStatusAdmin('Erro ao remover: ' + error.message, false); return; }
-  mostrarStatusAdmin(`${email} removido.`, true);
-  carregarListaAdmin();
-}
-
-checarAcesso();
-
 /* =========================================================================
    MODAL SYSTEM
    ========================================================================= */
@@ -1209,7 +899,6 @@ const MOVE_INFO = {
  'Regeneration':{prereq:'Foco •••',prereqCheck:[{tec:'Foco',nivel:3}],sistema:'O lutador fica imóvel um turno focalizando o Chi; restaura 1 Nível de Saúde por ponto de Chi gasto, até um total por turno igual ao seu Foco.',custo:'ver descrição (1 Chi por Nível de Saúde)',vel:'+0',dano:'Nenhum',mov:'Nenhum'},
  'Repeating Fireball':{prereq:'Foco •••••, Fireball',prereqCheck:[{tec:'Foco',nivel:5},{manobra:'Fireball'}],sistema:'Dispara uma salva de pequenas Fireballs igual ao seu nível de Foco, mirando em qualquer combinação de alvos na linha de visão. Alcance = Raciocínio+Foco, igual à Fireball comum.',custo:'2 Chi',vel:'-2',dano:'+0',mov:'Nenhum'},
  'Sakki':{prereq:'Foco •••••',prereqCheck:[{tec:'Foco',nivel:5}],sistema:'O Ninja sente quando algo vai acontecer contra ele e pode agir de acordo — nunca é surpreendido por ataques pelas costas. Pode se mover Foco+Esportes em hexágonos pra evitar a ameaça.',custo:'Nenhum',vel:'Nenhuma',dano:'Nenhum',mov:'Nenhum'},
- 'Speed of the Mongoose':{prereq:'Foco •••',prereqCheck:[{tec:'Foco',nivel:3}],sistema:'Concentrando seu Chi na amplificação dos limites do corpo, o Ninja aumenta sua velocidade e movimentação por um curto período, assumindo uma postura secreta. No próximo turno, ganha como bônus +4 de Velocidade OU +6 de Movimento (apenas se for se movimentar em linha reta).',custo:'1 Chi',vel:'+2',dano:'Nenhum',mov:'-2'},
  'Thunderclap':{prereq:'Foco •••, Soco •',prereqCheck:[{tec:'Foco',nivel:3},{tec:'Soco',nivel:1}],sistema:'Ao bater palmas, libera o som do trovão, atingindo todos a 3 hexágonos de distância. Dano = Inteligência+Foco-3.',custo:'1 Chi',vel:'+0',dano:'Inteligência + Foco - 3',mov:'Nenhum'},
  'Toughskin':{prereq:'Foco ••',prereqCheck:[{tec:'Foco',nivel:2}],sistema:'Jogue junto com qualquer outra manobra no turno; a Absorção do personagem sobe +2 pela duração do turno.',custo:'Nenhum (jogada junto com outra manobra)',vel:'ver descrição',dano:'ver descrição',mov:'ver descrição'},
  'Mind Control':{prereq:'Foco •••••, Mind Reading, Psychic Vise',prereqCheck:[{tec:'Foco',nivel:5},{manobra:'Mind Reading'},{manobra:'Psychic Vise'}],sistema:'Só funciona se a vítima estiver sem Força de Vontade temporária, dentro de Raciocínio+Foco hexágonos. Os dois rolam Inteligência; se o atacante vencer, a vítima é dominada — duração conforme sucessos extras (1=1 Rodada, 2=1 hora, 3=1 dia, 4=1 semana, 5=1 mês). Quem tem Honra permanente 10 é imune. Ordens contra a própria conduta podem ser resistidas com Honra vs Força de Vontade do usuário (mesmo resistindo, continua controlado, só não obedece aquela ordem específica).',custo:'2 Chi',vel:'-3',dano:'Nenhum',mov:'Nenhum'},
@@ -1544,51 +1233,51 @@ function tecTip(nome){ return TECNICA_INFO[nome] || 'Descrição completa não i
 // Chi/FV Inicial conferidos com a tabela de referências (Ryu, Ken, Chun-Li, etc). Estilos sem lista própria
 // de Manobras Especiais localizada nas fontes do projeto usam o catálogo geral em "Outras manobras".
 const STYLES = {
- "Aikidô":{chi:5,fv:2,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[["Arm/Wrist Lock",1],["Improved Pin",2],["Pin",2],["Push",1]],Esportes:[],Foco:[]}},
- "Baraqah":{chi:4,fv:3,moves:{Soco:[["Ear Pop",2],["Hundred Hand Slap",5],["Monkey Grab Punch",1],["Spinning Back Fist",1],["Spinning Knuckle",3]],Chute:[["Foot Sweep",1],["Wounded Knee",2]],Bloqueio:[["Deflecting Punch",1],["Energy Reflection",3],["Maka Wara",3]],Apresamento:[["Back Roll Throw",1],["Grappling Defense",3],["Dislocate Limb",2],["Improved Pin",2],["Pin",3],["Sleeper",3]],Esportes:[["Breakfall",1]],Foco:[["Balance",3],["Chi Push",5],["Ghost Form",5],["Levitation",4],["Mind Reading",3],["Zen No Mind",3],["Psychokinetic Channeling",4],["Regeneration",1],["Telepathy",2]]}},
- "Boxe":{chi:1,fv:6,moves:{Soco:[["Dashing Punch",4],["Dashing Uppercut",1],["Fist Sweep",2],["Head Butt",1],["Heart Punch",4],["Hyper Fist",4],["Lunging Punch",2],["Rekka Ken",5],["Turn Punch",4]],Chute:[],Bloqueio:[["Deflecting Punch",1]],Apresamento:[["Brain Cracker",1],["Head Bite",1],["Head Butt Hold",2]],Esportes:[["Jumping Shoulder Butt",1]],Foco:[["Toughskin",3]]}},
- "Capoeira":{chi:2,fv:5,moves:{Soco:[["Head Butt",1],["Spinning Clothesline",4],["Turbo Spinning Clothesline",4],["Tornado Punch *",5]],Chute:[["Backflip Kick",2],["Forward Backflip Kick",1],["Cartwheel Kick",2],["Double-Hit Knee",1],["Forward Flip Knee",2],["Lightning Leg",5],["Jaguar Kick *",3],["Kick Roll *",1],["Rhino Horn *",3],["Spin Kick *",4]],Bloqueio:[],Apresamento:[["Dislocate Limb",2],["Head Bite",2],["Knee Basher",2],["Back Roll Throw",1]],Esportes:[["Backflip",2],["Beast Roll *",3],["Rolling Attack",3],["Vertical Rolling Attack",2],["Drunken Monkey Roll",2],["Tumbling Attack",3],["Breakfall",1]],Foco:[["Balance",4],["Musical Accompaniment",1]]}},
- "Forças Especiais":{chi:1,fv:6,moves:{Soco:[["Heart Punch",3],["Hyper Fist",5],["Knife Hand Strike",4],["Spinning Backfist",1],["Spinning Clothesline",5],["Spinning Knuckle",2],["Turbo Spinning Clothesline",4]],Chute:[["Ax Kick",3],["Backflip Kick",3],["Double Dread Kick",4],["Flash Kick",4],["Flying Knee Thrust",1],["Flying Thrust Kick",3],["Foot Sweep",1],["Forward Flip Knee",3],["Handstand Kick",1],["Lightning Leg",5],["Spinning Foot Sweep",1],["Tiger Knee",5]],Bloqueio:[],Apresamento:[["Air Throw",2],["Arm/Wrist Lock",2],["Dislocate Limb",3],["Hair Throw",2],["Improved Pin",3],["Knee Basher",2],["Neck Choke",1],["Pile Driver",3],["Pin",4],["Sleeper",4],["Suplex",1],["Thigh Press",2]],Esportes:[["Cannon Drill",4],["Disarming",2],["Ground Fighting",4]],Foco:[]}},
- "Jeet Kune Dô":{chi:1,fv:6,moves:{Soco:[["Dragon Punch",5],["Ear Pop",2],["Hundred Hand Slap",5],["Hyper Fist",5],["Monkey Grab Punch",1]],Chute:[["Backflip Kick",2],["Flying Knee Thrust",1],["Foot Sweep",1],["Forward Flip Knee",3],["Hurricane Kick",5],["Lightning Leg",4],["Scissor Kick",3],["Stepping Front Kick",3],["Tiger Knee",5]],Bloqueio:[["Deflecting Punch",1],["Maka Wara",3]],Apresamento:[["Air Throw",2],["Grappling Defense",4],["Pin",3]],Esportes:[["Backflip",2],["Drunken Monkey Roll",1],["Light Feet",3],["Wall Spring",1]],Foco:[["Chi Kung Healing",4],["Zen No Mind",3]]}},
- "Jiu-Jitsu (Judô)":{chi:3,fv:4,moves:{Soco:[["Ear Pop",2]],Chute:[["Foot Sweep",1],["Spinning Foot Sweep",1]],Bloqueio:[["Deflecting Punch",1],["Energy Reflection",3],["Maka Wara",4],["Missile Reflection",1],["San He",3]],Apresamento:[["Air Throw",1],["Back Breaker",2],["Back Roll Throw",1],["Dislocate Limb",3],["Grappling Defense",2],["Hair Throw",2],["Improved Pin",2],["Neck Choke",1],["Pin",2],["Stomach Pump",3],["Suplex",1],["Thigh Press",2],["Throw",0]],Esportes:[["Breakfall",0]],Foco:[["Chi Kung Healing",4],["Toughskin",3],["Zen No Mind",3]]}},
- "Kabaddi":{chi:5,fv:2,moves:{Soco:[["Head Butt",1]],Chute:[["Slide Kick",2]],Bloqueio:[["Energy Reflection",3],["San He",3]],Apresamento:[["Air Suplex",2],["Arm/Wrist Lock",2],["Brain Cracker",1],["Dislocate Limb",3],["Head Butt Hold",2],["Push",1]],Esportes:[["Cannon Drill",5],["Flying Body Spear",2]],Foco:[["Balance",3],["Chi Kung Healing",3],["Chi Push",5],["Cobra Charm",2],["Extendible Limbs",4],["Fireball",3],["Flying Fireball",3],["Flight",5],["Ghost Form",5],["Improved Fireball",5],["Inferno Strike",5],["Leech",3],["Levitation",3],["Mind Reading",3],["Psychic Vise",5],["Regeneration",1],["Telepathy",2],["Yoga Flame",3],["Yoga Teleport",5]]}},
- "Karatê Shotokan":{chi:3,fv:4,moves:{Soco:[["Dragon Punch",4],["Flaming Dragon Punch",4],["Knife Hand Strike",3],["Lunging Punch",2]],Chute:[["Air Hurricane Kick",1],["Ax Kick",4],["Double Dread Kick",4],["Foot Sweep",1],["Hurricane Kick",4],["Whirlwind Kick",5]],Bloqueio:[["Energy Reflection",3],["Maka Wara",3],["San He",4]],Apresamento:[["Back Roll Throw",1],["Pin",3]],Esportes:[],Foco:[["Balance",4],["Chi Kung Healing",4],["Fireball",3],["Flying Fireball",2],["Improved Fireball",3],["Inferno Strike",5],["Levitation",4],["Stunning Shout",2]]}},
- "Kickboxe":{chi:2,fv:5,moves:{Soco:[["Dashing Punch",5],["Dashing Uppercut",2],["Fist Sweep",2],["Heart Punch",4],["Hyper Fist",4],["Lunging Punch",2],["Rekka Ken",5],["Spinning Backfist",1],["Spinning Knuckle",3],["Turn Punch",5]],Chute:[["Ax Kick",3],["Double Dread Kick",3],["Double-Hit Kick",1],["Flying Knee Thrust",1],["Reverse Frontal Kick",1],["Slide Kick",2],["Stepping Front Kick",4],["Tiger Knee",5],["Wounded Knee",2]],Bloqueio:[["Deflecting Punch",1]],Apresamento:[["Back Roll Throw",1],["Brain Cracker",1],["Knee Basher",2]],Esportes:[],Foco:[]}},
- "Kung Fu":{chi:4,fv:3,moves:{Soco:[["Dim Mak",4],["Dragon Punch",5],["Heart Punch",4],["Hundred Hand Slap",5],["Knife Hand Strike",3],["Monkey Grab Punch",1],["Rekka Ken",4]],Chute:[["Air Hurricane Kick",1],["Ax Kick",4],["Backflip Kick",3],["Double Dread Kick",4],["Double Hit Kick",1],["Dragon Kick",5],["Forward Backflip Kick",2],["Forward Flip Knee",3],["Hurricane Kick",5],["Lightning Leg",4],["Stepping Front Kick",3]],Bloqueio:[["Deflecting Punch",1],["Maka Wara",3],["San He",3]],Apresamento:[["Grappling Defense",4],["Hair Throw",2],["Improved Pin",3],["Pin",3],["Rising Storm Crow",5]],Esportes:[["Disarming",2],["Drunken Monkey Roll",1]],Foco:[["Balance",3],["Chi Kung Healing",3],["Chi Push",5],["Fireball",4],["Flying Fireball",3],["Improved Fireball",5],["Leech",4],["Levitation",4],["Regeneration",2],["Zen No Mind",3]]}},
+ "Aikidô":{chi:5,fv:2,moves:{Soco:[["Dim Mak",4]],Chute:[["Foot Sweep",1],["Slide Kick",2],["Spinning Foot Sweep",1]],Bloqueio:[["Deflecting Punch",1],["Energy Reflection",3],["San He",3],["Counter Attack *",1]],Apresamento:[["Air Throw",2],["Arm/Wrist Lock",1],["Back Roll Throw",1],["Grappling Defense",3],["Improved Pin",2],["Pin",2],["Push",1],["Counter Grapple *",3],["Tornado Throw *",4],["Falling Sky *",2]],Esportes:[["Breakfall",1],["Disarming",1],["Drunken Monkey Roll",2]],Foco:[["Chi Kung Healing",3],["Fireball",3],["Ghost Form",5],["Mind Reading",3],["Psychokinetic Channeling",4],["Regeneration",2],["Stunning Shout",3],["Telepathy",2],["Zen No Mind",3]]}},
+ "Baraqah":{chi:4,fv:3,moves:{Soco:[["Ear Pop",2],["Hundred Hand Slap",5],["Monkey Grab Punch",1],["Spinning Back Fist",1],["Spinning Knuckle",3]],Chute:[["Foot Sweep",1],["Wounded Knee",2],["Reverse Waterfall *",4]],Bloqueio:[["Deflecting Punch",1],["Energy Reflection",3],["Maka Wara",3]],Apresamento:[["Back Roll Throw",1],["Grappling Defense",3],["Dislocate Limb",2],["Improved Pin",2],["Pin",3],["Sleeper",3],["Soul Throw *",3]],Esportes:[["Breakfall",1],["Drunken Monkey Roll *",2]],Foco:[["Balance",3],["Chi Push",5],["Ghost Form",5],["Levitation",4],["Mind Reading",3],["Zen No Mind",3],["Psychokinetic Channeling",4],["Regeneration",1],["Telepathy",2],["Criminal Upper *",4],["Psycho Shield *",1],["Telekinesis *",2]]}},
+ "Boxe":{chi:1,fv:6,moves:{Soco:[["Dashing Punch",4],["Dashing Uppercut",1],["Fist Sweep",2],["Head Butt",1],["Heart Punch",4],["Hyper Fist",4],["Lunging Punch",2],["Rekka Ken",5],["Turn Punch",4],["Boxing Punches *",1],["Cross Counter *",3],["Double Hit Punch *",1],["Ducking Straight *",1],["Ducking Upper *",1],["Flicker Jab *",2],["Jet Uppercut *",4],["Machine Gun Blow *",4],["Rabbit Punch *",2],["Short Swing Blow *",2],["Thunderbolt *",4],["White Fang *",3]],Chute:[],Bloqueio:[["Deflecting Punch",1]],Apresamento:[["Brain Cracker",1],["Head Bite",1],["Head Butt Hold",2],["Head Butt Grab Attack *",2]],Esportes:[["Jumping Shoulder Butt",1],["Esquives *",2]],Foco:[["Toughskin",3],["Determination *",2]]}},
+ "Capoeira":{chi:2,fv:5,moves:{Soco:[["Head Butt",1],["Spinning Clothesline",4],["Turbo Spinning Clothesline",4],["Tornado Punch *",5]],Chute:[["Backflip Kick",2],["Forward Backflip Kick",1],["Cartwheel Kick",2],["Double-Hit Knee",1],["Forward Flip Knee",2],["Lightning Leg",5],["Jaguar Kick *",3],["Kick Roll *",1],["Rhino Horn *",3],["Spin Kick *",4]],Bloqueio:[],Apresamento:[["Dislocate Limb",2],["Head Bite",2],["Knee Basher",2],["Back Roll Throw",1]],Esportes:[["Backflip",2],["Beast Roll",3],["Rolling Attack",3],["Vertical Rolling Attack",2],["Drunken Monkey Roll",2],["Tumbling Attack",3],["Breakfall",1]],Foco:[["Balance",4],["Musical Accompaniment",1]]}},
+ "Forças Especiais":{chi:1,fv:6,moves:{Soco:[["Heart Punch",3],["Hyper Fist",5],["Knife Hand Strike",4],["Spinning Backfist",1],["Spinning Clothesline",5],["Spinning Knuckle",2],["Turbo Spinning Clothesline",4],["Flash Chop *",3],["Snake Strike *",3],["Double Hit Punch *",1]],Chute:[["Ax Kick",3],["Backflip Kick",3],["Double Dread Kick",4],["Flash Kick",4],["Flying Knee Thrust",1],["Flying Thrust Kick",3],["Foot Sweep",1],["Forward Flip Knee",3],["Handstand Kick",1],["Lightning Leg",5],["Spinning Foot Sweep",1],["Tiger Knee",5],["Dankukyaku *",4],["Flying Kick *",4],["Razor Edge Slicer *",3],["Somersault Kick *",2],["Spin Kick *",5],["Two-Sided Jumping Kick *",2]],Bloqueio:[["Block And Grab *",2]],Apresamento:[["Air Throw",2],["Arm/Wrist Lock",2],["Dislocate Limb",3],["Hair Throw",2],["Improved Pin",3],["Knee Basher",2],["Neck Choke",1],["Pile Driver",3],["Pin",4],["Sleeper",4],["Suplex",1],["Thigh Press",2],["Argentine Back Breaker *",4],["Falling Sky *",2],["Head Butt Grab Attack *",3],["Tornado Throw *",5]],Esportes:[["Cannon Drill",4],["Disarming",2],["Ground Fighting",4],["Ground Roll *",1]],Foco:[]}},
+ "Jeet Kune Dô":{chi:1,fv:6,moves:{Soco:[["Dragon Punch",5],["Ear Pop",2],["Hundred Hand Slap",5],["Hyper Fist",5],["Monkey Grab Punch",1],["Burn Knuckle *",3],["Split Punch *",3]],Chute:[["Backflip Kick",2],["Flying Knee Thrust",1],["Foot Sweep",1],["Forward Flip Knee",3],["Hurricane Kick",5],["Lightning Leg",4],["Scissor Kick",3],["Stepping Front Kick",3],["Tiger Knee",5],["Flying Kick *",3],["Shadow Kick *",3],["Flying Twin Kick *",3]],Bloqueio:[["Deflecting Punch",1],["Maka Wara",3]],Apresamento:[["Air Throw",2],["Grappling Defense",4],["Pin",3]],Esportes:[["Backflip",2],["Drunken Monkey Roll",1],["Light Feet",3],["Wall Spring",1]],Foco:[["Chi Kung Healing",4],["Zen No Mind",3]]}},
+ "Jiu-Jitsu (Judô)":{chi:3,fv:4,moves:{Soco:[["Ear Pop",2],["Elbow Smash *",1]],Chute:[["Foot Sweep",1],["Spinning Foot Sweep",1],["Forward Foot Sweep *",2],["Wheel Kick *",5]],Bloqueio:[["Deflecting Punch",1],["Energy Reflection",3],["Maka Wara",4],["Missile Reflection",1],["San He",3],["Counter Attack *",2]],Apresamento:[["Air Throw",1],["Back Breaker",2],["Back Roll Throw",1],["Dislocate Limb",3],["Grappling Defense",2],["Hair Throw",2],["Improved Pin",2],["Neck Choke",1],["Pin",2],["Stomach Pump",3],["Suplex",1],["Thigh Press",2],["Throw",0],["Counter Grapple *",2],["Sleeper *",4],["Tornado Throw *",4],["Falling Sky *",2]],Esportes:[["Breakfall",0],["Ground Fighting *",2],["Light Feet *",4]],Foco:[["Chi Kung Healing",4],["Toughskin",3],["Zen No Mind",3],["Energy Ball *",2]]}},
+ "Kabaddi":{chi:5,fv:2,moves:{Soco:[["Head Butt",1]],Chute:[["Slide Kick",2]],Bloqueio:[["Energy Reflection",3],["San He",3]],Apresamento:[["Air Suplex",2],["Arm/Wrist Lock",2],["Brain Cracker",1],["Dislocate Limb",3],["Head Butt Hold",2],["Push",1]],Esportes:[["Cannon Drill",5],["Flying Body Spear",2]],Foco:[["Balance",3],["Chi Kung Healing",3],["Chi Push",5],["Cobra Charm",2],["Extendible Limbs",4],["Fireball",3],["Flying Fireball",3],["Flight",5],["Ghost Form",5],["Improved Fireball",5],["Inferno Strike",5],["Leech",3],["Levitation",3],["Mind Reading",3],["Psychic Vise",5],["Regeneration",1],["Telepathy",2],["Yoga Flame",3],["Yoga Teleport",5],["Absorb Soul *",5],["Ashura Senku *",3],["God Invocation *",5],["Improved Yoga Teleport *",1],["Improved Ice Blast *",4],["Metamorphose *",5],["Mu no Hadou *",4],["Portal Attack *",5],["Psycho Shield *",1],["Energy Ball *",2],["Soul Illusion *",4],["Telekinesis *",2]]}},
+ "Karatê Shotokan":{chi:3,fv:4,moves:{Soco:[["Dragon Punch",4],["Flaming Dragon Punch",4],["Knife Hand Strike",3],["Lunging Punch",2],["Shoouken *",4],["Metsu Shoryuken *",3],["Reaping Palm *",4],["Tameshiwari *",4]],Chute:[["Air Hurricane Kick",1],["Ax Kick",4],["Double Dread Kick",4],["Foot Sweep",1],["Hurricane Kick",4],["Whirlwind Kick",5],["Bushin Sempu Kyaku *",4],["Dankukyaku *",3],["Gekiro *",5],["Sanren Geki *",5],["Shadow Kick *",3],["Wheel Kick *",3]],Bloqueio:[["Energy Reflection",3],["Maka Wara",3],["San He",4],["Block And Grab *",2],["Counter Attack *",2]],Apresamento:[["Back Roll Throw",1],["Pin",3]],Esportes:[["Ground Roll *",1]],Foco:[["Balance",4],["Chi Kung Healing",4],["Fireball",3],["Flying Fireball",2],["Improved Fireball",3],["Inferno Strike",5],["Levitation",4],["Stunning Shout",2],["Ansatsuken *",5],["Ashura Senku *",3],["Criminal Upper *",3],["Denjin Hadouken *",3],["Energy Ball *",2],["Instant Hell Murder *",5],["Metsu Hadouken *",3],["Mu no Hadou *",4],["Shinkuu Hadouken *",3]]}},
+ "Kickboxe":{chi:2,fv:5,moves:{Soco:[["Dashing Punch",5],["Dashing Uppercut",2],["Fist Sweep",2],["Heart Punch",4],["Hyper Fist",4],["Lunging Punch",2],["Rekka Ken",5],["Spinning Backfist",1],["Spinning Knuckle",3],["Turn Punch",5],["Boxing Punches *",2],["Cross Counter *",3],["Double Hit Punch *",1],["Ducking Straight *",2],["Ducking Upper *",2],["Jet Uppercut *",5],["Machine Gun Blow *",4],["Rabbit Punch *",2],["Ressen Ha *",3],["Short Swing Blow *",3]],Chute:[["Ax Kick",3],["Double Dread Kick",3],["Double-Hit Kick",1],["Flying Knee Thrust",1],["Reverse Frontal Kick",1],["Slide Kick",2],["Stepping Front Kick",4],["Tiger Knee",5],["Wounded Knee",2],["Flying Twin Kick *",4],["Rhino Horn *",4],["Sanren Geki *",5],["Spin Kick *",5]],Bloqueio:[["Deflecting Punch",1],["Counter Attack *",2]],Apresamento:[["Back Roll Throw",1],["Brain Cracker",1],["Knee Basher",2]],Esportes:[],Foco:[]}},
+ "Kung Fu":{chi:4,fv:3,moves:{Soco:[["Dim Mak",4],["Dragon Punch",5],["Heart Punch",4],["Hundred Hand Slap",5],["Knife Hand Strike",3],["Monkey Grab Punch",1],["Rekka Ken",4],["Cross Counter *",3],["Double Hit Punch *",1],["Palm Press *",3],["Rising Wind Punch *",1],["Snake Strike *",3],["Spring Punch *",4],["Tameshiwari *",5],["Tornado Punch *",5],["Zan-ei *",5]],Chute:[["Air Hurricane Kick",1],["Ax Kick",4],["Backflip Kick",3],["Double Dread Kick",4],["Double Hit Kick",1],["Dragon Kick",5],["Forward Backflip Kick",2],["Forward Flip Knee",3],["Hurricane Kick",5],["Lightning Leg",4],["Stepping Front Kick",3],["Bicycle Kick *",4],["Dankukyaku *",4],["Dive Kick *",3],["Flying Kick *",2],["Flying Twin Kick *",3],["Gekiro *",5],["Reverse Waterfall *",4],["Rhino Horn *",4],["Sanren Geki *",5],["Sniper Kick *",3],["Spin Kick *",5],["Spring Kick *",2],["Two-Sided Jumping Kick *",2],["Windmill Kick *",5]],Bloqueio:[["Deflecting Punch",1],["Maka Wara",3],["San He",3]],Apresamento:[["Grappling Defense",4],["Hair Throw",2],["Improved Pin",3],["Pin",3],["Rising Storm Crow",5],["Counter Grapple *",3],["Kick Throw *",3],["Soul Throw *",2],["Take Down *",3]],Esportes:[["Disarming",2],["Drunken Monkey Roll",1]],Foco:[["Balance",3],["Chi Kung Healing",3],["Chi Push",5],["Fireball",4],["Flying Fireball",3],["Improved Fireball",5],["Leech",4],["Levitation",4],["Regeneration",2],["Zen No Mind",3],["Absorb Soul *",5],["Ansatsuken *",4],["Ashura Senkuu *",4],["Dragon Attack *",5],["Improved Ice Blast *",4],["God Invocation *",5],["Metamorphose *",5],["Energy Ball *",2]]}},
  "Kung Fu do Corvo Majestoso":{chi:3,fv:4,moves:{Soco:[["Crow Beats his Wings",4],["Dim Mak",5],["Dragon Punch",5],["Monkey Grab Punch",1],["Rekka Ken",5],["Triple Strike",1]],Chute:[["Air Hurricane Kick",1],["Backflip Kick",3],["Double Dread Kick",3],["Double-Hit Kick",1],["Flash Kick",4],["Flying Thrust Kick",4],["Great Wall of China",5],["Hurricane Kick",5],["Lightning Leg",4],["Stepping Front Kick",3],["Whirlwind Kick",5]],Bloqueio:[["San He",4]],Apresamento:[["Air Throw",2],["Crow's Talon (Iron Claw)",4],["Grappling Defense",4],["Hair Throw",2],["Rising Storm Crow",4]],Esportes:[["Air Smash",1],["Cannon Drill",5],["Drunken Monkey Roll",2],["Flying Body Spear",3],["Landing Crow",3],["Rolling Attack",4],["Wall Spring",1]],Foco:[["Chi Kung Healing",4],["Fireball",4],["Flying Fireball",3],["Improved Fireball",5],["Stunning Shout",3]]}},
- "Ler Drit":{chi:5,fv:2,moves:{Soco:[["Ducking Fierce",1],["Hyper Fist",5],["Spinning Knuckle",3]],Chute:[["Double Dread Kick",4],["Flying Knee Thrust",1],["Forward Flip Knee",3],["Forward Slide Kick",2],["Scissor Kick",3],["Slide Kick",2],["Stepping Front Kick",4]],Bloqueio:[["San He",3]],Apresamento:[["Grappling Defense",4],["Iron Claw",5]],Esportes:[["Flying Body Spear",3],["Flying Heel Stomp",3],["Flying Punch",3]],Foco:[["Blind",3],["Cobra Charm",3],["Flight",4],["Mind Control",5],["Mind Reading",3],["Psycho Crusher",5],["Psychic Rage",3],["Psychic Vise",4],["Psychokinetic Channeling",3],["Regeneration",2],["Stunning Shout",3],["Telepathy",2]]}},
- "Lua":{chi:3,fv:4,moves:{Soco:[["Dim Mak",4]],Chute:[["Backflip Kick",3],["Double Hit Knee",1],["Wounded Knee",2]],Bloqueio:[["Energy Reflection",3]],Apresamento:[["Choke Throw",2],["Disengage",2],["Dislocate Limb",2],["Eye Rake",1],["Grappling Defense",3],["Head Bite",2],["Improved Pin",2],["Iron Claw",4],["Neck Choke",2],["Pin",2],["Sleeper",3]],Esportes:[["Light Feet",3]],Foco:[["Balance",3],["Chi Kung Healing",3],["Chi Push",5],["Fireball",4],["Ghost Form",5],["Leech",3],["Levitation",3],["Mind Reading",3],["Musical Accompaniment",1],["Regeneration",2],["Toughskin",3]]}},
- "Luta-Livre":{chi:1,fv:6,moves:{Soco:[["Bitch Slap *",2],["Buffalo Punch",1],["Criminal Upper *",4],["Dashing Punch",4],["Ducking Fierce",1],["Ear Pop",2],["Elbow Smash",1],["Haymaker",1],["Head Butt",1],["Spinning Back Fist",1],["Turn Punch",4]],Chute:[["Ax Kick",2],["Flying Knee Thrust",1],["Ruffian Kick *",3],["Slide Kick",2]],Bloqueio:[["Maka Wara",4]],Apresamento:[["Back Breaker",2],["Bear Hug",1],["Brain Cracker",1],["Eye Rake",1],["Head Bite",2],["Head Butt Hold",2],["Neck Choke",1],["Pile Driver",3],["Pin",2],["Sleeper",3],["Suplex",1]],Esportes:[["Air Smash",1],["Bad Stone *",2],["Sand Chuck *",2]],Foco:[["Dirty Fighting *",1]]}},
- "Luta-Livre Nativo Americana":{chi:3,fv:4,moves:{Soco:[["Buffalo Punch",1],["Ear Pop",2],["Heart Punch",2],["Shockwave",3],["Spinning Clothesline",4]],Chute:[["Wounded Knee",2]],Bloqueio:[],Apresamento:[["Air Throw",2],["Back Breaker",2],["Bear Hug",1],["Brain Cracker",1],["Disengage",2],["Dislocate Limb",3],["Face Slam",2],["Grappling Defense",3],["Iron Claw",4],["Neck Choke",1],["Pile Driver",3],["Sleeper",3],["Spinning Pile Driver",5],["Stomach Pump",3],["Storm Hammer",5],["Suplex",1],["Thigh Press",2]],Esportes:[["Air Smash",1],["Diving Hawk",4],["Ground Fighting",3],["Thunderstrike",1]],Foco:[["Chi Kung Healing",4],["Chi Push",5],["Ghost Form",5],["Regeneration",2],["Thunderclap",4]]}},
- "Ninjitsu":{chi:5,fv:2,moves:{Soco:[["Boshi-Ken",2],["Ear Pop",2],["Head Butt",1],["Rekka Ken",5],["Shikan-Ken",3],["Shuto",2]],Chute:[["Backflip Kick",2],["Cartwheel Kick",2],["Double-Hit Kick",1],["Double-Hit Knee",1],["Flying Thrust Kick",4],["Handstand Kick",1],["Heel Stamp",1]],Bloqueio:[["Deflecting Punch",1],["Maka Wara",4]],Apresamento:[["Air Throw",2],["Back Roll Throw",1],["Disengage",1],["Dislocate Limb",2],["Eye Rake",1],["Hair Throw",2]],Esportes:[["Drunken Monkey Roll",2],["Flying Heel Stomp",3],["Rolling Attack",3],["Vertical Rolling Attack",2],["Wall Spring",1]],Foco:[["Balance",2],["Deaths Visage *",3],["Entrancing Cobra",4],["Leech",3],["Sakki",3],["Shrouded Moon",1],["Speed of the Mongoose",3],["Zen No Mind",3]]}},
- "Ninjitsu Espanhol":{chi:2,fv:5,moves:{Soco:[],Chute:[["Forward Slide Kick",3],["Forward Flip Knee",3],["Scissor Kick",4]],Bloqueio:[],Apresamento:[["Air Suplex",1]],Esportes:[],Foco:[]}},
- "Pankration":{chi:1,fv:6,moves:{Soco:[["Buffalo Punch",1],["Ducking Fierce",1],["Ear Pop",2],["Fist Sweep",2],["Head Butt",1],["Spinning Back Fist",1]],Chute:[["Double Hit Knee",1],["Flying Knee Thrust",1],["Foot Sweep",1],["Slide Kick",2],["Wounded Knee",2]],Bloqueio:[["Maka Wara",3]],Apresamento:[["Air Throw",2],["Back Breaker",2],["Bear Hug",1],["Brain Cracker",1],["Choke Throw",2],["Disengage",2],["Dislocate Limb",2],["Grappling Defense",3],["Head Bite",2],["Improved Pin",3],["Knee Basher",2],["Neck Choke",2],["Pin",2],["Stomach Pump",3],["Suplex",1]],Esportes:[["Air Smash",1],["Breakfall",1],["Flying Heel Stomp",3],["Ground Fighting",2],["Thunderstrike",1]],Foco:[["Toughskin",2]]}},
- "Sanbo":{chi:1,fv:6,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[["Back Breaker",2],["Neck Choke",2],["Pile Driver",2],["Siberian Bear Crusher",5],["Siberian Suplex",3]],Esportes:[],Foco:[]}},
- "Savate":{chi:2,fv:5,moves:{Soco:[["Dashing Punch",4],["Dashing Uppercut",2],["Spinning Backfist",1],["Spinning Knuckle",3],["Turn Punch",4]],Chute:[["Ax Kick",2],["Double-Hit Kick",1],["Flying Thrust Kick",4],["Lightning Leg",5],["Reverse Frontal Kick",1],["Slide Kick",2]],Bloqueio:[["Deflecting Punch",1]],Apresamento:[],Esportes:[["Displacement",2],["Esquives",2]],Foco:[]}},
- "Silat":{chi:4,fv:3,moves:{Soco:[],Chute:[],Bloqueio:[["San He",3]],Apresamento:[["Dislocate Limb",3],["Improved Pin",3]],Esportes:[],Foco:[["Zen No Mind",3]]}},
- "Sumô":{chi:2,fv:5,moves:{Soco:[["Ear Pop",2],["Head Butt",1],["Heart Punch",3],["Hundred Hand Slap",4]],Chute:[["Double-Hit Kick",1],["Foot Sweep",1],["Spinning Foot Sweep",1]],Bloqueio:[["Maka Wara",3],["San He",3]],Apresamento:[["Bear Hug",1],["Face Slam",2],["Head Butt Hold",2],["Knee Basher",2],["Sleeper",4]],Esportes:[["Air Smash",1],["Flying Head Butt",2],["Jumping Shoulder Butt",1]],Foco:[["Stunning Shout",2],["Toughskin",2]]}},
- "Tai Chi Chuan":{chi:6,fv:1,moves:{Soco:[["Dim Mak",4],["Monkey Grab Punch",1]],Chute:[["Foot Sweep",1],["Slide Kick",2],["Spinning Foot Sweep",1]],Bloqueio:[["Deflecting Punch",1],["Energy Reflection",2],["Missile Reflection",1],["San He",2]],Apresamento:[["Air Throw",2],["Back Roll Throw",1],["Disengage",3],["Dislocate Limb",3],["Grappling Defense",3],["Improved Pin",3],["Pin",2]],Esportes:[["Breakfall",1]],Foco:[["Balance",2],["Chi Kung Healing",2],["Chi Push",5],["Ghost Form",5],["Levitation",4],["Stunning Shout",3],["Telepathy",2],["Zen No Mind",2]]}},
- "Thai Kickboxe (Muay Thai)":{chi:2,fv:5,moves:{Soco:[["Dragon Punch (Tiger Uppercut)",5],["Elbow Smash",1],["Flaming Dragon Punch",4],["Spinning Back Fist",1],["Turn Punch",4]],Chute:[["Double Dread Kick",3],["Double-Hit Kick",1],["Double-Hit Knee",1],["Flying Knee Thrust",1],["Foot Sweep",1],["Lightning Leg",4],["Tiger Knee",4],["Wounded Knee",2]],Bloqueio:[["Maka Wara",3]],Apresamento:[["Brain Cracker",1],["Head Butt Hold",2],["Knee Basher",2]],Esportes:[["Jumping Shoulder Butt",1]],Foco:[["Chi Kung Healing",4],["Fireball (Tiger Fireball)",4],["Toughskin",3],["Zen No Mind",3]]}},
- "Wu Shu":{chi:3,fv:4,moves:{Soco:[["Rekka Ken",5],["Spinning Knuckle",3]],Chute:[["Air Hurricane Kick",1],["Ax Kick",4],["Backflip Kick",2],["Cartwheel Kick",2],["Double-Hit Kick",1],["Flying Thrust Kick",4],["Forward Backflip Kick",1],["Forward Flip Knee",2],["Great Wall of China",5],["Handstand Kick",1],["Hurricane Kick",5],["Lightning Leg",3],["Reverse Frontal Kick",2],["Scissor Kick",4],["Stepping Front Kick",4],["Whirlwind Kick",4]],Bloqueio:[["Maka Wara",4],["San He",3]],Apresamento:[["Air Throw",2],["Back Roll Throw",1],["Improved Pin",3],["Pin",3]],Esportes:[["Backflip",2],["Cannon Drill",5],["Displacement",4],["Drunken Monkey Roll",2],["Flying Heel Stomp",3],["Rolling Attack",3],["Vertical Rolling Attack",2],["Wall Spring",1]],Foco:[["Balance",2],["Chi Kung Healing",4],["Fireball",4],["Flying Fireball",2],["Improved Fireball",5],["Levitation",4]]}},
+ "Ler Drit":{chi:5,fv:2,moves:{Soco:[["Ducking Fierce",1],["Hyper Fist",5],["Spinning Knuckle",3]],Chute:[["Double Dread Kick",4],["Flying Knee Thrust",1],["Forward Flip Knee",3],["Forward Slide Kick",2],["Scissor Kick",3],["Slide Kick",2],["Stepping Front Kick",4],["Razor Edge Slicer *",3]],Bloqueio:[["San He",3]],Apresamento:[["Grappling Defense",4],["Iron Claw",5],["Soul Throw *",2]],Esportes:[["Flying Body Spear",3],["Flying Heel Stomp",3],["Flying Punch",3]],Foco:[["Blind",3],["Cobra Charm",3],["Flight",4],["Mind Control",5],["Mind Reading",3],["Psycho Crusher",5],["Psychic Rage",3],["Psychic Vise",4],["Psychokinetic Channeling",3],["Regeneration",2],["Stunning Shout",3],["Telepathy",2],["Chi Push *",4],["Fireball *",4],["Improved Yoga Teleport *",1],["Portal Attack *",5],["Psycho Shield *",1],["Soul Spiral *",4],["Soul Illusion *",4],["Telekinesis *",2],["Yoga Teleport *",5]]}},
+ "Lua":{chi:3,fv:4,moves:{Soco:[["Dim Mak",4]],Chute:[["Backflip Kick",3],["Double Hit Knee",1],["Wounded Knee",2]],Bloqueio:[["Energy Reflection",3]],Apresamento:[["Choke Throw",2],["Disengage",2],["Dislocate Limb",2],["Eye Rake",1],["Grappling Defense",3],["Head Bite",2],["Improved Pin",2],["Iron Claw",4],["Neck Choke",2],["Pin",2],["Sleeper",3],["Counter Grapple *",3]],Esportes:[["Light Feet",3]],Foco:[["Balance",3],["Chi Kung Healing",3],["Chi Push",5],["Fireball",4],["Ghost Form",5],["Leech",3],["Levitation",3],["Mind Reading",3],["Musical Accompaniment",1],["Regeneration",2],["Toughskin",3],["Ansatsuken *",5]]}},
+ "Luta-Livre":{chi:1,fv:6,moves:{Soco:[["Ear Pop",2],["Bitch Slap *",2],["Bull Head *",3],["Bull Horn *",4],["Dashing Clothesline *",4],["Double Hit Punch *",1],["Flash Chop *",3],["Giant Palm Bomber *",3],["Jumping Hammer Punch *",3]],Chute:[],Bloqueio:[],Apresamento:[["Air Throw",2],["Back Breaker",2],["Bear Hug",1],["Brain Cracker",1],["Disengage",2],["Dislocate Limb",3],["Grappling Defense",3],["Improved Pin",2],["Iron Claw",4],["Knee Basher",2],["Neck Choke",1],["Pile Driver",3],["Pin",2],["Spinning Pile Driver",3],["Stomach Pump",3],["Storm Hammer",5],["Suplex",1],["Thigh Press",2],["Argentine Back Breaker *",3],["Bandit Chain *",5],["Counter Grapple *",2],["Falling Sky *",2],["Meat Squasher *",5],["Moonsault Press *",4]],Esportes:[["Air Smash",1],["Breakfall",1],["Flying Head Butt",2],["Ground Fighting",3],["Hyper Tackle *",3]],Foco:[]}},
+ "Luta-Livre Nativo Americana":{chi:3,fv:4,moves:{Soco:[["Buffalo Punch",1],["Ear Pop",2],["Heart Punch",2],["Shockwave",3],["Spinning Clothesline",4],["Jumping Hammer Punch *",3]],Chute:[["Wounded Knee",2]],Bloqueio:[],Apresamento:[["Air Throw",2],["Back Breaker",2],["Bear Hug",1],["Brain Cracker",1],["Disengage",2],["Dislocate Limb",3],["Face Slam",2],["Grappling Defense",3],["Iron Claw",4],["Neck Choke",1],["Pile Driver",3],["Sleeper",3],["Spinning Pile Driver",5],["Stomach Pump",3],["Storm Hammer",5],["Suplex",1],["Thigh Press",2],["Argentine Back Breaker *",3],["Head Butt Grab Attack *",2],["Moonsault Press *",5]],Esportes:[["Air Smash",1],["Diving Hawk",4],["Ground Fighting",3],["Thunderstrike",1],["Hyper Tackle *",2]],Foco:[["Chi Kung Healing",4],["Chi Push",5],["Ghost Form",5],["Regeneration",2],["Thunderclap",4],["God Invocation *",4],["Mu no Hadou *",4],["Wolf Animality *",5]]}},
+ "Ninjitsu":{chi:5,fv:2,moves:{Soco:[["Boshi-ken",2],["Ear Pop",2],["Head Butt",1],["Rekka Ken",5],["Shikan-ken",3],["Shuto",2]],Chute:[["Backflip Kick",2],["Cartwheel Kick",2],["Double-Hit Kick",1],["Double-Hit Knee",1],["Flying Thrust Kick",4],["Handstand Kick",1],["Heel Stamp",1],["Bushin Sempu Kyaku *",4],["Dive Kick *",4],["Spin Kick *",4]],Bloqueio:[["Deflecting Punch",1],["Maka Wara",4]],Apresamento:[["Air Throw",2],["Back Roll Throw",1],["Disengage",1],["Dislocate Limb",2],["Eye Rake",1],["Hair Throw",2],["Bushin Musou Renge *",5],["Butsumetsu Buster *",5],["Daikyou Burning *",5],["Sleeper *",4],["Take Down *",2]],Esportes:[["Drunken Monkey Roll",2],["Flying Heel Stomp",3],["Rolling Attack",3],["Vertical Rolling Attack",2],["Wall Spring",1],["Smooth Fall *",3]],Foco:[["Balance",2],["s Visage",3],["Entrancing Cobra",4],["Leech",3],["Sakki",3],["Shrouded Moon",1],["Speed of the Mongoose",3],["Zen no Mind",3],["Ansatsuken *",5],["Soul Illusion *",4]]}},
+ "Ninjitsu Espanhol":{chi:2,fv:5,moves:{Soco:[["Ear Pop",2],["Monkey Grab Punch",1]],Chute:[["Back Flip Kick",2],["Forward Backflip Kick",1],["Forward Flip Knee",3],["Forward Slide Kick",3],["Handstand Kick",1],["Scissor Kick",4],["Slide Kick",2],["Dive Kick *",4],["Razor Edge Slicer *",3],["Spin Kick *",4],["Two-Sided Jumping Kick *",1]],Bloqueio:[],Apresamento:[["Air Suplex",1],["Air Throw",2],["Back Roll Throw",1],["Choke Throw",1],["Disengage",2],["Suplex",1]],Esportes:[["Backflip",2],["Displacement",3],["Diving Hawk",4],["Flying Heel Stomp",3],["Light Feet",3],["Tumbling Attack",2],["Wall Spring",1],["Smooth Fall *",3]],Foco:[]}},
+ "Pankration":{chi:1,fv:6,moves:{Soco:[["Buffalo Punch",1],["Ducking Fierce",1],["Ear Pop",2],["Fist Sweep",2],["Head Butt",1],["Spinning Back Fist",1],["Dashing Clothesline *",4]],Chute:[["Double Hit Knee",1],["Flying Knee Thrust",1],["Foot Sweep",1],["Slide Kick",2],["Wounded Knee",2],["Dive Kick *",3],["Sniper Kick *",3]],Bloqueio:[["Maka Wara",3]],Apresamento:[["Air Throw",2],["Back Breaker",2],["Bear Hug",1],["Brain Cracker",1],["Choke Throw",2],["Disengage",2],["Dislocate Limb",2],["Grappling Defense",3],["Head Bite",2],["Improved Pin",3],["Knee Basher",2],["Neck Choke",2],["Pin",2],["Stomach Pump",3],["Suplex",1],["Counter Grapple *",2]],Esportes:[["Air Smash",1],["Breakfall",1],["Flying Heel Stomp",3],["Ground Fighting",2],["Thunderstrike",1],["Hyper Tackle *",3]],Foco:[["Toughskin",2]]}},
+ "Sanbo":{chi:1,fv:6,moves:{Soco:[["Ear Pop",2],["Heart Punch",2],["Hundred Hand Slap",5],["Spinning Clothesline",3],["Turbo Spinning Clothesline",2],["Banishing Flat *",1],["Dashing Clothesline *",4],["Double Hit Punch *",1],["Jumping Hammer Punch *",3]],Chute:[["Double Hit Kick",1]],Bloqueio:[],Apresamento:[["Air Throw",2],["Back Breaker",2],["Bear Hug",1],["Brain Cracker",1],["Disengage",2],["Dislocate Limb",3],["Face Slam",3],["Grappling Defense",3],["Head Bite",2],["Iron Claw",4],["Neck Choke",2],["Pile Driver",2],["Siberian Bear Crusher",5],["Siberian Suplex",3],["Sleeper",3],["Spinning Pile Driver",4],["Stomach Pump",3],["Suplex",1],["Thigh Press",2],["Argentine Back Breaker *",3],["Head Butt Grab Attack *",2],["Moonsault Press *",5]],Esportes:[["Air Smash",1],["Ground Fighting",3],["Hyper Tackle *",3]],Foco:[]}},
+ "Savate":{chi:2,fv:5,moves:{Soco:[["Dashing Punch",4],["Dashing Uppercut",2],["Spinning Backfist",1],["Spinning Knuckle",3],["Turn Punch",4],["Boxing Punches *",2]],Chute:[["Ax Kick",2],["Double-Hit Kick",1],["Flying Thrust Kick",4],["Lightning Leg",5],["Reverse Frontal Kick",1],["Slide Kick",2]],Bloqueio:[["Deflecting Punch",1]],Apresamento:[],Esportes:[["Displacement",2],["Esquives",2]],Foco:[]}},
+ "Silat":{chi:4,fv:3,moves:{Soco:[["Dim Mak",4],["Dragon Punch",5],["Hundred Hand Slap",5],["Monkey Grab Punch",1],["Double Hit Punch *",1]],Chute:[["Double-Hit Kick",1],["Dragon Kick",5],["Lightning Leg",4],["Stepping Front Kick",3],["Two-Sided Jumping Kick *",2]],Bloqueio:[["Deflecting Punch",1],["Energy Reflection",3],["Maka Wara",3],["San He",3]],Apresamento:[["Dislocate Limb",3],["Grappling Defense",4],["Hair Throw",2],["Improved Pin",3],["Iron Claw",4],["Pin",3],["Soul Throw *",3]],Esportes:[["Drunken Monkey Roll",2]],Foco:[["Balance",3],["Chi Kung Healing",3],["Chi Push",5],["Extendible Limbs",5],["Fireball",4],["Improved Fireball",5],["Levitation",4],["Mind Reading",3],["Psychokinetic Channeling",4],["Regeneration",2],["Sonic Boom",3],["Stunning Shout",2],["Yoga Flame",3],["Zen No Mind",3],["Ashura Senkuu *",4],["Energy Ball *",2],["Soul Spiral *",4]]}},
+ "Sumô":{chi:2,fv:5,moves:{Soco:[["Ear Pop",2],["Head Butt",1],["Heart Punch",3],["Hundred Hand Slap",4],["Double Hit Punch *",1],["Giant Palm Bomber *",3]],Chute:[["Double-Hit Kick",1],["Foot Sweep",1],["Spinning Foot Sweep",1]],Bloqueio:[["Maka Wara",3],["San He",3]],Apresamento:[["Bear Hug",1],["Face Slam",2],["Head Butt Hold",2],["Knee Basher",2],["Sleeper",4],["Head Butt Grab Attack *",2]],Esportes:[["Air Smash",1],["Flying Head Butt",2],["Jumping Shoulder Butt",1],["Hyper Tackle *",3]],Foco:[["Stunning Shout",2],["Toughskin",2]]}},
+ "Tai Chi Chuan":{chi:6,fv:1,moves:{Soco:[["Dim Mak",4],["Monkey Grab Punch",1],["Palm Press *",3],["Tameshiwari *",5]],Chute:[["Foot Sweep",1],["Slide Kick",2],["Spinning Foot Sweep",1],["Dive Kick *",2]],Bloqueio:[["Deflecting Punch",1],["Energy Reflection",2],["Missile Reflection",1],["San He",2]],Apresamento:[["Air Throw",2],["Back Roll Throw",1],["Disengage",3],["Dislocate Limb",3],["Grappling Defense",3],["Improved Pin",3],["Pin",2],["Falling Sky *",2]],Esportes:[["Breakfall",1]],Foco:[["Balance",2],["Chi Kung Healing",2],["Chi Push",5],["Ghost Form",5],["Levitation",4],["Stunning Shout",3],["Telepathy",2],["Zen No Mind",2]]}},
+ "Thai Kickboxe (Muay Thai)":{chi:2,fv:5,moves:{Soco:[["Dragon Punch (Tiger Uppercut)",5],["Elbow Smash",1],["Flaming Dragon Punch",4],["Spinning Back Fist",1],["Turn Punch",4],["Boxing Punches *",2],["Cross Counter *",3],["Double Hit Punch *",1]],Chute:[["Double Dread Kick",3],["Double-Hit Kick",1],["Double-Hit Knee",1],["Flying Knee Thrust",1],["Foot Sweep",1],["Lightning Leg",4],["Tiger Knee",4],["Wounded Knee",2],["Dive Kick *",3],["Flying Twin Kick *",4],["Wheel Kick *",3],["Slash Kick *",4],["Sniper Kick *",3],["Tiger Raid *",4]],Bloqueio:[["Maka Wara",3]],Apresamento:[["Brain Cracker",1],["Head Butt Hold",2],["Knee Basher",2]],Esportes:[["Jumping Shoulder Butt",1]],Foco:[["Chi Kung Healing",4],["Fireball (Tiger Fireball)",4],["Toughskin",3],["Zen No Mind",3],["Determination *",2]]}},
+ "Wu Shu":{chi:3,fv:4,moves:{Soco:[["Rekka Ken",5],["Spinning Knuckle",3],["Palm Press *",4],["Snake Strike *",4],["Spring Punch *",5]],Chute:[["Air Hurricane Kick",1],["Ax Kick",4],["Backflip Kick",2],["Cartwheel Kick",2],["Double-Hit Kick",1],["Flying Thrust Kick",4],["Forward Backflip Kick",1],["Forward Flip Knee",2],["Great Wall of China",5],["Handstand Kick",1],["Hurricane Kick",5],["Lightning Leg",3],["Reverse Frontal Kick",2],["Scissor Kick",4],["Stepping Front Kick",4],["Whirlwind Kick",4],["Bicycle Kick *",5],["Dankukyaku *",3],["Dive Kick *",4],["Flying Kick *",3],["Flying Twin Kick *",3],["Wheel Kick *",3],["Rhino Horn *",4],["Shadow Kick *",3],["Spin Kick *",4],["Two-Sided Jumping Kick *",1]],Bloqueio:[["Maka Wara",4],["San He",3],["Counter Attack *",2]],Apresamento:[["Air Throw",2],["Back Roll Throw",1],["Improved Pin",3],["Pin",3],["Kick Throw *",3],["Take Down *",3]],Esportes:[["Backflip",2],["Cannon Drill",5],["Displacement",4],["Drunken Monkey Roll",2],["Flying Heel Stomp",3],["Rolling Attack",3],["Vertical Rolling Attack",2],["Wall Spring",1],["Smooth Fall *",3],["Web Spin *",4]],Foco:[["Balance",2],["Chi Kung Healing",4],["Fireball",4],["Flying Fireball",2],["Improved Fireball",5],["Levitation",4]]}},
  "Bojutsu *":{chi:1,fv:6,moves:{Soco:[["Weapon Sweep *",2],["Dashing Punch",4],["Hyper Fist",4],["Power Uppercut",1],["Rekka Ken",4],["Dashing Uppercut",1],["Buffalo Punch",1],["Triple Strike",2],["Spinning Back Fist",1],["Spinning Weapon *",4]],Chute:[],Bloqueio:[["Deflecting Punch",1]],Apresamento:[["Brain Cracker",2],["Stomach Pump",3],["Neck Choke",3]],Esportes:[["Jump",1],["Kippup",1],["Wall Spring",2]],Foco:[["Weapon Channeling *",3]]}},
  "Glimae *":{chi:3,fv:4,moves:{Soco:[["Buffalo Punch",1]],Chute:[],Bloqueio:[],Apresamento:[["Air Suplex",2],["Air Throw",2],["Back Breaker",2],["Bear Hug",1],["Disengage",2],["Grappling Defense",3],["Head Butt Hold",2],["Stomach Pump",3],["Suplex",1],["Siberian Suplex",4]],Esportes:[["Breakfall",1],["Light Feet",3]],Foco:[["Chi Kung Healing",4],["Cobra Charm",2],["Ice Ground *",2],["Ice Blast",3],["Improved Ice Blast *",4],["Regeneration",2],["Telepathy",2],["Toughskin",2],["Cryokinesis *",3],["Ice Strike *",3]]}},
  "Hsing Yi Chuan *":{chi:2,fv:5,moves:{Soco:[["Ear Pop",2],["Hundred Hand Slap",5],["Spinning Back Fist",1],["Spinning Knuckle",3],["Monkey Grab Punch",1]],Chute:[["Foot Sweep",1],["Wounded Knee",2]],Bloqueio:[["Deflecting Punch",1],["Maka Wara",3],["Energy Reflection",3]],Apresamento:[["Sleeper",3],["Back Roll Throw",1],["Dislocate Limb",2],["Grappling Defense",3],["Pin",3],["Improved Pin",2],["Soul Throw *",2],["Counter Grapple *",3]],Esportes:[["Breakfall",1]],Foco:[["Psychokinetic Channeling",3],["Ansatsuken *",4]]}},
  "Kalaripayt *":{chi:3,fv:4,moves:{Soco:[["Head Butt",1],["Dim Mak",5]],Chute:[["Slide Kick",2]],Bloqueio:[["San He",3],["Energy Reflection",3]],Apresamento:[["Brain Cracker",1],["Dislocate Limb",3],["Head Butt Hold",2],["Air Suplex",2],["Suplex",1],["Pin",3],["Improved Pin",3]],Esportes:[["Cannon Drill",5],["Flying Body Spear",2]],Foco:[["Chi Kung Healing",3],["Extendible Limbs",4],["Regeneration",1],["Musical Accompaniment",1]]}},
- "Karatê Rindoukan *":{chi:1,fv:6,moves:{Soco:[["Dashing Punch",4],["Ducking Fierce",1],["Elbow Smash",1],["Fist Sweep",2],["Head Butt",1],["Knife Hand Strike",3],["Rekka Ken",4],["Shuto",2],["Shikan-Ken",4],["Triple Strike",1],["Gale Punch *",2],["Knife Hand Chop *",4],["Rising Wind Punch *",1]],Chute:[["Ax Kick",2],["Dive Kick *",2],["Double Dread Kick",4],["Double-Hit Kick",1],["Flying Thrust Kick",3],["Foot Sweep",1],["Forward Foot Sweep *",2]],Bloqueio:[["Maka Wara",3],["San He",4]],Apresamento:[["Neck Choke",1],["Sleeper",3],["Neck Crush *",3],["Vital Crush *",3]],Esportes:[["Air Smash",1],["Wall Spring",1]],Foco:[["Chi Kung Healing",4],["Stunning Shout",3],["Dirty Fighting *",1],["Ki Strike *",1]]}},
+ "Karatê Rindoukan *":{chi:1,fv:6,moves:{Soco:[["Dashing Punch",4],["Ducking Fierce",1],["Elbow Smash",1],["Fist Sweep",2],["Head Butt",1],["Knife Hand Strike",3],["Rekka Ken",4],["Shuto",2],["Shikan-Ken",4],["Triple Strike",1],["Gale Punch * G-Files",2],["Knife Hand Chop * G-Files",4],["Rising Wind Punch * G-Files",1]],Chute:[["Ax Kick",2],["Dive Kick",2],["Double Dread Kick",4],["Double-Hit Kick",1],["Flying Thrust Kick",3],["Foot Sweep",1],["Forward Foot Sweep",2]],Bloqueio:[["Maka Wara",3],["San He",4]],Apresamento:[["Neck Choke",1],["Sleeper",3],["Neck Crush * G-Files",3],["Vital Crush * G-Files",3]],Esportes:[["Air Smash",1],["Wall Spring",1]],Foco:[["Chi Kung Healing",4],["Stunning Shout",3],["Dirty Fighting * G-Files",1],["Ki Strike * G-Files",1]]}},
  "Kempo *":{chi:3,fv:4,moves:{Soco:[["Boshi-Ken",2],["Dim Mak",4],["Dragon Punch",5],["Monkey Grab Punch",1],["Rekka Ken",4],["Shikan-Ken",4]],Chute:[["Ax Kick",4],["Heel Stamp",2],["Lightning Leg",4],["Reverse Frontal Kick",2]],Bloqueio:[["Maka Wara",3],["San He",3]],Apresamento:[["Back Roll Throw",1]],Esportes:[],Foco:[["Fireball",3],["Flying Fireball",2],["Improved Fireball",4],["Stunning Shout",2]]}},
  "Kenjutsu *":{chi:3,fv:4,moves:{Soco:[["Power Uppercut",1],["Rekka Ken",5],["Hirazuki *",3],["Gatotsu *",5],["Battojutsu *",3],["Spinning Back Fist",1],["Spinning Knuckle",4],["Wounded Knee",2],["Spinning Weapon *",4]],Chute:[],Bloqueio:[["Sword Defense *",1],["Deflecting Sword *",2],["Missile Reflection",1],["San He",4],["Energy Reflection",2]],Apresamento:[],Esportes:[["Esquives",2],["Light Feet *",4]],Foco:[["Ansatsuken *",5],["Ashura Senkuu *",3],["Chi Kung Healing",3],["Stunning Shout",2],["Weapon Channeling *",3]]}},
- "Krav Maga *":{chi:2,fv:5,moves:{Soco:[["Ear Pop",2],["Head Butt",1],["Ducking Fierce",1],["Spinning Back Fist",1]],Chute:[["Flying Knee Thrust",1],["Slide Kick",2],["Wounded Knee",2]],Bloqueio:[["Maka Wara",3],["Counter Attack *",2],["Deflecting Punch",1]],Apresamento:[["Arm/Wrist Lock",2],["Back Roll Throw",1],["Brain Cracker",1],["Grappling Defense",3],["Improved Pin",2],["Sleeper",3],["Pin",2],["Choke Throw",1],["Disengage",2],["Dislocate Limb",3],["Eye Rake",1],["Counter Grapple *",2],["Iron Claw",4]],Esportes:[["Air Smash",1],["Breakfall",1],["Hyper Tackle *",3]],Foco:[["Toughskin",3],["Ansatsuken *",5]]}},
+ "Krav Maga *":{chi:2,fv:5,moves:{Soco:[["Ear Pop",2],["Head Butt",1],["Ducking Fierce",1],["Spinning Back Fist",1]],Chute:[["Flying Knee Thrust",1],["Slide Kick",2],["Wounded Knee",2]],Bloqueio:[["Maka Wara",3],["Counter Attack *",2],["Deflecting Punch",1]],Apresamento:[["Arm/Wrist Lock *",2],["Back Roll Throw",1],["Brain Cracker",1],["Grappling Defense",3],["Improved Pin",2],["Sleeper",3],["Pin",2],["Choke Throw",1],["Disengage",2],["Dislocate Limb",3],["Eye Rake",1],["Counter Grapple *",2],["Iron Claw",4]],Esportes:[["Air Smash",1],["Breakfall",1],["Hyper Tackle *",3]],Foco:[["Toughskin",3],["Ansatsuken *",5]]}},
  "Lucha Libre *":{chi:1,fv:6,moves:{Soco:[["Buffalo Punch",1]],Chute:[["Slide Kick",2],["Forward Slide Kick",3]],Bloqueio:[],Apresamento:[["Air Throw",2],["Argentine Back Breaker *",3],["Back Breaker",2],["Air Suplex",1],["Grappling Defense",3],["Ground Fighting",3],["Knee Basher",2],["Improved Pin",2],["Pile Driver",3],["Pin",2],["Spinning Pile Driver",3],["Stomach Pump",3],["Suplex",1],["Thigh Press",2]],Esportes:[["Light Feet",3],["Air Smash",1],["Wall Spring",1],["Hyper Tackle *",2],["Flying Head Butt",2]],Foco:[["Musical Accompaniment",1]]}},
- "Soul Power *":{chi:5,fv:2,moves:{Soco:[["Dim Mak",4],["Ducking Fierce",1]],Chute:[["Double Hit Kick",1],["Handstand Kick",1],["Slide Kick",2]],Bloqueio:[["Energy Reflection",2],["San He",3]],Apresamento:[["Air Throw",1],["Hair Throw",2],["Head Butt Hold",2],["Soul Throw *",2]],Esportes:[["Backflip",3]],Foco:[["Absorb Soul *",5],["Ashura Senkuu *",4],["Chi Kung Healing",3],["Chi Push",4],["Cobra Charm",3],["Flying Fireball",3],["Ghost Form",5],["Improved Fireball",5],["Improved Yoga Teleport *",1],["Leech",3],["Levitation",3],["Metamorphose *",5],["Mind Reading",3],["Psychic Vise",4],["Psycho Shield *",1],["Psychokinetic Channeling",3],["Regeneration",1],["Soul Spark *",3],["Soul Spiral *",2],["Soul Illusion *",3],["Stunning Shout",2],["Telekinesis *",2],["Telepathy",2],["Yoga Teleport",5],["Zen No Mind",3]]}},
- "Tae Kwon Dô *":{chi:2,fv:5,moves:{Soco:[["Heart Punch",3],["Spinning Back Fist",1]],Chute:[["Ax Kick",2],["Backflip Kick",1],["Dankukyaku *",3],["Dive Kick *",3],["Double Dread Kick",3],["Double-Hit Kick",1],["Double Hit Knee",1],["Flamingo Stance *",1],["Flash Kick",4],["Stepping Front Kick",3],["Flying Thrust Kick",4],["Foot Sweep",1],["Forward Backflip Kick",1],["Gekiro *",4],["Great Wall of China",5],["Haki Kyaku *",4],["Handstand Kick",1],["Heel Stamp",1],["Lightning Leg",3],["Reverse Frontal Kick",1],["Rhino Horn *",4],["Sanren Geki *",4],["Scissor Kick",3],["Slide Kick",2],["Two-Sided Jumping Kick *",1],["Whirlwind Kick",5],["Wheel Kick *",4],["Wounded Knee",2],["Second Impact *",1],["Third Strike *",1],["Sniper Kick *",3]],Bloqueio:[["Deflecting Punch",1],["Kick Defense",0],["Maka Wara",3]],Apresamento:[["Back Roll Throw",1],["Knee Basher",2],["Take Down *",2],["Thigh Press",2]],Esportes:[["Flying Heel Stomp",3],["Light Feet",4],["Smooth Fall *",3],["Wall Spring",1]],Foco:[["Chi Kung Healing",4],["Fireball",3],["Flying Fireball",2],["Stunning Shout",2]]}},
- "Vale-Tudo (MMA) *":{chi:1,fv:6,moves:{Soco:[["Banishing Flat *",1],["Dashing Punch",4],["Dashing Uppercut",1],["Fist Sweep",2],["Head Butt",1],["Heart Punch",4],["Hyper Fist",4],["Lunging Punch",2],["Rekka Ken",5],["Turn Punch",4],["Double Hit Punch *",1],["Change of Direction *",4],["Elbow Smash",1],["Spinning Back Fist",1]],Chute:[["Double Dread Kick",3],["Double-Hit Kick",1],["Flying Knee Thrust",1],["Foot Sweep",1],["Lightning Leg",4],["Wounded Knee",2],["Wheel Kick *",5],["Tiger Knee",4],["Double-Hit Knee",1]],Bloqueio:[["Maka Wara",3]],Apresamento:[["Air Throw",1],["Back Breaker",2],["Back Roll Throw",1],["Dislocate Limb",3],["Choke Throw *",2],["Grappling Defense",2],["Hair Throw",2],["Improved Pin",2],["Neck Choke",1],["Pin",2],["Stomach Pump",3],["Suplex",1],["Thigh Press",2],["Throw",0],["Tornado Throw *",4],["Counter Grapple *",2],["Brain Cracker",1],["Disengage",2],["Double Leg Takedown *",1],["Ground and Pound *",2],["Ground Fighting",3],["Knee Basher",2],["Shoot *",3],["Skyfall *",3],["Sleeper",3]],Esportes:[["Drunken Monkey Roll",2],["Breakfall",1],["Guard Position *",2]],Foco:[["Toughskin",3]]}},
+ "Tae Kwon Dô *":{chi:2,fv:5,moves:{Soco:[["Heart Punch",3],["Spinning Back Fist",1]],Chute:[["Ax Kick",2],["Backflip Kick",1],["Dankukyaku *",3],["Dive Kick *",3],["Double Dread Kick",3],["Double-Hit Kick",1],["Double Hit Knee",1],["Flamingo Stance *",1],["Flash Kick",4],["Stepping Front Kick",3],["Flying Thrust Kick",4],["Foot Sweep",1],["Forward Backflip Kick",1],["Gekiro *",4],["Great Wall of China",5],["Haki Kyaku *",4],["Handstand Kick",1],["Heel Stamp",1],["Lightning Leg",3],["Reverse Frontal Kick",1],["Rhino Horn *",4],["Sanren Geki *",4],["Scissor Kick",3],["Slide Kick",2],["Two-Sided Jumping Kick *",1],["Whirlwind Kick",5],["Wheel Kick *",4],["Wounded Knee",2],["Second Impact * G-Files",1],["Third Strike * G-Files",1],["Sniper Kick * G-Files",3]],Bloqueio:[["Deflecting Punch",1],["Kick Defense",0],["Maka Wara",3]],Apresamento:[["Back Roll Throw",1],["Knee Basher",2],["Take Down *",2],["Thigh Press",2]],Esportes:[["Flying Heel Stomp",3],["Light Feet",4],["Smooth Fall *",3],["Wall Spring",1]],Foco:[["Chi Kung Healing",4],["Fireball",3],["Flying Fireball",2],["Stunning Shout",2]]}},
+ "Vale-Tudo (MMA) *":{chi:1,fv:6,moves:{Soco:[["Banishing Flat *",1],["Dashing Punch",4],["Dashing Uppercut",1],["Fist Sweep",2],["Head Butt",1],["Heart Punch",4],["Hyper Fist",4],["Lunging Punch",2],["Rekka Ken",5],["Turn Punch",4],["Double Hit Punch *",1],["Change of Direction *",4],["Elbow Smash",1],["Spinning Back Fist",1]],Chute:[["Double Dread Kick",3],["Double-Hit Kick",1],["Flying Knee Thrust",1],["Foot Sweep",1],["Lightning Leg",4],["Wounded Knee",2],["Wheel Kick *",5],["Tiger Knee",4],["Double-Hit Knee",1]],Bloqueio:[["Maka Wara",3]],Apresamento:[["Air Throw",1],["Back Breaker",2],["Back Roll Throw",1],["Dislocate Limb",3],["Choke Throw *",2],["Grappling Defense",2],["Hair Throw",2],["Improved Pin",2],["Neck Choke",1],["Pin",2],["Stomach Pump",3],["Suplex",1],["Thigh Press",2],["Throw",0],["Tornado Throw *",4],["Counter Grapple *",2],["Brain Cracker",1],["Disengage",2],["Double Leg Takedown * G-Files",1],["Ground and Pound * G-Files",2],["Ground Fighting * G-Files",3],["Knee Basher",2],["Shoot * G-Files",3],["Skyfall * G-Files",3],["Sleeper",3]],Esportes:[["Drunken Monkey Roll",2],["Breakfall",1],["Guard Position * G-Files",2]],Foco:[["Toughskin",3]]}},
  "Yagli Gures *":{chi:1,fv:6,moves:{Soco:[["Bull Head *",3],["Bull Horn *",4]],Chute:[["Foot Sweep",1],["Slide Kick",2]],Bloqueio:[],Apresamento:[["Air Throw",2],["Back Breaker",2],["Bear Hug",1],["Disengage",2],["Flying Tackle",2],["Grappling Defense",3],["Ground Fighting",3],["Improved Pin",2],["Pin",2],["Pile Driver",3],["Spinning Pile Driver",3],["Suplex",1]],Esportes:[["Air Smash",1],["Drunken Monkey Roll",1]],Foco:[]}},
  "Briga":{chi:1,fv:6,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[],Esportes:[],Foco:[]}},
  "Maculelê *":{chi:2,fv:5,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[],Esportes:[],Foco:[]}},
- "Bushinryu *":{chi:3,fv:4,moves:{Soco:[["Boshi-Ken",2],["Elbow Smash",1],["Genko *",2],["Shikan-Ken",3],["Shuto",2]],Chute:[["Ax Kick",2],["Backflip Kick",2],["Foot Sweep",1],["Handstand Kick",1],["Slide Kick",2],["Suicide Spin *",3],["Tornado Kick *",3]],Bloqueio:[],Apresamento:[["Bushin Throw *",3],["Choke Throw",2],["Disengage",1],["Flying Bushin Throw *",1],["Knee Basher",2],["Lightning Drop *",3]],Esportes:[["Light Feet",3],["Shoulder Blast *",4],["Wall Spring",1]],Foco:[["Balance",3],["Perch *",3],["Zen No Mind",3]]}},
+ "Bushinryu *":{chi:3,fv:4,moves:{Soco:[["Boshi-Ken * G-Files",2],["Elbow Smash * G-Files",1],["Genko * G-Files",2],["Shikan-Ken * G-Files",3],["Shuto * G-Files",2]],Chute:[["Ax Kick * G-Files",2],["Backflip Kick * G-Files",2],["Foot Sweep * G-Files",1],["Handstand Kick * G-Files",1],["Slide Kick * G-Files",2],["Suicide Spin * G-Files",3],["Tornado Kick * G-Files",3]],Bloqueio:[],Apresamento:[["Bushin Throw * G-Files",3],["Choke Throw * G-Files",2],["Disengage * G-Files",1],["Flying Bushin Throw * G-Files",1],["Knee Basher * G-Files",2],["Lightning Drop * G-Files",3]],Esportes:[["Light Feet * G-Files",3],["Shoulder Blast * G-Files",4],["Wall Spring * G-Files",1]],Foco:[["Balance * G-Files",3],["Perch * G-Files",3],["Zen No Mind * G-Files",3],["Sakki * G-Files",3],["Shrouded Moon * G-Files",1],["Speed of the Mongoose * G-Files",3]]}},
  "Saikyo Ryu *":{chi:1,fv:6,moves:{Soco:[["Dragon Punch",5]],Chute:[["Air Hurricane Kick",2],["Foot Sweep",1],["Hurricane Kick",5],["Wounded Knee",2]],Bloqueio:[],Apresamento:[["Back Roll Throw",1]],Esportes:[],Foco:[["Gadoken *",3]]}},
  "Senjutsu *":{chi:6,fv:1,moves:{Soco:[["Dragon Punch",5],["Monkey Grab Punch",1],["Spinning Back Fist",1]],Chute:[["Foot Sweep",1],["Forward Flip Knee",3],["Slide Kick",2]],Bloqueio:[["Energy Reflection",3]],Apresamento:[["Herculean Strength *",3],["Neck Choke",2],["Back Roll Throw",1]],Esportes:[["Double Heel Stomp *",3],["Flying Heel Stomp",3],["Light Feet",3]],Foco:[["Balance",2],["Chi Kung Healing",3],["Deaths Visage *",3],["Fireball",3],["Flying Fireball",2],["Immortality *",5],["Improved Fireball",3],["Inferno Strike",5],["Leech",3],["Mind Reading",3],["Necrotelepathy *",2],["Perch *",5],["Seal *",1],["Telekinesis (G-File) *",3],["Telepathy",2],["Zen No Mind",3]]}},
- "Personalizado / Outro":{chi:3,fv:4,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[],Esportes:[],Foco:[]}}
+ "Personalizado / Outro":{chi:3,fv:4,moves:{Soco:[],Chute:[],Bloqueio:[],Apresamento:[],Esportes:[],Foco:[]}},
+ "Soul Power *":{chi:5,fv:2,moves:{Soco:[["Dim Mak",4],["Ducking Fierce",1]],Chute:[["Double Hit Kick",1],["Handstand Kick",1],["Slide Kick",2]],Bloqueio:[["Energy Reflection",2],["San He",3]],Apresamento:[["Air Throw",1],["Hair Throw",2],["Head Butt Hold",2],["Soul Throw *",2]],Esportes:[["Backflip",3]],Foco:[["Absorb Soul *",5],["Ashura Senkuu *",4],["Chi Kung Healing",3],["Chi Push",4],["Cobra Charm",3],["Flying Fireball",3],["Ghost Form",5],["Improved Fireball",5],["Improved Yoga Teleport *",1],["Leech",3],["Levitation",3],["Metamorphose *",5],["Mind Reading",3],["Psychic Vise",4],["Psycho Shield *",1],["Psychokinetic Channeling",3],["Regeneration",1],["Soul Spark *",3],["Soul Spiral *",2],["Soul Illusion *",3],["Stunning Shout",2],["Telekinesis *",2],["Telepathy",2],["Yoga Teleport",5],["Zen No Mind",3]]}}
 };
 
 /* =========================================================================
@@ -2137,6 +1826,32 @@ function moveTooltipHTML(nome,cat,custo){
 function showMoveModal(nome,cat,custo){
   showModal(`<h3>${nome}</h3>${moveInfoContent(nome,cat,custo)}<div class="sf-modal-actions"><button class="btn ghost" onclick="closeModal()">Fechar</button></div>`);
 }
+// Regra do Jeet Kune Dô (fonte: sfrpg.com.br/post/jeet-kune-do-e-as-manobras-especiais):
+// lutadores de JKD podem comprar manobra de QUALQUER estilo que não esteja na lista própria do JKD
+// nem em Movimentos Comuns, pagando o custo mais alto que essa manobra tem entre todos os estilos + 1.
+// (A redução por "estilo anterior" não é aplicada aqui: o gerador não rastreia estilo anterior do personagem.)
+function normalizeMoveName(nome){ return nome.replace(/\s*\*\s*G-Files\s*$/i,'').replace(/\s*\*\s*$/,'').trim(); }
+let _jkdCostMapCache=null;
+function jkdOutrosEstilosMoves(){
+  if(_jkdCostMapCache) return _jkdCostMapCache;
+  const jkdMoves=new Set(); const jkdStyle=STYLES['Jeet Kune Dô'];
+  if(jkdStyle) Object.values(jkdStyle.moves).forEach(list=>list.forEach(([n])=>jkdMoves.add(normalizeMoveName(n).toLowerCase())));
+  const geraisMoves=new Set();
+  Object.values(MANOBRAS_GERAIS).forEach(list=>list.forEach(([n])=>geraisMoves.add(normalizeMoveName(n).toLowerCase())));
+  const best={}; // key -> {nome, categoria, custo, estilo}
+  Object.entries(STYLES).forEach(([estiloNome, estiloData])=>{
+    if(estiloNome==='Jeet Kune Dô') return;
+    Object.entries(estiloData.moves).forEach(([cat, moves])=>{
+      moves.forEach(([nomeRaw, custo])=>{
+        const nome=normalizeMoveName(nomeRaw); const key=nome.toLowerCase();
+        if(jkdMoves.has(key) || geraisMoves.has(key)) return;
+        if(!best[key] || custo>best[key].custo) best[key]={nome, categoria:cat, custo, estilo:estiloNome};
+      });
+    });
+  });
+  _jkdCostMapCache = Object.values(best).map(m=>({nome:m.nome, categoria:m.categoria, custo:m.custo+1, estiloOrigem:m.estilo}));
+  return _jkdCostMapCache;
+}
 function renderManobraPicker(){
   const q=(document.getElementById('manobra-search').value||'').toLowerCase();
   const el=document.getElementById('manobra-picker-list'); el.innerHTML='';
@@ -2157,6 +1872,17 @@ function renderManobraPicker(){
     });
   });
   if(!any) el.innerHTML += '<div class="small" style="padding:4px 6px;">nenhuma manobra própria cadastrada para este estilo nas fontes disponíveis — veja "Outras manobras" abaixo.</div>';
+
+  if(estiloAtual==='Jeet Kune Dô'){
+    const hjkd=document.createElement('div'); hjkd.className='pick-cat'; hjkd.textContent='Manobras "proibidas" de outros estilos (custo mais alto +1)'; el.appendChild(hjkd);
+    jkdOutrosEstilosMoves().filter(m=>m.nome.toLowerCase().includes(q)).sort((a,b)=>a.nome.localeCompare(b.nome)).forEach(m=>{
+      const row=document.createElement('div'); row.className='pick-item';
+      row.innerHTML=`<span class="movetip-name" onclick="showMoveModal('${m.nome.replace(/'/g,"\\'")}','${m.categoria}',${m.custo})">${m.nome}</span> <span class="small">(${m.categoria} · ${custoLabel(m.custo)} · máx. em ${m.estiloOrigem} +1)</span>
+        <button ${already(m.nome)?'disabled':''} onclick="pickManobra('${m.nome.replace(/'/g,"\\'")}','${m.categoria}',${m.custo})">${already(m.nome)?'já possui':'+ adicionar'}</button>
+        ${moveTooltipHTML(m.nome,m.categoria,m.custo)}`;
+      el.appendChild(row);
+    });
+  }
 
   const h2=document.createElement('div'); h2.className='pick-cat'; h2.textContent='Outras manobras (custo geral)'; el.appendChild(h2);
   Object.entries(MANOBRAS_GERAIS).forEach(([cat,moves])=>{
