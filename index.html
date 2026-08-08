@@ -47,6 +47,15 @@ section.tab.active{display:block;}
 .sf-list-item{display:flex; justify-content:space-between; align-items:center; padding:7px 8px; border-bottom:1px solid #3a2f27; font-size:.85rem;}
 .sf-list-item:hover{background:#241d18;}
 .sf-list-item .lbl{cursor:pointer; flex:1;}
+.sf-list-item.dragging{opacity:.4;}
+.folder-drop{transition:background .1s, outline .1s;}
+.folder-drop.drag-over{background:rgba(199,154,63,.18); outline:2px dashed #c79a3f;}
+.lib-folder-row{display:flex; align-items:center; gap:6px; padding:6px 6px; border-bottom:1px solid #2a221c; cursor:grab; border-radius:4px;}
+.lib-folder-row.dragging{opacity:.4;}
+.lib-folder-row#lib-root-row{cursor:default; border-bottom:2px solid #7a6127; margin-bottom:4px;}
+.lib-toggle{cursor:pointer; width:14px; text-align:center; color:#a4927c; user-select:none;}
+.lib-folder-name{flex:1; font-weight:600; color:#ece2d0;}
+.lib-folder-actions{display:flex; gap:4px;}
 
 /* ---------- MODE BAR ---------- */
 .modebar{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
@@ -184,8 +193,8 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
 .combat-card .cc-name{text-align:center; font-size:.62rem; color:#a4927c; font-family:var(--font-mono); text-transform:uppercase; margin-bottom:2px;}
 .combat-card .cc-move{text-align:center; font-family:var(--font-display); font-size:1.4rem; letter-spacing:1px; color:#fff; margin:2px 0 6px; text-shadow:0 0 8px rgba(165,38,32,.7);}
 .combat-card .cc-portrait{
-  flex:1; margin:0 auto 8px; width:150px; height:150px; overflow:hidden; position:relative;
-  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  flex:1; margin:0 auto 8px; width:100%; height:150px; overflow:hidden; position:relative;
+  border-radius:10px;
   background:#0d0a08; border:2px solid #a52620; display:flex; align-items:center; justify-content:center; color:#a4927c; font-size:.6rem; text-align:center;
 }
 .combat-card .cc-portrait img{position:absolute; top:50%; left:50%; min-width:100%; min-height:100%; object-fit:cover; cursor:grab; user-select:none; -webkit-user-drag:none;}
@@ -197,6 +206,8 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
 .combat-card .cc-special{font-size:.62rem; color:#a4927c; border-top:1px solid #7a6127; padding-top:5px; min-height:30px; text-align:center; line-height:1.25;}
 .combat-card .cc-foot{position:absolute; bottom:6px; right:10px; font-family:var(--font-mono); font-size:.54rem; color:#7a6127;}
 .card-controls{width:300px; display:flex; flex-direction:column; gap:6px; margin-top:8px; background:#161210; border:1px solid #3a2f27; padding:10px;}
+.paste-zone{border:1.5px dashed #7a6127; border-radius:6px; padding:8px; text-align:center; font-size:.68rem; color:#a4927c; cursor:text; background:#0d0a08;}
+.paste-zone:focus{outline:none; border-color:#c79a3f; background:#1a140f; color:#ece2d0;}
 .card-controls .zoomrow{display:flex; align-items:center; gap:8px;}
 .card-controls .zoomrow input[type=range]{flex:1;}
 .card-controls label{font-size:.65rem; text-transform:uppercase; color:#a4927c;}
@@ -285,10 +296,16 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   body.print-cards-mode .combat-card{
     width:63mm !important; height:88mm !important; clip-path:none !important; border-radius:2.5mm;
     padding:2.5mm 3mm !important; font-size:6.2px; break-inside:avoid; page-break-inside:avoid;
+    background:var(--paper) !important; border-color:var(--red-dk) !important; color:var(--ink) !important;
   }
-  body.print-cards-mode .combat-card .cc-move{font-size:9px;}
-  body.print-cards-mode .combat-card .cc-stat .val{font-size:11px;}
-  body.print-cards-mode .combat-card .cc-portrait{width:60px; height:60px;}
+  body.print-cards-mode .combat-card .cc-head{color:var(--red-dk) !important; border-bottom-color:#d8cba8 !important;}
+  body.print-cards-mode .combat-card .cc-name{color:var(--dim) !important;}
+  body.print-cards-mode .combat-card .cc-move{font-size:9px; color:var(--red-dk) !important; text-shadow:none !important;}
+  body.print-cards-mode .combat-card .cc-portrait{width:100% !important; height:28mm !important; border-radius:2mm; background:#f1ece0 !important; border-color:var(--red-dk) !important;}
+  body.print-cards-mode .combat-card .cc-stat .lbl{color:var(--gold) !important;}
+  body.print-cards-mode .combat-card .cc-stat .val{font-size:11px; color:var(--ink) !important;}
+  body.print-cards-mode .combat-card .cc-special{color:var(--dim) !important; border-top-color:#d8cba8 !important;}
+  body.print-cards-mode .combat-card .cc-foot{color:var(--dim) !important;}
   body.print-cards-mode .card-controls{display:none !important;}
 }
 </style>
@@ -2168,57 +2185,221 @@ function renderLedger(){
   tbl.innerHTML=html;
 }
 
+
 /* =========================================================================
-   BIBLIOTECA LOCAL (localStorage — funciona quando o arquivo é aberto direto
-   no navegador; pode não persistir dentro do preview do chat)
+   BIBLIOTECA LOCAL (localStorage) — pastas e subpastas hierárquicas,
+   mover por arrastar (fichas e pastas), apagar pasta preserva conteúdo
+   (sobe pro nível de cima). Funciona quando o arquivo é aberto direto no
+   navegador; pode não persistir dentro do preview do chat.
    ========================================================================= */
-function libraryReadRaw(){
+function libEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function libEntriesRead(){
   try{ return JSON.parse(localStorage.getItem('sfrpg_library')||'[]'); }
   catch(e){ return null; }
 }
-function openLibraryModal(){ renderLibraryModalContent(); }
-function renderLibraryModalContent(){
-  const lib = libraryReadRaw();
-  const storageOk = lib!==null;
-  const list = lib||[];
-  const folders={};
-  list.forEach((entry,idx)=>{ const p=entry.pasta||'Geral'; folders[p]=folders[p]||[]; folders[p].push({entry,idx}); });
-  let listHtml = storageOk? '' : '<p style="color:#e18e83;">Armazenamento local indisponível neste visualizador. Baixe o arquivo (⇩ Exportar ficha) e abra-o diretamente no seu navegador para usar a Biblioteca — ou use Exportar/Importar como alternativa universal.</p>';
-  if(storageOk){
-    Object.entries(folders).forEach(([pasta,items])=>{
-      listHtml += `<div style="margin-top:10px;"><b style="color:#c79a3f;">📁 ${pasta}</b></div>`;
-      items.forEach(({entry,idx})=>{
-        listHtml += `<div class="sf-list-item"><span class="lbl" onclick="libraryLoad(${idx})">${entry.name} <span class="small">(${new Date(entry.savedAt).toLocaleDateString('pt-BR')})</span></span>
-          <input id="move-folder-${idx}" value="${pasta}" style="width:90px; font-size:.72rem; padding:3px;" title="digite a pasta de destino">
-          <button class="btn small ghost" onclick="libraryMove(${idx})" title="mover para a pasta digitada">📁→</button>
-          <button class="btn small danger" onclick="libraryDelete(${idx})">✕</button></div>`;
-      });
+function libEntriesWrite(arr){ localStorage.setItem('sfrpg_library', JSON.stringify(arr)); }
+function libFoldersRead(){
+  try{ return JSON.parse(localStorage.getItem('sfrpg_library_folders')||'[]'); }
+  catch(e){ return []; }
+}
+function libFoldersWrite(arr){ localStorage.setItem('sfrpg_library_folders', JSON.stringify(arr)); }
+function libNewId(prefix){ return prefix+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+// migra fichas do formato antigo (campo "pasta" com nome solto, sem id) pro novo (folderId + id estável)
+function libMigrate(){
+  const entries = libEntriesRead(); if(!entries) return;
+  let folders = libFoldersRead();
+  let changed = false;
+  entries.forEach(e=>{
+    if(!e.id){ e.id = libNewId('c'); changed = true; }
+    if(e.folderId===undefined){
+      changed = true;
+      if(e.pasta && e.pasta!=='Geral'){
+        let f = folders.find(f=>f.name===e.pasta && !f.parentId);
+        if(!f){ f = {id:libNewId('f'), name:e.pasta, parentId:null}; folders.push(f); }
+        e.folderId = f.id;
+      } else { e.folderId = null; }
+    }
+    delete e.pasta;
+  });
+  if(changed){ libFoldersWrite(folders); libEntriesWrite(entries); }
+}
+
+let libDragging = null;      // {type:'entry'|'folder', id}
+let libCollapsed = new Set();// pastas recolhidas (só em memória)
+let libNewFolderParent;      // undefined = nenhum input aberto; null = raiz; id = dentro dessa pasta
+
+function openLibraryModal(){ libMigrate(); libNewFolderParent=undefined; renderLibraryModalContent(); }
+
+function libChildFolders(parentId){ return libFoldersRead().filter(f=>(f.parentId||null)===(parentId||null)); }
+function libChildEntries(folderId){ return (libEntriesRead()||[]).filter(e=>(e.folderId||null)===(folderId||null)); }
+
+function libFolderContains(ancestorId, candidateId){
+  if(candidateId===ancestorId) return true;
+  const folders = libFoldersRead();
+  let f = folders.find(x=>x.id===candidateId);
+  while(f && f.parentId){
+    if(f.parentId===ancestorId) return true;
+    f = folders.find(x=>x.id===f.parentId);
+  }
+  return false;
+}
+
+function libToggleCollapse(id){ if(libCollapsed.has(id)) libCollapsed.delete(id); else libCollapsed.add(id); renderLibraryModalContent(); }
+
+function libShowNewFolderInput(parentId){ libNewFolderParent = (parentId===undefined?null:parentId); renderLibraryModalContent(); }
+function libCancelNewFolder(){ libNewFolderParent = undefined; renderLibraryModalContent(); }
+function libConfirmNewFolder(parentId){
+  const input = document.getElementById('new-folder-input'); if(!input) return;
+  const name = input.value.trim(); if(!name) return;
+  const folders = libFoldersRead();
+  folders.push({id:libNewId('f'), name, parentId: parentId||null});
+  libFoldersWrite(folders);
+  libNewFolderParent = undefined;
+  renderLibraryModalContent();
+}
+
+function libDragStartEntry(ev, id){ libDragging={type:'entry', id}; ev.dataTransfer.effectAllowed='move'; try{ev.dataTransfer.setData('text/plain', id);}catch(e){} ev.currentTarget.classList.add('dragging'); }
+function libDragStartFolder(ev, id){ libDragging={type:'folder', id}; ev.dataTransfer.effectAllowed='move'; try{ev.dataTransfer.setData('text/plain', id);}catch(e){} ev.currentTarget.classList.add('dragging'); }
+function libDragEnd(ev){ ev.currentTarget.classList.remove('dragging'); }
+function libDragOver(ev){ ev.preventDefault(); ev.currentTarget.classList.add('drag-over'); }
+function libDragLeave(ev){ ev.currentTarget.classList.remove('drag-over'); }
+
+function libMoveEntry(entryId, targetFolderId){
+  const entries = libEntriesRead(); if(!entries) return;
+  const e = entries.find(x=>x.id===entryId); if(!e) return;
+  e.folderId = targetFolderId||null;
+  libEntriesWrite(entries);
+}
+function libMoveFolder(folderId, targetParentId){
+  if(folderId===targetParentId) return false;
+  if(libFolderContains(folderId, targetParentId)){ sfAlert('Não dá para mover uma pasta para dentro dela mesma (ou de uma subpasta dela).'); return false; }
+  const folders = libFoldersRead();
+  const f = folders.find(x=>x.id===folderId); if(!f) return false;
+  f.parentId = targetParentId||null;
+  libFoldersWrite(folders);
+  return true;
+}
+function libDropOnFolder(ev, targetFolderId){
+  ev.preventDefault(); ev.stopPropagation(); ev.currentTarget.classList.remove('drag-over');
+  if(!libDragging) return;
+  let ok = true;
+  if(libDragging.type==='entry'){ libMoveEntry(libDragging.id, targetFolderId); }
+  else if(libDragging.type==='folder'){ ok = libMoveFolder(libDragging.id, targetFolderId); }
+  libDragging=null;
+  if(ok) renderLibraryModalContent();
+}
+
+function libDeleteFolder(folderId){
+  const folders = libFoldersRead();
+  const f = folders.find(x=>x.id===folderId); if(!f) return;
+  const childFolderCount = folders.filter(x=>x.parentId===folderId).length;
+  const childEntryCount = libChildEntries(folderId).length;
+  const msg = (childFolderCount||childEntryCount)
+    ? `Apagar a pasta "${f.name}"? ${childEntryCount} ficha(s) e ${childFolderCount} subpasta(s) dentro dela sobem para a pasta de cima — nada é apagado, só a pasta em si.`
+    : `Apagar a pasta "${f.name}"?`;
+  sfConfirm(msg, ()=>{
+    let folders2 = libFoldersRead();
+    folders2.forEach(x=>{ if(x.parentId===folderId) x.parentId = f.parentId||null; });
+    folders2 = folders2.filter(x=>x.id!==folderId);
+    libFoldersWrite(folders2);
+    const entries2 = libEntriesRead()||[];
+    entries2.forEach(e=>{ if(e.folderId===folderId) e.folderId = f.parentId||null; });
+    libEntriesWrite(entries2);
+    renderLibraryModalContent();
+  }, 'Apagar pasta');
+}
+
+function libNewFolderInputHTML(parentId, depth){
+  const pid = parentId===null ? 'null' : `'${parentId}'`;
+  return `<div style="margin-left:${depth*16}px; display:flex; gap:4px; margin:4px 0;">
+    <input id="new-folder-input" placeholder="nome da pasta" style="flex:1; font-size:.78rem; padding:3px;" autofocus
+      onkeydown="if(event.key==='Enter'){ libConfirmNewFolder(${pid}); } if(event.key==='Escape'){ libCancelNewFolder(); }">
+    <button class="btn small gold" onclick="libConfirmNewFolder(${pid})">✓</button>
+    <button class="btn small ghost" onclick="libCancelNewFolder()">✕</button>
+  </div>`;
+}
+
+function libFolderOptionsHTML(selectedId){
+  const folders = libFoldersRead();
+  let html = `<option value="" ${!selectedId?'selected':''}>— Raiz (sem pasta) —</option>`;
+  (function walk(parentId, depth){
+    folders.filter(f=>(f.parentId||null)===(parentId||null)).sort((a,b)=>a.name.localeCompare(b.name)).forEach(f=>{
+      html += `<option value="${f.id}" ${selectedId===f.id?'selected':''}>${'— '.repeat(depth)}${libEsc(f.name)}</option>`;
+      walk(f.id, depth+1);
     });
-    if(!list.length) listHtml += '<p class="small">Nenhuma ficha salva ainda.</p>';
+  })(null, 1);
+  return html;
+}
+
+function libRenderTree(parentId, depth){
+  const folders = libChildFolders(parentId).sort((a,b)=>a.name.localeCompare(b.name));
+  const entries = libChildEntries(parentId).sort((a,b)=>a.name.localeCompare(b.name));
+  let html = '';
+  folders.forEach(f=>{
+    const collapsed = libCollapsed.has(f.id);
+    html += `<div class="lib-folder-row folder-drop" style="margin-left:${depth*16}px;"
+        draggable="true" ondragstart="libDragStartFolder(event,'${f.id}')" ondragend="libDragEnd(event)"
+        ondragover="libDragOver(event)" ondragleave="libDragLeave(event)" ondrop="libDropOnFolder(event,'${f.id}')">
+      <span class="lib-toggle" onclick="libToggleCollapse('${f.id}')" title="expandir/recolher">${collapsed?'▸':'▾'}</span>
+      <span class="lib-folder-name">📁 ${libEsc(f.name)}</span>
+      <span class="lib-folder-actions">
+        <button class="btn small ghost" onclick="libShowNewFolderInput('${f.id}')" title="nova subpasta">+ subpasta</button>
+        <button class="btn small danger" onclick="libDeleteFolder('${f.id}')" title="apagar pasta">✕</button>
+      </span>
+    </div>`;
+    if(libNewFolderParent===f.id) html += libNewFolderInputHTML(f.id, depth+1);
+    if(!collapsed) html += libRenderTree(f.id, depth+1);
+  });
+  entries.forEach(e=>{
+    html += `<div class="sf-list-item" style="margin-left:${depth*16}px;" draggable="true"
+        ondragstart="libDragStartEntry(event,'${e.id}')" ondragend="libDragEnd(event)">
+      <span class="lbl" onclick="libraryLoad('${e.id}')" title="clique para carregar">⠿ ${libEsc(e.name)} <span class="small">(${new Date(e.savedAt).toLocaleDateString('pt-BR')})</span></span>
+      <button class="btn small danger" onclick="libraryDelete('${e.id}')">✕</button>
+    </div>`;
+  });
+  return html;
+}
+
+function renderLibraryModalContent(){
+  const entries = libEntriesRead();
+  const storageOk = entries!==null;
+  let bodyHtml = storageOk? '' : '<p style="color:#e18e83;">Armazenamento local indisponível neste visualizador. Baixe o arquivo (⇩ Exportar ficha) e abra-o diretamente no seu navegador para usar a Biblioteca — ou use Exportar/Importar como alternativa universal.</p>';
+  if(storageOk){
+    bodyHtml += `<div class="lib-folder-row folder-drop" id="lib-root-row" ondragover="libDragOver(event)" ondragleave="libDragLeave(event)" ondrop="libDropOnFolder(event, null)">
+      <span class="lib-folder-name">🗂️ Raiz</span>
+      <span class="lib-folder-actions"><button class="btn small ghost" onclick="libShowNewFolderInput(null)">+ nova pasta</button></span>
+    </div>`;
+    if(libNewFolderParent===null) bodyHtml += libNewFolderInputHTML(null, 1);
+    bodyHtml += libRenderTree(null, 1);
+    if(!entries.length && !libFoldersRead().length) bodyHtml += '<p class="small">Nenhuma ficha salva ainda.</p>';
   }
   showModal(`<h3>📚 Biblioteca de Personagens</h3>
-    <div style="display:flex; gap:6px; margin-bottom:10px;">
-      <input id="lib-name" placeholder="nome para salvar" value="${state.concept.nome||''}" style="flex:1;">
-      <input id="lib-folder" placeholder="pasta (opcional)" style="width:130px;">
+    <div style="display:flex; gap:6px; margin-bottom:6px;">
+      <input id="lib-name" placeholder="nome para salvar" value="${libEsc(state.concept.nome||'')}" style="flex:1;">
+      <select id="lib-folder-select" style="width:150px;">${storageOk?libFolderOptionsHTML(null):''}</select>
       <button class="btn gold" onclick="librarySaveCurrent()" ${storageOk?'':'disabled'}>Salvar</button>
     </div>
-    <div style="max-height:320px; overflow-y:auto;">${listHtml}</div>
+    <p class="small" style="margin:-2px 0 8px;">Dica: arraste (⠿) uma ficha ou uma pasta e solte em cima de outra pasta (ou da Raiz) pra mover.</p>
+    <div style="max-height:340px; overflow-y:auto;">${bodyHtml}</div>
     <div class="sf-modal-actions"><button class="btn ghost" onclick="closeModal()">Fechar</button></div>`,{noBackdropClose:true});
+  const nfi=document.getElementById('new-folder-input'); if(nfi) nfi.focus();
 }
+
 function librarySaveCurrent(){
   const name=document.getElementById('lib-name').value.trim()||'Sem nome';
-  const pasta=document.getElementById('lib-folder').value.trim()||'Geral';
+  const folderId=document.getElementById('lib-folder-select').value||null;
   try{
-    let lib=JSON.parse(localStorage.getItem('sfrpg_library')||'[]');
-    lib.push({name,pasta,savedAt:new Date().toISOString(),data:{state,cards}});
-    localStorage.setItem('sfrpg_library',JSON.stringify(lib));
+    const entries = libEntriesRead()||[];
+    entries.push({id:libNewId('c'), name, folderId, savedAt:new Date().toISOString(), data:{state,cards}});
+    libEntriesWrite(entries);
     renderLibraryModalContent();
   }catch(e){ sfAlert('Não foi possível salvar localmente neste ambiente. Use Exportar ficha (.json) como alternativa.'); }
 }
-function libraryLoad(idx){
+function libraryLoad(id){
   try{
-    let lib=JSON.parse(localStorage.getItem('sfrpg_library')||'[]');
-    const entry=lib[idx]; if(!entry) return;
+    const entries = libEntriesRead()||[];
+    const entry = entries.find(e=>e.id===id); if(!entry) return;
     state=entry.data.state; cards=entry.data.cards||[];
     state.manobrasCustom=state.manobrasCustom||[];
     state.cibernetico=state.cibernetico||{cabeca:false,tronco:false,bracos:false,pernas:false};
@@ -2229,24 +2410,15 @@ function libraryLoad(idx){
     hydrateInputs(); renderAll(); closeModal();
   }catch(e){ sfAlert('Erro ao carregar esta ficha.'); }
 }
-function libraryMove(idx){
-  try{
-    let lib=JSON.parse(localStorage.getItem('sfrpg_library')||'[]');
-    const entry=lib[idx]; if(!entry) return;
-    const novaPasta=(document.getElementById('move-folder-'+idx).value||'Geral').trim()||'Geral';
-    entry.pasta=novaPasta;
-    localStorage.setItem('sfrpg_library',JSON.stringify(lib));
-    renderLibraryModalContent();
-  }catch(e){ sfAlert('Não foi possível mover a ficha.'); }
-}
-function libraryDelete(idx){
+function libraryDelete(id){
   sfConfirm('Apagar esta ficha salva? Essa ação não pode ser desfeita.',()=>{
-    let lib=JSON.parse(localStorage.getItem('sfrpg_library')||'[]');
-    lib.splice(idx,1);
-    localStorage.setItem('sfrpg_library',JSON.stringify(lib));
+    let entries = libEntriesRead()||[];
+    entries = entries.filter(e=>e.id!==id);
+    libEntriesWrite(entries);
     renderLibraryModalContent();
   },'Apagar ficha');
 }
+
 
 /* =========================================================================
    CARTAS DE COMBATE
@@ -2358,6 +2530,21 @@ function onCardImageUpload(id,ev){
   reader.onload=e=>{ const c=cards.find(x=>x.id===id); if(c){ c.img=e.target.result; c.imgScale=1; c.imgX=0; c.imgY=0; renderCards(); } };
   reader.readAsDataURL(file);
 }
+function onCardImagePaste(id,ev){
+  ev.preventDefault();
+  const cd = ev.clipboardData || (ev.originalEvent && ev.originalEvent.clipboardData);
+  if(!cd || !cd.items) return;
+  for(const item of cd.items){
+    if(item.type && item.type.indexOf('image')!==-1){
+      const file=item.getAsFile(); if(!file) continue;
+      const reader=new FileReader();
+      reader.onload=e=>{ const c=cards.find(x=>x.id===id); if(c){ c.img=e.target.result; c.imgScale=1; c.imgX=0; c.imgY=0; renderCards(); } };
+      reader.readAsDataURL(file);
+      return;
+    }
+  }
+  sfAlert('Nada de imagem encontrado na área de transferência. Copie uma imagem (Ctrl+C num arquivo ou print) antes de colar aqui.');
+}
 function clearCardImage(id){ const c=cards.find(x=>x.id===id); if(c){ c.img=null; c.imgScale=1; c.imgX=0; c.imgY=0; renderCards(); } }
 function setCardZoom(id,val){
   const c=cards.find(x=>x.id===id); if(!c) return;
@@ -2441,8 +2628,9 @@ function renderCards(){
         <textarea style="width:100%; background:#0d0a08; color:#ece2d0; border:1px solid #3a2f27;" placeholder="Especial / custo / notas" onchange="updateCard(${c.id},'especial',this.value)">${c.especial}</textarea>
         <label>Imagem individual desta carta (senão usa o retrato da ficha)</label>
         <input type="file" accept="image/*" onchange="onCardImageUpload(${c.id},event)">
+        <div class="paste-zone" contenteditable="true" onpaste="onCardImagePaste(${c.id},event)" oninput="this.innerText=''; this.blur();">📋 clique aqui e cole (Ctrl+V) uma imagem copiada</div>
         <div class="zoomrow"><label style="white-space:nowrap;">Zoom</label><input type="range" min="50" max="300" value="${(c.imgScale||1)*100}" oninput="setCardZoom(${c.id},this.value); document.getElementById('zoomval-${c.id}').textContent=this.value+'%';"><span class="zoomval" id="zoomval-${c.id}">${Math.round((c.imgScale||1)*100)}%</span></div>
-        <div class="small">arraste a imagem dentro do hexágono para reposicionar</div>
+        <div class="small">arraste a imagem dentro da janela para reposicionar</div>
         <div style="display:flex; gap:6px;">
           <button class="btn small ghost" onclick="clearCardImage(${c.id})">Usar retrato da ficha</button>
           <button class="btn small gold" onclick="downloadCard(${c.id})">⇩ PNG</button>
