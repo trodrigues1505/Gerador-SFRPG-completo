@@ -69,6 +69,9 @@ section.tab.active{display:block;}
 .sheet-logo .t2{font-family:var(--font-mono); font-size:.7rem; letter-spacing:6px; color:var(--dim); text-transform:uppercase;}
 
 .infogrid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:0 18px; border-bottom:3px solid var(--red); padding-bottom:10px; margin-bottom:8px;}
+.combo-line{margin-bottom:5px;}
+.combo-line input{width:100%; border:none; border-bottom:1px dotted #999; background:transparent; font-family:var(--font-body); font-size:.82rem; padding:2px 2px 3px; color:var(--ink); box-sizing:border-box;}
+.combo-line input:focus{outline:none; background:#fff8e0;}
 .infoline{display:flex; align-items:baseline; gap:6px; margin-bottom:3px; border-bottom:1px dotted #999; padding-bottom:1px;}
 .infoline b{font-size:.72rem; text-transform:uppercase; color:var(--red-dk); white-space:nowrap; letter-spacing:.5px;}
 .infoline input, .infoline select{border:none; background:transparent; font-family:var(--font-body); font-size:.9rem; color:var(--ink); flex:1; min-width:0; padding:1px 2px;}
@@ -107,6 +110,8 @@ section.tab.active{display:block;}
 
 .finalsgrid{display:grid; grid-template-columns:1fr 1fr; gap:0 18px; margin-top:4px;}
 .tracklabel{font-family:var(--font-display); color:var(--red-dk); font-size:1.0rem; letter-spacing:1px; display:flex; justify-content:space-between;}
+.totallabel{white-space:nowrap; font-family:var(--font-mono); color:#7a6a55; font-size:.7rem; align-self:center;}
+.totallabel.over{color:var(--red);}
 .tracklabel .basewrap{font-family:var(--font-mono); font-size:.58rem; color:var(--dim);}
 .tracklabel .basewrap.over{color:var(--bad); font-weight:700;}
 .trackdots{display:flex; flex-wrap:wrap; gap:2px; margin:3px 0 8px;}
@@ -201,9 +206,17 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
 .movetip{cursor:help; border-bottom:1px dotted #7a6127; position:relative;}
 .movetip:hover .movetip-pop{display:block;}
 
+*{ -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact; }
 @page{ size:A4 portrait; margin:5mm; }
 @media print{
   #app{max-width:none !important; width:100% !important; padding:0 !important; margin:0 !important;}
+  select{ appearance:none !important; -webkit-appearance:none !important; -moz-appearance:none !important; border:none !important; background:transparent !important; padding:1px 2px !important; }
+  .rmbtn{display:none !important;}
+  input[type=file]{display:none !important;}
+  .basewrap{display:none !important;}
+  .orig.warn{display:none !important;}
+  .trackdots{flex-wrap:nowrap !important;}
+  .combo-line input{border-bottom:1px dotted #999 !important; background:transparent !important;}
   .sheet{padding:8px 12px 10px; border-width:4px;}
   .sheet-logo{margin-bottom:1px;}
   .sheet-logo .t1{font-size:1.9rem;}
@@ -323,7 +336,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
         <div class="infoline"><b>Nome</b><input id="c_nome" oninput="onSheetChange()"></div>
         <div class="infoline"><b>Jogador</b><input id="c_jogador" oninput="onSheetChange()"></div>
         <div class="infoline"><b>Crônica</b><input id="c_cronica" oninput="onSheetChange()"></div>
-        <div class="infoline"><b>Modo Racial</b>
+        <div class="infoline" id="modoracial-line"><b>Modo Racial</b>
           <select id="c_racamodo" onchange="onRacaModoChange()">
             <option value="">— nenhum (humano padrão) —</option>
             <option value="Tarkatan">Tarkatan</option>
@@ -344,7 +357,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
     </div>
     <div class="small" id="raca-info" style="margin:0 0 2px;"></div>
     <div id="raca-bonus-btn" class="no-print"></div>
-    <div class="infoline" style="max-width:340px; margin-top:2px;"><b>Retrato</b><input type="file" accept="image/*" onchange="onPortraitUpload(event)" style="font-size:.72rem;"></div>
+    <div class="infoline no-print" style="max-width:340px; margin-top:2px;"><b>Retrato</b><input type="file" accept="image/*" onchange="onPortraitUpload(event)" style="font-size:.72rem;"></div>
 
     <div class="banner">Atributos</div>
     <div class="cols3" id="attr-block"></div>
@@ -360,7 +373,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
             <div class="colhead">Antecedentes <span class="pts" id="ant-pts"></span></div>
             <div id="ant-rows"></div>
             <div id="ciber-panel"></div>
-            <select id="ant-known" onchange="if(this.value){ addAntecedenteNamed(this.value); this.value=''; }" style="width:100%; margin-top:4px; font-size:.76rem; padding:3px;">
+            <select id="ant-known" class="no-print" onchange="if(this.value){ addAntecedenteNamed(this.value); this.value=''; }" style="width:100%; margin-top:4px; font-size:.76rem; padding:3px;">
               <option value="">— escolher antecedente conhecido... —</option>
             </select>
             <div class="addline"><input id="ant-new" placeholder="ou digite um personalizado"><button onclick="addAntecedente()">+</button></div>
@@ -387,11 +400,13 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
             <div class="trackdots check-row" id="check-honraTemp"></div>
           </div>
           <div>
-            <div class="tracklabel">Chi <span class="basewrap">estilo: <span id="chi-base-view">3</span></span></div>
+            <div class="tracklabel">Chi <span class="basewrap no-print">estilo: <span id="chi-base-view">3</span></span> <span class="totallabel small" id="total-chi"></span></div>
             <div class="trackdots" id="dots-chi"></div>
-            <div class="tracklabel">Força de Vontade <span class="basewrap">estilo: <span id="fv-base-view">4</span></span></div>
+            <div class="trackdots check-row" id="check-chi"></div>
+            <div class="tracklabel">Força de Vontade <span class="basewrap no-print">estilo: <span id="fv-base-view">4</span></span> <span class="totallabel small" id="total-fv"></span></div>
             <div class="trackdots" id="dots-fv"></div>
-            <div class="tracklabel">Saúde</div>
+            <div class="trackdots check-row" id="check-fv"></div>
+            <div class="tracklabel">Saúde <span class="totallabel small" id="total-saude"></span></div>
             <div class="trackdots" id="dots-saude"></div>
             <div class="trackdots check-row" id="check-saude"></div>
           </div>
@@ -427,6 +442,12 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
           <input id="manobra-search" placeholder="filtrar por nome..." oninput="renderManobraPicker()">
           <div class="pick-list" id="manobra-picker-list"></div>
         </div>
+
+        <div class="colhead" style="margin-top:14px;">Combos <span class="small">(anote sequências de manobras)</span></div>
+        <div class="combo-line"><input id="combo1" placeholder="1." oninput="onSheetChange()"></div>
+        <div class="combo-line"><input id="combo2" placeholder="2." oninput="onSheetChange()"></div>
+        <div class="combo-line"><input id="combo3" placeholder="3." oninput="onSheetChange()"></div>
+        <div class="combo-line"><input id="combo4" placeholder="4." oninput="onSheetChange()"></div>
 
         <div class="colhead" style="margin-top:14px;">Experiência</div>
         <div class="xpbox" id="xp-box"></div>
@@ -1291,7 +1312,8 @@ let state = {
   skillPriority:{Talentos:null,Perícias:null,Conhecimentos:null},
   skills:[], antecedentes:[], tecnicasCustom:[], manobras:[], manobrasCustom:[],
   renome:{gloria:0,honra:0,gloriaTemp:0,honraTemp:0},
-  sessaoCheck:{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false)},
+  sessaoCheck:{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false), chi:Array(10).fill(false), fv:Array(10).fill(false)},
+  combos:['','','',''],
   cibernetico:{cabeca:false,tronco:false,bracos:false,pernas:false},
   xpPool:0, ledger:[]
 };
@@ -1551,6 +1573,7 @@ function onSheetChange(){
   state.situacao.der=document.getElementById('s_der').value;
   state.situacao.emp=document.getElementById('s_emp').value;
   state.situacao.ko=document.getElementById('s_ko').value;
+  state.combos=[1,2,3,4].map(i=>document.getElementById('combo'+i).value);
   renderCards();
 }
 function onPortraitUpload(ev){
@@ -2065,13 +2088,21 @@ function renderFinais(){
 
   const nChi=ledgerSum('chi','normal'), bChi=ledgerSum('chi','bonus'), xChi=ledgerSum('chi','xp');
   const chiOver = estilo.chi+nChi+bChi+xChi>10;
-  document.getElementById('dots-chi').innerHTML = dotsHTML({n:estilo.chi+nChi,b:bChi,x:xChi},[10],'clickChiDot') + ` <span class="small ${chiOver?'over':''}">total ${estilo.chi+nChi+bChi+xChi}/10</span>`;
+  document.getElementById('dots-chi').innerHTML = dotsHTML({n:estilo.chi+nChi,b:bChi,x:xChi},[10],'clickChiDot');
+  document.getElementById('total-chi').innerHTML = `total ${estilo.chi+nChi+bChi+xChi}/10`;
+  document.getElementById('total-chi').classList.toggle('over', chiOver);
+  document.getElementById('check-chi').innerHTML = checkRowHTML([10], state.sessaoCheck.chi, 'chi');
   const nFv=ledgerSum('fv','normal'), bFv=ledgerSum('fv','bonus'), xFv=ledgerSum('fv','xp');
   const fvOver = estilo.fv+nFv+bFv+xFv>10;
-  document.getElementById('dots-fv').innerHTML = dotsHTML({n:estilo.fv+nFv,b:bFv,x:xFv},[10],'clickFvDot') + ` <span class="small ${fvOver?'over':''}">total ${estilo.fv+nFv+bFv+xFv}/10</span>`;
+  document.getElementById('dots-fv').innerHTML = dotsHTML({n:estilo.fv+nFv,b:bFv,x:xFv},[10],'clickFvDot');
+  document.getElementById('total-fv').innerHTML = `total ${estilo.fv+nFv+bFv+xFv}/10`;
+  document.getElementById('total-fv').classList.toggle('over', fvOver);
+  document.getElementById('check-fv').innerHTML = checkRowHTML([10], state.sessaoCheck.fv, 'fv');
   const nSa=ledgerSum('saude','normal'), bSa=ledgerSum('saude','bonus'), xSa=ledgerSum('saude','xp');
   const saOver = 10+nSa+bSa+xSa>20;
-  document.getElementById('dots-saude').innerHTML = dotsHTML({n:10+nSa,b:bSa,x:xSa},[10,10],'clickSaudeDot') + ` <span class="small ${saOver?'over':''}">total ${10+nSa+bSa+xSa}/20</span>`;
+  document.getElementById('dots-saude').innerHTML = dotsHTML({n:10+nSa,b:bSa,x:xSa},[10,10],'clickSaudeDot');
+  document.getElementById('total-saude').innerHTML = `total ${10+nSa+bSa+xSa}/20`;
+  document.getElementById('total-saude').classList.toggle('over', saOver);
   document.getElementById('check-saude').innerHTML = checkRowHTML([10,10], state.sessaoCheck.saude, 'saude');
 
   document.getElementById('xp-box').innerHTML = `
@@ -2191,7 +2222,7 @@ function libraryLoad(idx){
     state=entry.data.state; cards=entry.data.cards||[];
     state.manobrasCustom=state.manobrasCustom||[];
     state.cibernetico=state.cibernetico||{cabeca:false,tronco:false,bracos:false,pernas:false};
-    state.sessaoCheck=state.sessaoCheck||{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false)};
+    state.sessaoCheck=state.sessaoCheck||{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false), chi:Array(10).fill(false), fv:Array(10).fill(false)}; state.sessaoCheck.chi=state.sessaoCheck.chi||Array(10).fill(false); state.sessaoCheck.fv=state.sessaoCheck.fv||Array(10).fill(false); state.combos=state.combos||['','','',''];
     state.concept.racaModo=state.concept.racaModo||'';
     (state.manobrasCustom).forEach(m=>{ if(!MOVE_INFO[m.nome]) MOVE_INFO[m.nome]={prereq:'Nenhum (personalizada)',sistema:'Manobra personalizada.',custo:'A combinar',vel:'',dano:'',mov:''}; });
     uid=Math.max(1,...state.ledger.map(x=>x.id||0),...state.skills.map(x=>x.id||0),...cards.map(x=>x.id||0))+1;
@@ -2441,7 +2472,7 @@ function importJSON(ev){
       state=data.state; cards=data.cards||[];
       state.manobrasCustom=state.manobrasCustom||[];
       state.cibernetico=state.cibernetico||{cabeca:false,tronco:false,bracos:false,pernas:false};
-      state.sessaoCheck=state.sessaoCheck||{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false)};
+      state.sessaoCheck=state.sessaoCheck||{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false), chi:Array(10).fill(false), fv:Array(10).fill(false)}; state.sessaoCheck.chi=state.sessaoCheck.chi||Array(10).fill(false); state.sessaoCheck.fv=state.sessaoCheck.fv||Array(10).fill(false); state.combos=state.combos||['','','',''];
       state.concept.racaModo=state.concept.racaModo||'';
       state.manobrasCustom.forEach(m=>{ if(!MOVE_INFO[m.nome]) MOVE_INFO[m.nome]={prereq:'Nenhum (personalizada)',sistema:'Manobra personalizada.',custo:'A combinar',vel:'',dano:'',mov:''}; });
       uid=Math.max(1,...state.ledger.map(x=>x.id||0),...state.skills.map(x=>x.id||0),...cards.map(x=>x.id||0))+1;
@@ -2467,12 +2498,14 @@ function hydrateInputs(){
   document.getElementById('s_der').value=state.situacao.der||'';
   document.getElementById('s_emp').value=state.situacao.emp||'';
   document.getElementById('s_ko').value=state.situacao.ko||'';
+  (state.combos||['','','','']).forEach((v,i)=>{ const el=document.getElementById('combo'+(i+1)); if(el) el.value=v||''; });
 }
 
 /* =========================================================================
    RENDER ALL
    ========================================================================= */
 function renderAll(){
+  const mrLine=document.getElementById('modoracial-line'); if(mrLine) mrLine.classList.toggle('no-print', !state.concept.racaModo);
   renderRacaInfo();
   updateUnofficialNote();
   renderAttrBlock(); makeAttrClickFns();
