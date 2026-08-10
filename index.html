@@ -7,6 +7,7 @@
 <link rel="manifest" id="pwa-manifest">
 <meta name="theme-color" content="#c8161d">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;600;700&display=swap');
 
@@ -253,7 +254,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   .small{font-size:.62rem;}
 }
 @media print{
-  .appbar, nav.tabs, .no-print{display:none !important;}
+  .appbar, nav.tabs, .no-print, #btn-logout, #gate{display:none !important;}
   body{background:#fff;}
   section.tab{display:none !important;}
   section.tab.active{display:block !important;}
@@ -308,11 +309,71 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   body.print-cards-mode .combat-card .cc-foot{color:var(--dim) !important;}
   body.print-cards-mode .card-controls{display:none !important;}
 }
+/* ---------- GATE DE ACESSO (Supabase Auth) ---------- */
+#gate{
+  position:fixed; inset:0; z-index:9999;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:var(--bg); color:#eee0c0; font-family:var(--font-body);
+  gap:18px; text-align:center; padding:20px;
+}
+#gate .gate-logo{font-family:var(--font-display); font-size:2.4rem; letter-spacing:3px; color:var(--red); text-shadow:2px 2px 0 #1a1a1a;}
+#gate-msg{font-size:.95rem; color:#c9b48f; max-width:420px; line-height:1.5;}
+#btn-login{
+  font-family:var(--font-display); letter-spacing:1.5px; font-size:1.1rem;
+  background:var(--red); color:#fff; border:none; padding:12px 30px;
+  cursor:pointer; border-radius:2px;
+}
+#btn-login:hover{background:var(--red-dk);}
+#btn-switch{
+  font-family:var(--font-body); letter-spacing:.5px; font-size:.8rem;
+  background:none; color:#a4927c; border:1px solid #3a2f27; padding:8px 18px;
+  cursor:pointer; text-transform:uppercase;
+}
+#btn-switch:hover{border-color:var(--gold); color:#eee0c0;}
+.gate-links{display:none; flex-direction:column; gap:8px; margin-top:6px;}
+.gate-links a{color:#e0a04a; font-size:.85rem; text-decoration:none; border-bottom:1px solid transparent;}
+.gate-links a:hover{border-bottom-color:#e0a04a;}
+#btn-logout{
+  position:fixed; top:10px; right:10px; z-index:9998;
+  font-family:var(--font-body); font-size:.68rem; text-transform:uppercase;
+  background:#241d18; color:#a4927c; border:1px solid #3a2f27; padding:5px 10px; cursor:pointer;
+}
+#btn-logout:hover{border-color:var(--gold);}
+
+/* ---------- PAINEL ADMIN ---------- */
+.admin-card{background:#171310; border:1px solid #3a2f27; border-radius:4px; padding:16px 18px; margin-bottom:18px; color:#ece2d0;}
+.admin-card h2{font-family:var(--font-display); letter-spacing:1px; font-size:1.1rem; color:var(--red); margin:0 0 10px; border-bottom:1px solid #3a2f27; padding-bottom:6px;}
+.addrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:4px;}
+.addrow input[type=email]{flex:1; min-width:200px; background:#0d0a08; border:1px solid #3a2f27; color:#ece2d0; padding:8px 10px; font-family:var(--font-body); font-size:.9rem;}
+.addrow select{background:#0d0a08; border:1px solid #3a2f27; color:#ece2d0; padding:8px 10px; font-family:var(--font-body); font-size:.85rem;}
+.admin-hint{font-family:var(--font-mono); font-size:.66rem; color:#a4927c; margin-top:4px;}
+.admin-table{width:100%; border-collapse:collapse; margin-top:10px;}
+.admin-table th{text-align:left; font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.5px; color:#a4927c; border-bottom:1px solid #3a2f27; padding:6px 8px;}
+.admin-table td{padding:8px; border-bottom:1px solid #241d18; font-size:.85rem; color:#ece2d0;}
+.admin-table td.email{font-family:var(--font-mono); font-size:.78rem;}
+.admin-rmbtn{background:none; border:1px solid var(--bad); color:var(--bad); padding:3px 10px; font-size:.68rem; cursor:pointer; text-transform:uppercase; letter-spacing:.4px;}
+.admin-rmbtn:hover{background:var(--bad); color:#fff;}
+#admin-status{font-family:var(--font-mono); font-size:.75rem; margin-top:8px; min-height:18px;}
+.status-ok{color:#5fa864;}
+.status-err{color:var(--bad);}
 </style>
 </head>
 <body>
+
+<div id="gate">
+  <div class="gate-logo">GUERREIRO <span style="color:#eee0c0;">MUNDIAL</span></div>
+  <p id="gate-msg">Verificando acesso...</p>
+  <button id="btn-login" style="display:none;">Entrar com Google</button>
+  <button id="btn-switch" style="display:none;" onclick="fazerLogout()">Trocar de conta</button>
+  <div id="gate-links" class="gate-links">
+    <a href="https://chat.whatsapp.com/JDdsv2WyNhBIX0062SYrDo" target="_blank" rel="noopener">💬 Entrar no grupo do WhatsApp</a>
+    <a href="https://apoia.se/avin" target="_blank" rel="noopener">⭐ Assinar o nível Mestre no Apoia.se</a>
+  </div>
+</div>
+<button id="btn-logout" style="display:none;" onclick="fazerLogout()">Sair</button>
+
 <div id="sf-modal-overlay" class="sf-modal-overlay"><div class="sf-modal-box" id="sf-modal-box"></div></div>
-<div id="app">
+<div id="app" style="display:none;">
 
   <div class="appbar no-print">
     <h1>GUERREIRO <span>MUNDIAL</span><small>gerador de fichas · sfrpg 2ª ed. · conteúdo não oficial cortesia de <a href="https://www.sfrpg.com.br" target="_blank" style="color:#c79a3f;">sfrpg.com.br</a> e "The G-File" (Matt Meade)</small></h1>
@@ -328,6 +389,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   <nav class="tabs no-print">
     <button data-tab="ficha" class="active">Ficha</button>
     <button data-tab="cartas">Cartas de Combate</button>
+    <button data-tab="admin" id="tab-admin-btn" style="display:none; background:var(--red);">⚙ Admin</button>
   </nav>
 
   <!-- ============================================================ FICHA ============================================================ -->
@@ -525,9 +587,262 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
     <div class="cards-wrap" id="cards-wrap"></div>
   </section>
 
+  <!-- ============================================================ ADMIN ============================================================ -->
+  <section class="tab dark" data-tab="admin">
+    <div class="admin-card no-print">
+      <h2>Solicitações pendentes <span id="admin-pend-contagem" class="admin-hint"></span></h2>
+      <table class="admin-table">
+        <thead><tr><th>E-mail</th><th>Última tentativa</th><th></th></tr></thead>
+        <tbody id="tabela-pendentes"></tbody>
+      </table>
+      <div id="admin-pend-empty" style="display:none;" class="admin-hint">Nenhuma solicitação pendente.</div>
+    </div>
+
+    <div class="admin-card no-print">
+      <h2>Controle de acesso — apoiadores autorizados</h2>
+      <div class="addrow">
+        <input type="email" id="novo-email" placeholder="email@gmail.com">
+        <select id="novo-tier">
+          <option value="mestre">mestre</option>
+          <option value="admin">admin</option>
+        </select>
+        <button class="toolbtn" style="background:var(--red); color:#fff;" onclick="adicionarUsuario()">+ Liberar acesso</button>
+      </div>
+      <div class="admin-hint">O e-mail precisa ser exatamente o mesmo usado no login Google da pessoa.</div>
+      <div id="admin-status"></div>
+    </div>
+
+    <div class="admin-card no-print">
+      <h2>Usuários autorizados <span id="admin-contagem" class="admin-hint"></span></h2>
+      <table class="admin-table">
+        <thead><tr><th>E-mail</th><th>Tier</th><th>Adicionado em</th><th></th></tr></thead>
+        <tbody id="tabela-usuarios"></tbody>
+      </table>
+      <div id="admin-empty" style="display:none;" class="admin-hint">Nenhum usuário cadastrado ainda.</div>
+    </div>
+  </section>
+
 </div>
 
 <script>
+/* =========================================================================
+   GATE DE ACESSO — Supabase Auth (login Google) + tabela authorized_users
+   ========================================================================= */
+const SUPABASE_URL = 'https://mggqfxevqwckliqzhahe.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1nZ3FmeGV2cXdja2xpcXpoYWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5OTIwOTcsImV4cCI6MjEwMTU2ODA5N30.q5XpqV4pGQlB6D5j36ASCRZDmwImzdB-KjqSvAFWCcE';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// trava de segurança contra a tela "Verificando acesso..." travar pra sempre:
+// se checarAcesso() não terminar em 10s (rede lenta, erro engolido, etc.),
+// mostra um botão de "tentar de novo" em vez de deixar o usuário preso.
+let _acessoResolvido = false;
+setTimeout(() => {
+  if(_acessoResolvido) return;
+  const gateMsg = document.getElementById('gate-msg');
+  gateMsg.textContent = 'Isso está demorando mais que o esperado. Pode ser lentidão de rede.';
+  const retryBtn = document.createElement('button');
+  retryBtn.id = 'btn-retry';
+  retryBtn.textContent = 'Tentar novamente';
+  retryBtn.onclick = () => window.location.reload();
+  retryBtn.style.cssText = document.getElementById('btn-switch').style.cssText;
+  retryBtn.className = '';
+  document.getElementById('gate').appendChild(retryBtn);
+}, 10000);
+
+async function checarAcesso(){
+  try{
+    const gate = document.getElementById('gate');
+    const gateMsg = document.getElementById('gate-msg');
+    const btnLogin = document.getElementById('btn-login');
+    const btnLogout = document.getElementById('btn-logout');
+    const app = document.getElementById('app');
+
+    const { data: { user } } = await sb.auth.getUser();
+
+    if(!user){
+      gateMsg.textContent = 'Acesso restrito a apoiadores do perfil Mestre. Faça login com sua conta Google cadastrada.';
+      btnLogin.style.display = 'inline-block';
+      document.getElementById('btn-switch').style.display = 'none';
+      document.getElementById('gate-links').style.display = 'none';
+      btnLogout.style.display = 'none';
+      app.style.display = 'none';
+      gate.style.display = 'flex';
+      _acessoResolvido = true;
+      return;
+    }
+
+    const { data: registro, error: erroConsulta } = await sb
+      .from('authorized_users')
+      .select('email, tier')
+      .eq('email', user.email)
+      .maybeSingle();
+
+    if(erroConsulta) throw erroConsulta;
+    console.log('[SFRPG] registro de acesso encontrado:', registro);
+
+    if(registro){
+      gate.style.display = 'none';
+      app.style.display = 'block';
+      btnLogout.style.display = 'block';
+
+      const tierNormalizado = (registro.tier || '').toString().trim().toLowerCase();
+      if(tierNormalizado === 'admin'){
+        document.getElementById('tab-admin-btn').style.display = 'inline-block';
+        carregarListaAdmin();
+      }
+    } else {
+      gateMsg.textContent = `Login OK (${user.email}), mas este e-mail não está autorizado. Sua solicitação foi registrada — aguarde a liberação do mestre.`;
+      btnLogin.style.display = 'none';
+      document.getElementById('btn-switch').style.display = 'inline-block';
+      document.getElementById('gate-links').style.display = 'flex';
+      btnLogout.style.display = 'none';
+      app.style.display = 'none';
+      gate.style.display = 'flex';
+      registrarTentativa(user.email);
+    }
+
+    _acessoResolvido = true;
+  }catch(err){
+    console.error('checarAcesso falhou:', err);
+    const gateMsg = document.getElementById('gate-msg');
+    gateMsg.textContent = 'Erro ao verificar acesso: ' + (err.message || 'desconhecido') + '. Tenta recarregar a página.';
+    _acessoResolvido = true;
+  }
+}
+
+async function registrarTentativa(email){
+  // upsert: se já tentou antes, só atualiza o horário da última tentativa
+  await sb.from('access_requests')
+    .upsert({ email, last_attempt_at: new Date().toISOString() }, { onConflict: 'email' });
+}
+
+document.getElementById('btn-login').addEventListener('click', () => {
+  sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href.split('#')[0].split('?')[0] }
+  });
+});
+
+function fazerLogout(){
+  sb.auth.signOut().then(() => { window.location.reload(); });
+}
+
+/* ---- painel admin: a aba só aparece se registro.tier === 'admin' acima ----
+   segurança real está nas policies de RLS do Supabase, não na exibição da aba aqui. */
+async function carregarListaAdmin(){
+  const { data, error } = await sb.from('authorized_users').select('*').order('added_at', { ascending: false });
+  if(error){ return; } // não-admin real: RLS bloqueou, tabela fica vazia
+  renderTabelaAdmin(data || []);
+  carregarPendentes();
+}
+
+async function carregarPendentes(){
+  const { data: pendentes } = await sb.from('access_requests').select('*').order('last_attempt_at', { ascending: false });
+  const { data: autorizados } = await sb.from('authorized_users').select('email');
+  const emailsAutorizados = new Set((autorizados || []).map(u => u.email));
+  const lista = (pendentes || []).filter(p => !emailsAutorizados.has(p.email));
+  renderTabelaPendentes(lista);
+}
+
+function renderTabelaPendentes(lista){
+  const tbody = document.getElementById('tabela-pendentes');
+  const empty = document.getElementById('admin-pend-empty');
+  const contagem = document.getElementById('admin-pend-contagem');
+  tbody.innerHTML = '';
+  contagem.textContent = `(${lista.length})`;
+  if(lista.length === 0){ empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  lista.forEach(p => {
+    const tr = document.createElement('tr');
+    const data = p.last_attempt_at ? new Date(p.last_attempt_at).toLocaleString('pt-BR') : '—';
+    const emailSafe = p.email.replace(/'/g,"\\'");
+    tr.innerHTML = `
+      <td class="email">${p.email}</td>
+      <td>${data}</td>
+      <td style="display:flex; gap:6px;">
+        <button class="toolbtn" style="background:var(--red); color:#fff; border-color:var(--red);" onclick="aprovarPendente('${emailSafe}')">Aprovar</button>
+        <button class="admin-rmbtn" onclick="ignorarPendente('${emailSafe}')">Ignorar</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function aprovarPendente(email){
+  const { error } = await sb.from('authorized_users').insert({ email, tier: 'mestre' });
+  if(error && error.code !== '23505'){
+    mostrarStatusAdmin('Erro ao aprovar: ' + error.message, false);
+    return;
+  }
+  await sb.from('access_requests').delete().eq('email', email);
+  mostrarStatusAdmin(`${email} aprovado.`, true);
+  carregarListaAdmin();
+}
+
+async function ignorarPendente(email){
+  await sb.from('access_requests').delete().eq('email', email);
+  mostrarStatusAdmin(`Solicitação de ${email} removida da fila.`, true);
+  carregarPendentes();
+}
+
+function renderTabelaAdmin(lista){
+  const tbody = document.getElementById('tabela-usuarios');
+  const empty = document.getElementById('admin-empty');
+  const contagem = document.getElementById('admin-contagem');
+  tbody.innerHTML = '';
+  contagem.textContent = `(${lista.length})`;
+  if(lista.length === 0){ empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  lista.forEach(u => {
+    const tr = document.createElement('tr');
+    const data = u.added_at ? new Date(u.added_at).toLocaleDateString('pt-BR') : '—';
+    tr.innerHTML = `
+      <td class="email">${u.email}</td>
+      <td>${u.tier || 'mestre'}</td>
+      <td>${data}</td>
+      <td><button class="admin-rmbtn" onclick="removerUsuario('${u.email.replace(/'/g,"\\'")}')">Remover</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function mostrarStatusAdmin(msg, ok){
+  const el = document.getElementById('admin-status');
+  el.textContent = msg;
+  el.className = ok ? 'status-ok' : 'status-err';
+  setTimeout(() => { el.textContent = ''; }, 4000);
+}
+
+async function adicionarUsuario(){
+  const emailInput = document.getElementById('novo-email');
+  const tierSelect = document.getElementById('novo-tier');
+  const email = emailInput.value.trim().toLowerCase();
+  const tier = tierSelect.value;
+  if(!email || !email.includes('@')){
+    mostrarStatusAdmin('Digite um e-mail válido.', false);
+    return;
+  }
+  const { error } = await sb.from('authorized_users').insert({ email, tier });
+  if(error){
+    mostrarStatusAdmin(error.code === '23505' ? 'Este e-mail já está na lista.' : 'Erro: ' + error.message, false);
+    return;
+  }
+  emailInput.value = '';
+  mostrarStatusAdmin(`${email} liberado com sucesso.`, true);
+  carregarListaAdmin();
+}
+
+async function removerUsuario(email){
+  sfConfirm(`Remover o acesso de ${email}?`, async ()=>{
+    const { error } = await sb.from('authorized_users').delete().eq('email', email);
+    if(error){ mostrarStatusAdmin('Erro ao remover: ' + error.message, false); return; }
+    mostrarStatusAdmin(`${email} removido.`, true);
+    carregarListaAdmin();
+  }, 'Remover acesso');
+}
+
+checarAcesso();
+
 /* =========================================================================
    MODAL SYSTEM
    ========================================================================= */
