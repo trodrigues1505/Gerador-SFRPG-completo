@@ -194,10 +194,11 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
 .combat-card .cc-name{text-align:center; font-size:.62rem; color:#a4927c; font-family:var(--font-mono); text-transform:uppercase; margin-bottom:2px;}
 .combat-card .cc-move{text-align:center; font-family:var(--font-display); font-size:1.4rem; letter-spacing:1px; color:#fff; margin:2px 0 6px; text-shadow:0 0 8px rgba(165,38,32,.7);}
 .combat-card .cc-portrait{
-  flex:0 0 auto; margin:0 auto 8px; width:100%; height:105px; overflow:hidden; position:relative;
-  border-radius:10px;
+  flex:0 0 auto; margin:0 auto 8px; width:180px; height:180px; overflow:hidden; position:relative;
+  border-radius:10px; cursor:pointer; outline:none;
   background:#0d0a08; border:2px solid #a52620; display:flex; align-items:center; justify-content:center; color:#a4927c; font-size:.6rem; text-align:center;
 }
+.combat-card .cc-portrait:focus{box-shadow:0 0 0 3px var(--gold);}
 .combat-card .cc-portrait img{position:absolute; top:50%; left:50%; min-width:100%; min-height:100%; object-fit:cover; cursor:grab; user-select:none; -webkit-user-drag:none;}
 .combat-card .cc-portrait img:active{cursor:grabbing;}
 .combat-card .cc-stats{display:flex; justify-content:space-around; margin-bottom:6px;}
@@ -265,6 +266,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   .cols2{grid-template-columns:1fr 1fr !important;}
   .finalsgrid{grid-template-columns:1fr 1fr !important;}
   .macro-right{border-left:2px solid var(--red) !important; border-top:none !important; padding-left:14px !important; padding-top:0 !important; margin-top:0 !important;}
+  body.print-white-bg{ --paper:#ffffff; }
 }
 @media screen and (max-width:820px){ .cols3{grid-template-columns:1fr;} .macro2col{grid-template-columns:1fr;} .macro-right{border-left:none; border-top:2px solid var(--red); padding-left:0; padding-top:10px; margin-top:10px;} .infogrid{grid-template-columns:1fr;} .cols2{grid-template-columns:1fr;} .finalsgrid{grid-template-columns:1fr;} }
 @media screen and (max-width:520px){
@@ -302,7 +304,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   body.print-cards-mode .combat-card .cc-head{color:var(--red-dk) !important; border-bottom-color:#d8cba8 !important;}
   body.print-cards-mode .combat-card .cc-name{color:var(--dim) !important;}
   body.print-cards-mode .combat-card .cc-move{font-size:9px; color:var(--red-dk) !important; text-shadow:none !important;}
-  body.print-cards-mode .combat-card .cc-portrait{width:100% !important; height:20mm !important; flex:0 0 auto !important; border-radius:2mm; background:#f1ece0 !important; border-color:var(--red-dk) !important;}
+  body.print-cards-mode .combat-card .cc-portrait{width:34mm !important; height:34mm !important; margin:0 auto 1.5mm !important; flex:0 0 auto !important; border-radius:2mm; background:#f1ece0 !important; border-color:var(--red-dk) !important;}
   body.print-cards-mode .combat-card .cc-special{font-size:6px !important;}
   body.print-cards-mode .combat-card .cc-stat .lbl{color:var(--gold) !important;}
   body.print-cards-mode .combat-card .cc-stat .val{font-size:11px; color:var(--ink) !important;}
@@ -383,6 +385,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
       <button class="toolbtn" onclick="openLibraryModal()">📚 Biblioteca</button>
       <button class="toolbtn" onclick="exportJSON()">⇩ Exportar ficha</button>
       <label class="toolbtn" style="cursor:pointer;">⇧ Importar<input type="file" accept=".json" style="display:none" onchange="importJSON(event)"></label>
+      <label class="toolbtn" style="cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" id="printWhiteBg" onchange="document.body.classList.toggle('print-white-bg', this.checked)" style="margin:0;"> Fundo branco na impressão</label>
       <button class="toolbtn" onclick="smartPrint()">🖶 Imprimir</button>
     </div>
   </div>
@@ -2868,6 +2871,12 @@ function setCardZoom(id,val){
   const img=document.getElementById('ccimg-'+id);
   if(img) img.style.transform = `translate(-50%,-50%) translate(${c.imgX}px,${c.imgY}px) scale(${c.imgScale})`;
 }
+function applyZoomToAll(id){
+  const src=cards.find(x=>x.id===id); if(!src) return;
+  const val=src.imgScale||1;
+  cards.forEach(c=>{ c.imgScale=val; });
+  renderCards();
+}
 function attachPortraitDrag(id){
   const img=document.getElementById('ccimg-'+id); if(!img) return;
   let dragging=false, startX=0, startY=0, origX=0, origY=0;
@@ -2920,13 +2929,13 @@ function renderCards(){
   cards.forEach(c=>{
     const outer=document.createElement('div');
     const imgSrc = c.img || state.portrait || '';
-    const portraitHTML = imgSrc ? `<img id="ccimg-${c.id}" src="${imgSrc}" style="transform:translate(-50%,-50%) translate(${c.imgX||0}px,${c.imgY||0}px) scale(${c.imgScale||1});">` : 'sem retrato';
+    const portraitHTML = imgSrc ? `<img id="ccimg-${c.id}" src="${imgSrc}" style="transform:translate(-50%,-50%) translate(${c.imgX||0}px,${c.imgY||0}px) scale(${c.imgScale||1});">` : 'clique aqui e cole (Ctrl+V)';
     outer.innerHTML = `
       <div class="combat-card" id="cc-${c.id}">
         <div class="cc-head">CARTA DE COMBATE</div>
         <div class="cc-name">${state.concept.nome||'Personagem'}</div>
         <div class="cc-move">${c.manobra}</div>
-        <div class="cc-portrait">${portraitHTML}</div>
+        <div class="cc-portrait" id="ccport-${c.id}" tabindex="0" onclick="this.focus()" onpaste="onCardImagePaste(${c.id},event)">${portraitHTML}</div>
         <div class="cc-stats">
           <div class="cc-stat"><div class="lbl">Velocidade</div><div class="val">${c.velocidade}</div></div>
           <div class="cc-stat"><div class="lbl">Dano</div><div class="val">${c.dano}</div></div>
@@ -2945,10 +2954,11 @@ function renderCards(){
         <label>Imagem individual desta carta (senão usa o retrato da ficha)</label>
         <input type="file" accept="image/*" onchange="onCardImageUpload(${c.id},event)">
         <div class="paste-zone" contenteditable="true" onpaste="onCardImagePaste(${c.id},event)" oninput="this.innerText=''; this.blur();">📋 clique aqui e cole (Ctrl+V) uma imagem copiada</div>
-        <div class="zoomrow"><label style="white-space:nowrap;">Zoom</label><input type="range" min="50" max="300" value="${(c.imgScale||1)*100}" oninput="setCardZoom(${c.id},this.value); document.getElementById('zoomval-${c.id}').textContent=this.value+'%';"><span class="zoomval" id="zoomval-${c.id}">${Math.round((c.imgScale||1)*100)}%</span></div>
+        <div class="zoomrow"><label style="white-space:nowrap;">Zoom</label><input type="range" min="20" max="400" value="${(c.imgScale||1)*100}" oninput="setCardZoom(${c.id},this.value); document.getElementById('zoomval-${c.id}').textContent=this.value+'%';"><span class="zoomval" id="zoomval-${c.id}">${Math.round((c.imgScale||1)*100)}%</span></div>
         <div class="small">arraste a imagem dentro da janela para reposicionar</div>
-        <div style="display:flex; gap:6px;">
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
           <button class="btn small ghost" onclick="clearCardImage(${c.id})">Usar retrato da ficha</button>
+          <button class="btn small ghost" onclick="applyZoomToAll(${c.id})" title="Aplica o zoom desta carta em todas as outras">🔁 Zoom p/ todas</button>
           <button class="btn small gold" onclick="downloadCard(${c.id})">⇩ PNG</button>
           <button class="btn small danger" onclick="removeCard(${c.id})">✕</button>
         </div>
