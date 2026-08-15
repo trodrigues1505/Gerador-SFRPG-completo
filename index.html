@@ -1035,34 +1035,34 @@ const MOVE_INFO = {
  'Air Suplex':{prereq:'Apresamento •••, Esportes •••, Jump, Suplex',prereqCheck:[{tec:'Apresamento',nivel:3},{tec:'Esportes',nivel:3},{manobra:'Jump'},{manobra:'Suplex'}],sistema:'O lutador deve interromper um oponente numa Manobra Aérea. Se causar dano, a vítima sofre Knockdown.',custo:'Nenhum',vel:'-1',dano:'+4',mov:'+0'},
  'Arm/Wrist Lock':{prereq:'Apresamento •••, Soco •, Chute •',prereqCheck:[{tec:'Apresamento',nivel:3},{tec:'Soco',nivel:1},{tec:'Chute',nivel:1}],sistema:'Após um bloqueio bem sucedido, o lutador torce o braço/perna do oponente. É um Apresamento Sustentado e causa knockdown além do dano.',custo:'Nenhum',vel:'+0',dano:'+0',mov:'Dois'},
  'Back Breaker':{prereq:'Apresamento •••',prereqCheck:[{tec:'Apresamento',nivel:3}],sistema:'O oponente sofre um Knockdown além do dano.',custo:'Nenhum',vel:'-1',dano:'+3',mov:'Um'},
- 'Back Roll Throw':{prereq:'Apresamento ••, Chute •, Esportes •, Throw',prereqCheck:[{tec:'Apresamento',nivel:2},{tec:'Chute',nivel:1},{tec:'Esportes',nivel:1},{manobra:'Throw'}],sistema:'Versão avançada do Throw: a vítima é projetada a um número de hexágonos igual a Força + Chute do atacante.',custo:'Nenhum',vel:'',dano:'',mov:''},
+ 'Back Roll Throw':{prereq:'Apresamento ••, Chute •, Esportes •, Throw',prereqCheck:[{tec:'Apresamento',nivel:2},{tec:'Chute',nivel:1},{tec:'Esportes',nivel:1},{manobra:'Throw'}],sistema:'Versão avançada do Throw: a vítima é projetada a um número de hexágonos igual a Força + Chute do atacante.',custo:'Nenhum',vel:'-1',dano:'+4',mov:'Um'},
  'Neck Choke':{prereq:'Apresamento •••',prereqCheck:[{tec:'Apresamento',nivel:3}],sistema:'É um Apresamento Sustentado.',custo:'Nenhum',vel:'-1',dano:'+3',mov:'Um'},
  'Pile Driver':{prereq:'Apresamento •••, Esportes •',prereqCheck:[{tec:'Apresamento',nivel:3},{tec:'Esportes',nivel:1}],sistema:'A vítima também sofre um Knockdown.',custo:'Nenhum',vel:'-2',dano:'+4',mov:'Um'},
  'Pin':{prereq:'Apresamento ••',prereqCheck:[{tec:'Apresamento',nivel:2}],sistema:'O alvo deve ter sofrido Knockdown ou Dizzy. É um Apresamento Sustentado; a Força do lutador é elevada em três só para segurar (não aumenta o dano).',custo:'1 Força de Vontade no 1º turno',vel:'-1',dano:'+2 (1º turno) / +0 (depois)',mov:'+1 (1º turno) / Nenhum (depois)'},
- 'Push':{prereq:'Apresamento ••',prereqCheck:[{tec:'Apresamento',nivel:2}],sistema:'O oponente é jogado a um número de hexágonos igual a Força + Apresamento do atacante e sofre knockdown.',custo:'Nenhum',vel:'',dano:'',mov:''},
- 'Sleeper':{prereq:'Apresamento •••',prereqCheck:[{tec:'Apresamento',nivel:3}],sistema:'É um Apresamento Sustentado. Se mantido por três turnos (incluindo o primeiro), atordoa automaticamente o oponente.',custo:'',vel:'',dano:'',mov:''},
+ 'Push':{prereq:'Apresamento ••',prereqCheck:[{tec:'Apresamento',nivel:2}],sistema:'O oponente é jogado a um número de hexágonos igual a Força + Apresamento do atacante e sofre knockdown.',custo:'Nenhum',vel:'+1',dano:'Nenhum',mov:'Um'},
+ 'Sleeper':{prereq:'Apresamento •••',prereqCheck:[{tec:'Apresamento',nivel:3}],sistema:'É um Apresamento Sustentado. Se mantido por três turnos (incluindo o primeiro), atordoa automaticamente o oponente.',custo:'1 Força de Vontade somente no primeiro turno.',vel:'-1',dano:'+2',mov:'Um'},
  'Improved Pin':{prereq:'Apresamento •••, Esportes ••, Pin',prereqCheck:[{tec:'Apresamento',nivel:3},{tec:'Esportes',nivel:2},{manobra:'Pin'}],sistema:'Pode ser usado no hexágono do lutador ou em hexágono adjacente, contra alvo Knocked Down ou Dizzy. Funciona como Pin aprimorado.',custo:'1 Força de Vontade no 1º turno',vel:'+0',dano:'+2 (1º turno) / +1 (depois)',mov:'+1 (1º turno) / Dois (depois)'},
- 'Iron Claw':{prereq:'Apresamento •••••',prereqCheck:[{tec:'Apresamento',nivel:5}],sistema:'O lutador aperta o rosto do oponente com força bruta, causando dor intensa.',custo:'',vel:'',dano:'',mov:''},
+ 'Iron Claw':{prereq:'Apresamento •••••',prereqCheck:[{tec:'Apresamento',nivel:5}],sistema:'O lutador aperta o rosto do oponente com força bruta, causando dor intensa.',custo:'1 Força de Vontade, apenas no primeiro turno.',vel:'+1',dano:'+4',mov:'Um'},
  'Ducking Fierce':{prereq:'Soco 2',prereqCheck:[{tec:'Soco',nivel:2}],sistema:'Combina a força de um Fierce com uma Manobra de Agachamento.',custo:'Nenhum',vel:'-1',dano:'+4',mov:'Nenhum'},
  'Elbow Smash':{prereq:'Soco 1',prereqCheck:[{tec:'Soco',nivel:1}],sistema:'Cotovelada rápida e potente contra oponente que se aproxima demais.',custo:'Nenhum',vel:'+2',dano:'+2',mov:'Um'},
  'Forward Slide Kick':{prereq:'Chute 2, Esportes 2',prereqCheck:[{tec:'Chute',nivel:2},{tec:'Esportes',nivel:2}],sistema:'Como o Slide Kick, mas de pé, podendo acertar oponentes no ar. Causa Knockdown a menos que a vítima esteja Bloqueando.',custo:'Nenhum',vel:'+0',dano:'+2',mov:'+0'},
  'Scissor Kick':{prereq:'Chute 3, Esportes 3, Jump',prereqCheck:[{tec:'Chute',nivel:3},{tec:'Esportes',nivel:3},{manobra:'Jump'}],sistema:'Dano rolado duas vezes com os modificadores. É uma Manobra Aérea.',custo:'1 Força de Vontade',vel:'+0',dano:'+3',mov:'+3'},
  'Tiger Knee':{prereq:'Chute 3, Esportes 2, Jump',prereqCheck:[{tec:'Chute',nivel:3},{tec:'Esportes',nivel:2},{manobra:'Jump'}],sistema:'Manobra Aérea que se esquiva de projéteis como o Jump. Causa Knockdown se causar dano.',custo:'2 Força de Vontade',vel:'+3',dano:'+2',mov:'+0'},
- 'Jump':{prereq:'Esportes •',prereqCheck:[{tec:'Esportes',nivel:1}],sistema:'Permite saltar sobre ataques com projéteis. O lutador salta um metro no ar por ponto de Esportes.',custo:'Nenhum',vel:'',dano:'',mov:''},
+ 'Jump':{prereq:'Esportes •',prereqCheck:[{tec:'Esportes',nivel:1}],sistema:'Permite saltar sobre ataques com projéteis. O lutador salta um metro no ar por ponto de Esportes.',custo:'Nenhum',vel:'+3',dano:'Nenhum',mov:'+0'},
  'Sonic Boom':{prereq:'Foco •••',prereqCheck:[{tec:'Foco',nivel:3}],sistema:'Ataque de projétil; alcance = Raciocínio + Foco. Dano = Inteligência + Foco + 4. Requer linha de visão livre.',custo:'1 Chi',vel:'-3',dano:'+4',mov:'Nenhum'},
  'Ice Blast':{prereq:'',sistema:'Ataque de projétil (alcance Raciocínio + Foco). A vítima atingida fica presa em gelo e deve acumular 4 sucessos de Força (dificuldade 6) para se libertar.',custo:'2 Chi',vel:'-2',dano:'+3',mov:'Nenhum'},
  'Improved Fireball':{prereq:'Foco •••••, Fireball',prereqCheck:[{tec:'Foco',nivel:5},{manobra:'Fireball'}],sistema:'Similar à Fireball normal, porém mais rápida e provoca Knockdown se causar dano (a menos que o oponente bloqueie).',custo:'1 Chi',vel:'-1',dano:'+4',mov:'Nenhum'},
  'Inferno Strike':{prereq:'Foco •••••, Improved Fireball',prereqCheck:[{tec:'Foco',nivel:5},{manobra:'Improved Fireball'}],sistema:'Atinge o hexágono-alvo e explode nos seis hexágonos adjacentes, com o mesmo alcance da Fireball.',custo:'2 Chi',vel:'-2',dano:'+4',mov:'Nenhum'},
  'Backflip Kick':{prereq:'',sistema:'O lutador se afasta com uma cambalhota para trás enquanto chuta o atacante que se aproxima, terminando dois hexágonos longe — um dos poucos casos em que se causa dano e depois se move no mesmo turno. Não conta como Manobra Aérea.',custo:'Nenhum',vel:'+0',dano:'+2',mov:'Dois (para trás)'},
  'Cartwheel Kick':{prereq:'Chute ••, Esportes ••',prereqCheck:[{tec:'Chute',nivel:2},{tec:'Esportes',nivel:2}],sistema:'Viaja em linha reta; dano = Força + Chute + 1 por hexágono percorrido antes de alcançar o oponente, que é empurrado 1 hexágono.',custo:'1 Força de Vontade',vel:'-1',dano:'+1 por hexágono',mov:'+2'},
- 'Double Dread Kick':{prereq:'Chute •••, Double-Hit Kick',prereqCheck:[{tec:'Chute',nivel:3},{manobra:'Double-Hit Kick'}],sistema:'Dois testes de dano (o primeiro +1, o segundo +4); o primeiro impacto empurra o oponente um hexágono.',custo:'',vel:'',dano:'+1 depois +4',mov:''},
+ 'Double Dread Kick':{prereq:'Chute •••, Double-Hit Kick',prereqCheck:[{tec:'Chute',nivel:3},{manobra:'Double-Hit Kick'}],sistema:'Dois testes de dano (o primeiro +1, o segundo +4); o primeiro impacto empurra o oponente um hexágono.',custo:'1 Força de Vontade',vel:'-2',dano:'+1 depois +4',mov:'+1'},
  'Power Up *':{prereq:'Foco 1',prereqCheck:[{tec:'Foco',nivel:1}],sistema:'Preparação que rende um efeito no turno seguinte (escolha um: +1 Vel/+1 Dano no ataque; +1 Vel/+1 Absorção no bloqueio; +1 Vel/+1 Movimento; +1 Dano/+1 Alcance num projétil; ou +1 dado num teste fora de combate). Sofrer dano no turno do Power Up cancela o efeito. Manobra não oficial.',custo:'1 Chi',vel:'+0',dano:'nenhum',mov:'nenhum'},
  'Tornado Punch *':{prereq:'Soco 5',prereqCheck:[{tec:'Soco',nivel:5}],sistema:'O lutador gira atacando todos os oponentes adjacentes (empurrados um hexágono), podendo se mover e repetir; o último golpe mira só um alvo e causa knockdown em vez de empurrar. Esquiva de projéteis como o Jump. Manobra não oficial (Kung Fu do Bêbado).',custo:'1 Força de Vontade',vel:'+0',dano:'+1 (movendo) / +2 (último golpe)',mov:'-2'},
  'Jaguar Kick *':{prereq:'Chute 2, Jump',prereqCheck:[{tec:'Chute',nivel:2},{manobra:'Jump'}],sistema:'Mesma manobra do Wheel Kick sob outro nome regional (Muay Thai) — também chamada Volty Line (Jiu-Jitsu) ou Windmill Kick (Coreia). Manobra Aérea que acerta agachados e faz oponentes no ar sofrerem knockdown; esquiva de projéteis. Manobra não oficial.',custo:'Nenhum',vel:'-2',dano:'+4',mov:'-1'},
  'Rhino Horn *':{prereq:'Chute 2, Jump',prereqCheck:[{tec:'Chute',nivel:2},{manobra:'Jump'}],sistema:'Mesma manobra do Wheel Kick sob outro nome regional. Manobra Aérea que acerta agachados e faz oponentes no ar sofrerem knockdown; esquiva de projéteis. Manobra não oficial.',custo:'Nenhum',vel:'-2',dano:'+4',mov:'-1'},
  'Wheel Kick *':{prereq:'Chute 2, Jump',prereqCheck:[{tec:'Chute',nivel:2},{manobra:'Jump'}],sistema:'Manobra Aérea que acerta agachados e faz oponentes no ar sofrerem knockdown; esquiva de projéteis como o Jump. Também chamada Jaguar Kick (Muay Thai), Volty Line (Jiu-Jitsu) ou Windmill Kick (Coreia). Manobra não oficial.',custo:'Nenhum',vel:'-2',dano:'+4',mov:'-1'},
  'Spin Kick *':{prereq:'',sistema:'Sequência de chutes giratórios em turnos consecutivos; no segundo ou terceiro chute pode trocar por um Foot Sweep, o que encerra a sequência. Vel/Dano/Movimento variam conforme a posição na sequência (ver carta específica). Manobra não oficial.',custo:'1 Força de Vontade por turno',vel:'+2 (ver descrição)',dano:'ver descrição',mov:'ver descrição'},
- 'Bull Head *':{prereq:'',sistema:'Cabeçada violenta usada para abrir combates (a versão "carregada" é o Bull Horn). Manobra não oficial.',custo:'',vel:'',dano:'',mov:''},
+ 'Bull Head *':{prereq:'Esportes, Head Butt',sistema:'Cabeçada violenta usada para abrir combates (a versão "carregada" é o Bull Horn). Manobra não oficial (Tempos de Glória, Birdie).',custo:'1 Força de Vontade',vel:'-1',dano:'+4',mov:'+1'},
  'Bull Horn *':{prereq:'Soco 5, Esportes 3, Bull Head',prereqCheck:[{tec:'Soco',nivel:5},{tec:'Esportes',nivel:3},{manobra:'Bull Head'}],sistema:'O jogador "carrega" a manobra por até 3 turnos (podendo agir normalmente, com -1 Vel/Dano/Mov em tudo enquanto carrega); quanto mais turnos carregado, mais forte o golpe final, que causa knockdown e esquiva projéteis como o Jump. Manobra não oficial (Birdie).',custo:'1 FdV ao baixar a carta + 1 FdV ao executar (2 FdV se no mesmo turno)',vel:'-1 (1 turno) / +0 (2 turnos) / +1 (3 turnos)',dano:'+4 (1) / +5 (2) / +6 (3)',mov:'+1 (1) / Um (2) / Um (3)'},
  'Weapon Sweep *':{prereq:'',sistema:'Rasteira com a arma; vítimas sofrem Knockdown além do dano normal. É uma Manobra de Agachamento. Manobra não oficial (versão com arma do Foot Sweep).',custo:'Nenhum',vel:'-2',dano:'+2',mov:'-3'},
  'Spinning Weapon *':{prereq:'Bastão, Tonfa ou Nunchaku 4',sistema:'O lutador gira a arma atingindo o oponente várias vezes numa só investida; role o dano três vezes. Manobra não oficial (também usável com armas cortantes médias, a critério do Narrador).',custo:'1 Força de Vontade',vel:'+0',dano:'-1 (role três vezes)',mov:'Um'},
@@ -1070,7 +1070,7 @@ const MOVE_INFO = {
  'Gatotsu *':{prereq:'Espada 5, Esportes 3, Hirazuki, Jump, Zen No Mind',prereqCheck:[{tec:'Soco',nivel:5},{tec:'Esportes',nivel:3},{manobra:'Hirazuki *'},{manobra:'Jump'},{manobra:'Zen No Mind'}],sistema:'Deriva do Hirazuki; o lutador baixa a carta de Hirazuki indicando o alvo e depois escolhe uma de várias formas ao golpear (Ishiki: investida reta, Vel+2/Dano+3/Mov+2; Nishiki: versão aérea; Sanshiki: versão anti-aérea para interromper manobras aéreas, causa knockdown). Manobra não oficial (Kenjutsu, inspirada em Hajime Saito).',custo:'ver descrição',vel:'+2 (forma Ishiki)',dano:'+3 (forma Ishiki)',mov:'+2 (forma Ishiki)'},
  'Battojutsu *':{prereq:'',sistema:'Postura de espada ainda na bainha: revele a carta de Battojutsu no turno em que quer usá-la; nesse turno, qualquer Manobra especial ou básica de espada que não gaste Força de Vontade ganha os modificadores do Battojutsu somados aos da manobra e da arma (golpe de saque, 2-3x mais rápido que um golpe comum). Manobra não oficial.',custo:'ver descrição',vel:'ver descrição',dano:'ver descrição',mov:'ver descrição'},
  'Ashura Senkuu *':{prereq:'',sistema:'Parecida com o Ghost Form: o lutador fica imune a qualquer ataque (físico ou de energia) enquanto está se movendo, só podendo ir a lugares que consegue ver. Ao final do movimento volta ao normal. Manobra não oficial associada ao Ansatsuken de Akuma.',custo:'1 Chi',vel:'+3',dano:'nenhum',mov:'+2'},
- 'Soul Illusion *':{prereq:'Foco 5, Ashura Senkuu (Soul Power/Kabaddi) ou Psycho Power 5 (Ler Drit) ou Herança de Clã 5 (Ninjitsu)',sistema:'Cria 4 cópias ilusórias de luz do lutador (1 Chi na criação + 1 Chi/turno para manter). O oponente precisa de 1 sucesso em Percepção + Mistérios (dificuldade 2 + nº de cópias) para acertar o lutador de verdade; encostar em uma cópia a desfaz. Enquanto mantém as cópias, só pode usar Manobras Básicas, sem Esforços Extras. Manobra não oficial.',custo:'1 Chi (criação) + 1 Chi/turno (manutenção)',vel:'',dano:'',mov:''},
+ 'Soul Illusion *':{prereq:'Foco 5, Ashura Senkuu (Soul Power/Kabaddi) ou Psycho Power 5 (Ler Drit) ou Herança de Clã 5 (Ninjitsu)',sistema:'Cria 4 cópias ilusórias de luz do lutador (1 Chi na criação + 1 Chi/turno para manter). O oponente precisa de 1 sucesso em Percepção + Mistérios (dificuldade 2 + nº de cópias) para acertar o lutador de verdade; encostar em uma cópia a desfaz. Enquanto mantém as cópias, só pode usar Manobras Básicas, sem Esforços Extras. Manobra não oficial (sfrpg.com.br, Fernando Jr., baseada em Rose).',custo:'1 Chi por turno',vel:'+2',dano:'Nenhum',mov:'Nenhum'},
  'Dankukyaku *':{prereq:'Chute 4, Esportes 3',prereqCheck:[{tec:'Chute',nivel:4},{tec:'Esportes',nivel:3}],sistema:'Manobra Aérea que esquiva de projéteis como o Jump (dificuldade 8); o lutador viaja em linha reta desferindo 3 chutes que empurram o oponente, cada um com dano diferente; o último causa Knockdown se acertar. Os danos não se somam para atordoar, salvo em combo. Manobra não oficial (Dan Hibiki).',custo:'2 Força de Vontade',vel:'-1',dano:'+0 / +2 / +4 (três chutes)',mov:'+2'},
  'Flamingo Stance *':{prereq:'Chute 3, Esportes 1',prereqCheck:[{tec:'Chute',nivel:3},{tec:'Esportes',nivel:1}],sistema:'Postura sem carta própria: dá +1 Velocidade a qualquer manobra de Chute no turno, mas reduz o Movimento a 1 hexágono fixo (ou metade se aérea; impossibilita manobras que alternam golpe/movimento como Double Dread Kick). Termina se o lutador for derrubado, atordoado, usar manobra que não é chute, ou por escolha própria. Manobra não oficial (Juri).',custo:'Nenhum',vel:'ver descrição',dano:'ver descrição',mov:'ver descrição'},
  'Haki Kyaku *':{prereq:'Chute 4, Foco 3, Foot Sweep',prereqCheck:[{tec:'Chute',nivel:4},{tec:'Foco',nivel:3},{manobra:'Foot Sweep'}],sistema:'Escolha entre duas formas ao usar: onda de tremor ao redor (como Spinning Foot Sweep, derruba todos adjacentes que não bloquearem) ou onda em linha reta (como Shockwave, derruba todos numa linha de até Força hexágonos). Manobra não oficial (Kim Kaphwan, KOF).',custo:'1 Chi',vel:'+0',dano:'+0',mov:'nenhum'},
@@ -2745,11 +2745,58 @@ function libraryDelete(id){
 let cards=[];
 function attrTotal(name){ return levelOf('attr:'+name,attrBaseFor(name)); }
 function tecTotalByName(name){ const t=allTecnicas().find(x=>x.nome===name); return t?levelOf('tec:'+t.id,0):0; }
+const ATTR_NAMES_FORMULA = ['Força','Destreza','Vigor','Carisma','Manipulação','Aparência','Percepção','Inteligência','Raciocínio'];
+const TEC_NAMES_FORMULA = ['Soco','Chute','Bloqueio','Apresamento','Esportes','Foco'];
+function stripAccents(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 function parseModNum(s){
   if(!s) return 0;
-  const map={'Nenhum':0,'Um':1,'Dois':2,'Três':3};
-  if(map[s]!==undefined) return map[s];
-  const n=parseInt(s); return isNaN(n)?0:n;
+  const t=String(s).trim();
+  const map={'nenhum':0,'nenhuma':0,'um':1,'uma':1,'dois':2,'duas':2,'tres':3};
+  const lowNoAccent = stripAccents(t.toLowerCase());
+  if(map[lowNoAccent]!==undefined) return map[lowNoAccent];
+  const numMatch = t.match(/^[+-]?\d+/);
+  if(numMatch) return parseInt(numMatch[0],10);
+  const wordMatch = t.match(/^([A-Za-zÀ-ú]+)\b/);
+  if(wordMatch){ const w=stripAccents(wordMatch[1].toLowerCase()); if(map[w]!==undefined) return map[w]; }
+  return 0;
+}
+function resolveFormulaValue(text){
+  if(!text) return null;
+  const t=text.trim();
+  const rawTerms=t.match(/([+-]?[^+-]+)/g);
+  if(!rawTerms) return null;
+  let total=0, resolved=false;
+  const resolvedParts=[], unresolvedParts=[];
+  for(let term of rawTerms){
+    term=term.trim(); if(!term) continue;
+    let sign=1;
+    if(term[0]==='+'){ term=term.slice(1).trim(); }
+    else if(term[0]==='-'){ sign=-1; term=term.slice(1).trim(); }
+    if(/^\d+$/.test(term)){ total+=sign*parseInt(term,10); resolvedParts.push((sign<0?'-':'+')+term); resolved=true; continue; }
+    const clean=term.replace(/^t[ée]cnica\s+/i,'').trim();
+    const attrHit=ATTR_NAMES_FORMULA.find(a=>a.toLowerCase()===clean.toLowerCase());
+    const tecHit=TEC_NAMES_FORMULA.find(a=>a.toLowerCase()===clean.toLowerCase());
+    if(attrHit){ const v=attrTotal(attrHit); total+=sign*v; resolvedParts.push((sign<0?'-':'+')+attrHit+'('+v+')'); resolved=true; continue; }
+    if(tecHit){ const v=tecTotalByName(tecHit); total+=sign*v; resolvedParts.push((sign<0?'-':'+')+tecHit+'('+v+')'); resolved=true; continue; }
+    unresolvedParts.push(term);
+  }
+  if(!resolved) return null;
+  return { value: total, formulaText: t, fullyResolved: unresolvedParts.length===0, resolvedParts, unresolvedParts };
+}
+function statFromInfoField(rawText){
+  if(!rawText) return {value:0, note:null};
+  const t=rawText.trim();
+  if(/^[+-]?0$/.test(t) || /^nenhuma?$/i.test(stripAccents(t))) return {value:0, note:null};
+  if(/^[+-]?\d/.test(t) || /^([A-Za-zÀ-ú]+)\b/.test(t) && (()=>{const w=stripAccents(t.match(/^([A-Za-zÀ-ú]+)/)[1].toLowerCase()); return ['nenhum','nenhuma','um','uma','dois','duas','tres'].includes(w);})()){
+    return {value: parseModNum(t), note: null};
+  }
+  const formula=resolveFormulaValue(t);
+  if(formula){
+    let note='Fórmula ('+ (rawText.length<40?rawText:'ver texto') +'): '+formula.resolvedParts.join(' ')+' = '+formula.value;
+    if(!formula.fullyResolved) note+=' + '+formula.unresolvedParts.join(', ')+' (ver descrição)';
+    return {value: formula.value, note};
+  }
+  return {value:'—', note:null};
 }
 function newCardBase(){ return {img:null, imgScale:1, imgX:0, imgY:0}; }
 function addBasicCard(nome,tecnica,velMod,danoMod,movMod){
@@ -2771,10 +2818,16 @@ function addSpecialFromSheet(){
 function addSpecialFromSheetPick(nome){
   const m=state.manobras.find(x=>x.nome===nome); if(!m) return;
   const info=MOVE_INFO[nome];
+  const velR = info?statFromInfoField(info.vel):{value:0,note:null};
+  const danoR = info?statFromInfoField(info.dano):{value:0,note:null};
+  const movR = info?statFromInfoField(info.mov):{value:0,note:null};
+  const notes = [velR.note,danoR.note,movR.note].filter(Boolean);
+  const baseText = info? `Custo: ${info.custo||'Nenhum'}.${info.sistema?(' '+(info.sistema.length>350?info.sistema.slice(0,350)+'…':info.sistema)):''}` : `Custo de Poder: ${m.custo}. Preencha os efeitos conforme o livro.`;
+  const especial = notes.length ? (baseText+' '+notes.join(' ')) : baseText;
   cards.push(Object.assign({
     id:nextId(), manobra:m.nome, tecnica:m.categoria,
-    velocidade: info?parseModNum(info.vel):0, dano: info?parseModNum(info.dano):0, movimento: info?parseModNum(info.mov):0,
-    especial: info? `Custo: ${info.custo||'Nenhum'}.${info.sistema?(' '+(info.sistema.length>150?info.sistema.slice(0,150)+'…':info.sistema)):''}` : `Custo de Poder: ${m.custo}. Preencha os efeitos conforme o livro.`
+    velocidade: velR.value, dano: danoR.value, movimento: movR.value,
+    especial
   },newCardBase()));
   closeModal(); renderCards();
 }
