@@ -2936,8 +2936,26 @@ function addWeaponCard(idx){
   cards.push(Object.assign({id:nextId(), manobra:man.name, tecnica:armaNome, velocidade:vel, dano, movimento:mov, especial:especial.trim(), origem:{tipo:'arma',idx,armaNome,tecId}}, newCardBase()));
   renderCards();
 }
+const BASIC_MOVE_MODS = {
+  'Jab':{tecnica:'Soco',velMod:2,danoMod:-1,movMod:0},
+  'Strong':{tecnica:'Soco',velMod:0,danoMod:1,movMod:0},
+  'Fierce':{tecnica:'Soco',velMod:-1,danoMod:3,movMod:-1},
+  'Short':{tecnica:'Chute',velMod:1,danoMod:0,movMod:0},
+  'Forward':{tecnica:'Chute',velMod:0,danoMod:2,movMod:-1},
+  'Roundhouse':{tecnica:'Chute',velMod:-2,danoMod:4,movMod:-1}
+};
+function inferOrigem(c){
+  // "cura" cartas antigas (de antes do rastreamento de origem existir) reconhecendo a manobra pelo nome
+  if(MOVE_INFO[c.manobra]) return {tipo:'ficha', nome:c.manobra};
+  if(BASIC_MOVE_MODS[c.manobra]){ const b=BASIC_MOVE_MODS[c.manobra]; return {tipo:'basica', tecnica:b.tecnica, velMod:b.velMod, danoMod:b.danoMod, movMod:b.movMod}; }
+  if(['Bloqueio','Movimento','Apresamento'].includes(c.manobra) && c.manobra===c.tecnica) return {tipo:'especialBlank', nome:c.manobra};
+  if((c.manobra==='Bite'||c.manobra==='Claw') && c.tecnica==='Híbrido Animal') return {tipo:'hibrido', nome:c.manobra};
+  return null;
+}
 function recomputeCardStats(c){
-  const o=c.origem; if(!o) return false;
+  let o=c.origem;
+  if(!o){ o=inferOrigem(c); if(o) c.origem=o; }
+  if(!o) return false;
   if(o.tipo==='basica'){
     c.velocidade=attrTotal('Destreza')+o.velMod;
     c.dano=attrTotal('Força')+tecTotalByName(o.tecnica)+o.danoMod;
@@ -2981,7 +2999,7 @@ function refreshAllCards(){
   let updated=0, skipped=0;
   cards.forEach(c=>{ if(recomputeCardStats(c)) updated++; else skipped++; });
   renderCards();
-  sfAlert(`${updated} carta(s) recalculada(s) com os valores atuais de atributos/técnicas da ficha.${skipped?(' '+skipped+' carta(s) sem origem reconhecida (feitas manualmente, "Feito/em branco", ou de uma versão antiga do gerador) não foram alteradas — ajuste-as manualmente se precisar.'):''}`, 'Valores atualizados');
+  sfAlert(`${updated} carta(s) recalculada(s) com os valores atuais de atributos/técnicas da ficha.${skipped?(' '+skipped+' carta(s) não foram alteradas por não terem uma manobra reconhecível (ex: "Feito/em branco", carta de arma antiga, ou nome editado manualmente) — ajuste-as manualmente se precisar.'):''}`, 'Valores atualizados');
 }
 function updateCard(id,field,val){ const c=cards.find(x=>x.id===id); if(!c) return; c[field]=(['velocidade','dano','movimento'].includes(field))?(parseInt(val)||0):val; renderCards(); }
 function removeCard(id){ cards=cards.filter(c=>c.id!==id); renderCards(); }
