@@ -385,6 +385,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
       <button class="toolbtn" onclick="openLibraryModal()">📚 Biblioteca</button>
       <button class="toolbtn" onclick="exportJSON()">⇩ Exportar ficha</button>
       <label class="toolbtn" style="cursor:pointer;">⇧ Importar<input type="file" accept=".json" style="display:none" onchange="importJSON(event)"></label>
+      <button class="toolbtn" onclick="confirmResetSheet()" title="Limpa a ficha aberta na tela para começar do zero — não apaga nada salvo na Biblioteca">🗑️ Limpar ficha</button>
       <label class="toolbtn" style="cursor:pointer; display:flex; align-items:center; gap:5px;"><input type="checkbox" id="printWhiteBg" onchange="document.body.classList.toggle('print-white-bg', this.checked)" style="margin:0;"> Fundo branco na impressão</label>
       <button class="toolbtn" onclick="smartPrint()">🖶 Imprimir</button>
     </div>
@@ -576,7 +577,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
         <button class="btn small" onclick="addHibridoCard('Bite')">+ Bite (Híbrido)</button>
         <button class="btn small" onclick="addHibridoCard('Claw')">+ Claw (Híbrido)</button>
         <button class="btn ghost small" onclick="addBlankCard()">+ Feito / em branco</button>
-        <button class="btn gold small" style="margin-left:auto;" onclick="printCardsA4()">🖶 Imprimir A4 (tam. carta)</button>
+        <button class="btn gold small" style="margin-left:auto;" onclick="refreshAllCards()" title="Recalcula Velocidade/Dano/Movimento de todas as cartas com os valores atuais de atributos e técnicas da ficha">🔄 Atualizar valores</button>
       </div>
       <hr style="border-color:#3a2f27; margin:14px 0;">
       <h2 style="font-size:1.1rem;">Manobras com Arma <small>Cap.7 — sistema oficial (não é gambiarra)</small></h2>
@@ -864,6 +865,31 @@ function sfAlert(message,title){
 function sfConfirm(message,onYes,title){
   showModal(`<h3>${title||'Confirmar'}</h3><p>${message}</p><div class="sf-modal-actions"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn gold" id="sf-confirm-yes">Confirmar</button></div>`,{noBackdropClose:true});
   document.getElementById('sf-confirm-yes').onclick=()=>{ closeModal(); onYes(); };
+}
+function blankState(){
+  return {
+    concept:{nome:'',jogador:'',cronica:'',estilo:'Karatê Shotokan',escola:'',equipe:'',time:'',conceito:'',assinatura:'',racaModo:''},
+    situacao:{divisao:'Nenhuma',posto:'',vit:'',der:'',emp:'',ko:''},
+    portrait:null,
+    attrPriority:{Físicos:null,Sociais:null,Mentais:null},
+    skillPriority:{Talentos:null,Perícias:null,Conhecimentos:null},
+    skills:[], antecedentes:[], tecnicasCustom:[], manobras:[], manobrasCustom:[],
+    renome:{gloria:0,honra:0,gloriaTemp:0,honraTemp:0},
+    sessaoCheck:{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false), chi:Array(10).fill(false), fv:Array(10).fill(false)},
+    combos:['','','',''],
+    cibernetico:{cabeca:false,tronco:false,bracos:false,pernas:false},
+    xpPool:0, ledger:[]
+  };
+}
+function confirmResetSheet(){
+  sfConfirm('Isso limpa todos os campos preenchidos na tela (atributos, perícias, manobras, cartas, retrato etc.) para você montar um personagem do zero. <b>Nenhuma ficha salva na Biblioteca é apagada</b> — isso só afeta o que está aberto agora. Alterações não salvas se perdem. Deseja continuar?', resetSheet, 'Limpar ficha atual');
+}
+function resetSheet(){
+  state = blankState();
+  cards = [];
+  seedSkills();
+  hydrateInputs();
+  renderAll();
 }
 
 /* =========================================================================
@@ -2818,14 +2844,14 @@ function statFromInfoField(rawText, campo, categoria){
 function newCardBase(){ return {img:null, imgScale:1, imgX:0, imgY:0}; }
 function addBasicCard(nome,tecnica,velMod,danoMod,movMod){
   const velocidade=attrTotal('Destreza')+velMod, dano=attrTotal('Força')+tecTotalByName(tecnica)+danoMod, movimento=tecTotalByName('Esportes')+movMod;
-  cards.push(Object.assign({id:nextId(),manobra:nome,tecnica,velocidade,dano,movimento,especial:''},newCardBase())); renderCards();
+  cards.push(Object.assign({id:nextId(),manobra:nome,tecnica,velocidade,dano,movimento,especial:'',origem:{tipo:'basica',tecnica,velMod,danoMod,movMod}},newCardBase())); renderCards();
 }
 function addSpecialCardBlank(nome){
   let vel=0,dano=0,mov=0,esp='';
   if(nome==='Bloqueio'){ vel=attrTotal('Destreza')+4; dano=0; mov=0; esp='Sem dano; soma Técnica Bloqueio à Absorção. +2 Vel no turno seguinte.'; }
   if(nome==='Movimento'){ vel=attrTotal('Destreza')+3; dano=0; mov=tecTotalByName('Esportes')+3; esp='Sem dano.'; }
   if(nome==='Apresamento'){ vel=attrTotal('Destreza'); dano=attrTotal('Força')+tecTotalByName('Apresamento'); mov=1; esp='Um hexágono de Movimento.'; }
-  cards.push(Object.assign({id:nextId(),manobra:nome,tecnica:nome,velocidade:vel,dano,movimento:mov,especial:esp},newCardBase())); renderCards();
+  cards.push(Object.assign({id:nextId(),manobra:nome,tecnica:nome,velocidade:vel,dano,movimento:mov,especial:esp,origem:{tipo:'especialBlank',nome}},newCardBase())); renderCards();
 }
 function addSpecialFromSheet(){
   if(!state.manobras.length){ sfAlert('Ainda não há Manobras Especiais na ficha. Adicione uma na aba Ficha primeiro.'); return; }
@@ -2844,7 +2870,7 @@ function addSpecialFromSheetPick(nome){
   cards.push(Object.assign({
     id:nextId(), manobra:m.nome, tecnica:m.categoria,
     velocidade: velR.value, dano: danoR.value, movimento: movR.value,
-    especial
+    especial, origem:{tipo:'ficha',nome:m.nome}
   },newCardBase()));
   closeModal(); renderCards();
 }
@@ -2854,7 +2880,7 @@ function addHibridoCard(nome){
   if(lvl<=0){ sfAlert('Você precisa do Antecedente Único "Híbrido Animal" (com ao menos 1 ponto) para usar essas Manobras Básicas.'); return; }
   const mods = {'Bite':{vel:1,dano:1,mov:-1},'Claw':{vel:-1,dano:2,mov:0}}[nome];
   const vel=attrTotal('Destreza')+mods.vel, dano=attrTotal('Força')+mods.dano, mov=tecTotalByName('Esportes')+mods.mov;
-  cards.push(Object.assign({id:nextId(),manobra:nome,tecnica:'Híbrido Animal',velocidade:vel,dano,movimento:mov,especial:'Manobra Básica de Híbrido Animal — não custa Pontos de Poder.'},newCardBase()));
+  cards.push(Object.assign({id:nextId(),manobra:nome,tecnica:'Híbrido Animal',velocidade:vel,dano,movimento:mov,especial:'Manobra Básica de Híbrido Animal — não custa Pontos de Poder.',origem:{tipo:'hibrido',nome}},newCardBase()));
   renderCards();
 }
 function addBlankCard(){ cards.push(Object.assign({id:nextId(),manobra:'Feito',tecnica:'—',velocidade:0,dano:0,movimento:0,especial:'Descreva a ação ao Narrador — ele define Velocidade e testes.'},newCardBase())); renderCards(); }
@@ -2907,8 +2933,55 @@ function addWeaponCard(idx){
   else if(man.isAparar){ especial=`Absorção = Vigor (${attrTotal('Vigor')}) + ${tec.nome} (${tecLevel}) = ${attrTotal('Vigor')+tecLevel}. +2 Velocidade na próxima manobra com a arma no turno seguinte. Pode evitar Knockdown / ser Manobra de Interrupção.`; }
   else if(man.isDesarme){ especial=`Só funciona contra oponente armado. Role Força (${attrTotal('Força')}) + ${tec.nome} (${tecLevel}); os sucessos = hexágonos que a arma do oponente é arremessada (direção à sua escolha).`; }
   else { especial=`Arma: ${armaNome} (${arma[0]}, técnica ${tec.nome} nv.${tecLevel}).${arma[4]?(' '+arma[4]+'.'):''}${man.especial?(' '+man.especial):''}${man.custo?(' Custo: '+man.custo+'.'):''}`; }
-  cards.push(Object.assign({id:nextId(), manobra:man.name, tecnica:armaNome, velocidade:vel, dano, movimento:mov, especial:especial.trim()}, newCardBase()));
+  cards.push(Object.assign({id:nextId(), manobra:man.name, tecnica:armaNome, velocidade:vel, dano, movimento:mov, especial:especial.trim(), origem:{tipo:'arma',idx,armaNome,tecId}}, newCardBase()));
   renderCards();
+}
+function recomputeCardStats(c){
+  const o=c.origem; if(!o) return false;
+  if(o.tipo==='basica'){
+    c.velocidade=attrTotal('Destreza')+o.velMod;
+    c.dano=attrTotal('Força')+tecTotalByName(o.tecnica)+o.danoMod;
+    c.movimento=tecTotalByName('Esportes')+o.movMod;
+    return true;
+  }
+  if(o.tipo==='especialBlank'){
+    if(o.nome==='Bloqueio'){ c.velocidade=attrTotal('Destreza')+4; c.dano=0; c.movimento=0; return true; }
+    if(o.nome==='Movimento'){ c.velocidade=attrTotal('Destreza')+3; c.dano=0; c.movimento=tecTotalByName('Esportes')+3; return true; }
+    if(o.nome==='Apresamento'){ c.velocidade=attrTotal('Destreza'); c.dano=attrTotal('Força')+tecTotalByName('Apresamento'); c.movimento=1; return true; }
+    return false;
+  }
+  if(o.tipo==='hibrido'){
+    const mods={'Bite':{vel:1,dano:1,mov:-1},'Claw':{vel:-1,dano:2,mov:0}}[o.nome]; if(!mods) return false;
+    c.velocidade=attrTotal('Destreza')+mods.vel; c.dano=attrTotal('Força')+mods.dano; c.movimento=tecTotalByName('Esportes')+mods.mov;
+    return true;
+  }
+  if(o.tipo==='ficha'){
+    const info=MOVE_INFO[o.nome]; if(!info) return false;
+    const m=state.manobras.find(x=>x.nome===o.nome);
+    const categoria=m?m.categoria:c.tecnica;
+    const velR=statFromInfoField(info.vel,'vel',categoria), danoR=statFromInfoField(info.dano,'dano',categoria), movR=statFromInfoField(info.mov,'mov',categoria);
+    c.velocidade=velR.value; c.dano=danoR.value; c.movimento=movR.value;
+    return true;
+  }
+  if(o.tipo==='arma'){
+    const arma=ARMAS_CATALOGO[o.armaNome]; if(!arma) return false;
+    const tec=allTecnicas().find(t=>t.id===o.tecId); if(!tec) return false;
+    const tecLevel=levelOf('tec:'+o.tecId,0);
+    const man=WEAPON_MANEUVERS[o.idx]; if(!man) return false;
+    const wv=man.addWeaponMods?arma[1]:0, wd=man.addWeaponMods?arma[2]:0, wm=man.addWeaponMods?arma[3]:0;
+    c.velocidade=attrTotal('Destreza')+man.vel+wv;
+    c.dano=(man.dano===null)?(man.isApresamentoArma?(attrTotal('Força')+tecLevel+wd):0):(attrTotal('Força')+tecLevel+man.dano+wd);
+    c.movimento=(man.mov===null)?0:(tecTotalByName('Esportes')+man.mov+wm);
+    return true;
+  }
+  return false;
+}
+function refreshAllCards(){
+  if(!cards.length){ sfAlert('Não há cartas de combate para atualizar.'); return; }
+  let updated=0, skipped=0;
+  cards.forEach(c=>{ if(recomputeCardStats(c)) updated++; else skipped++; });
+  renderCards();
+  sfAlert(`${updated} carta(s) recalculada(s) com os valores atuais de atributos/técnicas da ficha.${skipped?(' '+skipped+' carta(s) sem origem reconhecida (feitas manualmente, "Feito/em branco", ou de uma versão antiga do gerador) não foram alteradas — ajuste-as manualmente se precisar.'):''}`, 'Valores atualizados');
 }
 function updateCard(id,field,val){ const c=cards.find(x=>x.id===id); if(!c) return; c[field]=(['velocidade','dano','movimento'].includes(field))?(parseInt(val)||0):val; renderCards(); }
 function removeCard(id){ cards=cards.filter(c=>c.id!==id); renderCards(); }
