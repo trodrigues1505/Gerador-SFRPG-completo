@@ -305,7 +305,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   body.print-cards-mode .combat-card .cc-name{color:var(--dim) !important;}
   body.print-cards-mode .combat-card .cc-move{font-size:9px; color:var(--red-dk) !important; text-shadow:none !important;}
   body.print-cards-mode .combat-card .cc-portrait{width:34mm !important; height:34mm !important; margin:0 auto 1.5mm !important; flex:0 0 auto !important; border-radius:2mm; background:#f1ece0 !important; border-color:var(--red-dk) !important;}
-  body.print-cards-mode .combat-card .cc-special{font-size:6px !important;}
+  body.print-cards-mode .combat-card .cc-special{font-size:7px !important;}
   body.print-cards-mode .combat-card .cc-stat .lbl{color:var(--gold) !important;}
   body.print-cards-mode .combat-card .cc-stat .val{font-size:11px; color:var(--ink) !important;}
   body.print-cards-mode .combat-card .cc-special{color:var(--dim) !important; border-top-color:#d8cba8 !important;}
@@ -2813,30 +2813,41 @@ function statFromInfoField(rawText, campo, categoria){
   // Regra do livro (Cap.6 p.70 e Cap.7 p.111-112):
   // - Número COM sinal (+/-) => é um MODIFICADOR somado à base: Velocidade=Destreza+mod, Dano=Força+Técnica+mod, Movimento=Esportes+mod.
   // - Número/palavra SEM sinal (Um/Dois/Três) ou "Nenhum" => valor FIXO, não soma nada à base.
+  // A nota só aparece quando sobra informação que os campos numéricos não conseguem representar
+  // (ex: segundo modificador de dano, ressalva tipo "(máx.)"/"ou Dois", termo de fórmula não reconhecido).
+  const campoLabel={vel:'Velocidade',dano:'Dano',mov:'Movimento'}[campo];
+  function leftover(t,consumedLen){ const rest=t.slice(consumedLen).trim(); return rest?rest:null; }
   if(!rawText) return {value:0, note:null};
   const t=rawText.trim();
   // "Nenhum" (sem sinal) = fixo 0 (ex: sem dano algum, sem movimento algum)
   if(/^nenhuma?$/i.test(stripAccents(t))) return {value:0, note:null};
   // tem sinal explícito no início -> MODIFICADOR somado à base do atributo/técnica correspondente
   if(/^[+-]/.test(t)){
+    const numMatch=t.match(/^[+-]\d+/);
     const mod = parseModNum(t);
-    let base = 0, baseLabel='';
-    if(campo==='vel'){ base = attrTotal('Destreza'); baseLabel='Destreza('+base+')'; }
-    else if(campo==='dano'){ const tecV = (categoria && TEC_NAMES_FORMULA.includes(categoria)) ? tecTotalByName(categoria) : 0; base = attrTotal('Força')+tecV; baseLabel='Força+'+ (categoria||'Técnica') +'('+base+')'; }
-    else if(campo==='mov'){ base = tecTotalByName('Esportes'); baseLabel='Esportes('+base+')'; }
+    let base = 0;
+    if(campo==='vel'){ base = attrTotal('Destreza'); }
+    else if(campo==='dano'){ const tecV = (categoria && TEC_NAMES_FORMULA.includes(categoria)) ? tecTotalByName(categoria) : 0; base = attrTotal('Força')+tecV; }
+    else if(campo==='mov'){ base = tecTotalByName('Esportes'); }
     const total = base+mod;
-    const note = 'Total '+({vel:'Velocidade',dano:'Dano',mov:'Movimento'}[campo])+' = '+baseLabel+' '+(mod>=0?'+':'')+mod+' (mod. da manobra) = '+total;
+    const rest = numMatch?leftover(t,numMatch[0].length):t;
+    const note = rest ? (campoLabel+' completo (livro): "'+rawText.trim()+'"') : null;
     return {value: total, note};
   }
   // sem sinal, número/palavra pura -> valor FIXO (ex: "Um Movimento" = 1 hexágono fixo, não Esportes+1)
-  if(/^\d+$/.test(t) || /^(um|uma|umas|dois|duas|tr[eê]s)\b/i.test(stripAccents(t))){
-    return {value: parseModNum(t), note: null};
+  if(/^\d+$/.test(t)){
+    const rest=leftover(t,t.match(/^\d+/)[0].length);
+    return {value: parseModNum(t), note: rest?(campoLabel+' completo (livro): "'+rawText.trim()+'"'):null};
+  }
+  const wordFixed=t.match(/^(um|uma|umas|dois|duas|tr[eê]s)\b/i);
+  if(wordFixed){
+    const rest=leftover(t,wordFixed[0].length);
+    return {value: parseModNum(t), note: rest?(campoLabel+' completo (livro): "'+rawText.trim()+'"'):null};
   }
   // tenta resolver como formula de atributo/tecnica (ex: "Vigor", "Força + Técnica Foco") -> valor já é o total, não soma base
   const formula=resolveFormulaValue(t);
   if(formula){
-    let note='Fórmula ('+ (rawText.length<40?rawText:'ver texto') +'): '+formula.resolvedParts.join(' ')+' = '+formula.value;
-    if(!formula.fullyResolved) note+=' + '+formula.unresolvedParts.join(', ')+' (ver descrição)';
+    const note = formula.fullyResolved ? null : (campoLabel+' também soma: '+formula.unresolvedParts.join(', ')+' (ver descrição)');
     return {value: formula.value, note};
   }
   return {value:'—', note:null};
@@ -2865,7 +2876,7 @@ function addSpecialFromSheetPick(nome){
   const danoR = info?statFromInfoField(info.dano,'dano',m.categoria):{value:0,note:null};
   const movR = info?statFromInfoField(info.mov,'mov',m.categoria):{value:0,note:null};
   const notes = [velR.note,danoR.note,movR.note].filter(Boolean);
-  const baseText = info? `Custo: ${info.custo||'Nenhum'}.${info.sistema?(' '+(info.sistema.length>350?info.sistema.slice(0,350)+'…':info.sistema)):''}` : `Custo de Poder: ${m.custo}. Preencha os efeitos conforme o livro.`;
+  const baseText = info? `Custo: ${info.custo||'Nenhum'}.${info.sistema?(' '+(info.sistema.length>550?info.sistema.slice(0,550)+'…':info.sistema)):''}` : `Custo de Poder: ${m.custo}. Preencha os efeitos conforme o livro.`;
   const especial = notes.length ? (baseText+' '+notes.join(' ')) : baseText;
   cards.push(Object.assign({
     id:nextId(), manobra:m.nome, tecnica:m.categoria,
