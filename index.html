@@ -2869,19 +2869,23 @@ function addSpecialFromSheet(){
   const items = state.manobras.map(m=>`<div class="sf-list-item"><span class="lbl" onclick="addSpecialFromSheetPick('${m.nome.replace(/'/g,"\\'")}')">${m.nome} <span class="small">(${m.categoria} · custo ${m.custo})</span></span></div>`).join('');
   showModal(`<h3>Escolha a Manobra da ficha</h3><div style="max-height:320px;overflow-y:auto;">${items}</div><div class="sf-modal-actions"><button class="btn ghost" onclick="closeModal()">Cancelar</button></div>`);
 }
+function buildFichaCardData(nomeManobra, categoria, custoPP){
+  const info=MOVE_INFO[nomeManobra];
+  const velR = info?statFromInfoField(info.vel,'vel',categoria):{value:0,note:null};
+  const danoR = info?statFromInfoField(info.dano,'dano',categoria):{value:0,note:null};
+  const movR = info?statFromInfoField(info.mov,'mov',categoria):{value:0,note:null};
+  const notes = [velR.note,danoR.note,movR.note].filter(Boolean);
+  const baseText = info? `Custo: ${info.custo||'Nenhum'}.${info.sistema?(' '+(info.sistema.length>550?info.sistema.slice(0,550)+'…':info.sistema)):''}` : `Custo de Poder: ${custoPP}. Preencha os efeitos conforme o livro.`;
+  const especial = notes.length ? (baseText+' '+notes.join(' ')) : baseText;
+  return {velocidade:velR.value, dano:danoR.value, movimento:movR.value, especial};
+}
 function addSpecialFromSheetPick(nome){
   const m=state.manobras.find(x=>x.nome===nome); if(!m) return;
-  const info=MOVE_INFO[nome];
-  const velR = info?statFromInfoField(info.vel,'vel',m.categoria):{value:0,note:null};
-  const danoR = info?statFromInfoField(info.dano,'dano',m.categoria):{value:0,note:null};
-  const movR = info?statFromInfoField(info.mov,'mov',m.categoria):{value:0,note:null};
-  const notes = [velR.note,danoR.note,movR.note].filter(Boolean);
-  const baseText = info? `Custo: ${info.custo||'Nenhum'}.${info.sistema?(' '+(info.sistema.length>550?info.sistema.slice(0,550)+'…':info.sistema)):''}` : `Custo de Poder: ${m.custo}. Preencha os efeitos conforme o livro.`;
-  const especial = notes.length ? (baseText+' '+notes.join(' ')) : baseText;
+  const d = buildFichaCardData(m.nome, m.categoria, m.custo);
   cards.push(Object.assign({
     id:nextId(), manobra:m.nome, tecnica:m.categoria,
-    velocidade: velR.value, dano: danoR.value, movimento: movR.value,
-    especial, origem:{tipo:'ficha',nome:m.nome}
+    velocidade: d.velocidade, dano: d.dano, movimento: d.movimento,
+    especial: d.especial, origem:{tipo:'ficha',nome:m.nome}
   },newCardBase()));
   closeModal(); renderCards();
 }
@@ -2988,8 +2992,8 @@ function recomputeCardStats(c){
     const info=MOVE_INFO[o.nome]; if(!info) return false;
     const m=state.manobras.find(x=>x.nome===o.nome);
     const categoria=m?m.categoria:c.tecnica;
-    const velR=statFromInfoField(info.vel,'vel',categoria), danoR=statFromInfoField(info.dano,'dano',categoria), movR=statFromInfoField(info.mov,'mov',categoria);
-    c.velocidade=velR.value; c.dano=danoR.value; c.movimento=movR.value;
+    const d=buildFichaCardData(o.nome, categoria, m?m.custo:'');
+    c.velocidade=d.velocidade; c.dano=d.dano; c.movimento=d.movimento; c.especial=d.especial;
     return true;
   }
   if(o.tipo==='arma'){
@@ -3007,6 +3011,9 @@ function recomputeCardStats(c){
 }
 function refreshAllCards(){
   if(!cards.length){ sfAlert('Não há cartas de combate para atualizar.'); return; }
+  sfConfirm('Isso recalcula Velocidade/Dano/Movimento de todas as cartas com os atributos e técnicas atuais da ficha. Para cartas de "Manobra da ficha" (ex: Jump, Fireball), o texto de descrição também é regerado a partir do livro — se você editou manualmente a descrição de alguma dessas cartas, a edição será perdida. Cartas Básicas, Bloqueio/Movimento/Apresamento, Híbrido e Arma têm só os números recalculados; o texto delas fica como está. Deseja continuar?', doRefreshAllCards, 'Atualizar valores das cartas');
+}
+function doRefreshAllCards(){
   let updated=0, skipped=0;
   cards.forEach(c=>{ if(recomputeCardStats(c)) updated++; else skipped++; });
   renderCards();
