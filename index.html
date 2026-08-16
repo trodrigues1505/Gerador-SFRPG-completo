@@ -473,13 +473,9 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
         <div class="finalsgrid">
           <div>
             <div class="tracklabel">Glória</div>
-            <div class="trackdots" id="dots-gloria"></div>
-            <div class="tracklabel">Honra</div>
-            <div class="trackdots" id="dots-honra"></div>
-            <div class="tracklabel" style="margin-top:4px;">Glória Temporária</div>
             <div class="trackdots" id="dots-gloriaTemp"></div>
             <div class="trackdots check-row" id="check-gloriaTemp"></div>
-            <div class="tracklabel">Honra Temporária</div>
+            <div class="tracklabel">Honra</div>
             <div class="trackdots" id="dots-honraTemp"></div>
             <div class="trackdots check-row" id="check-honraTemp"></div>
           </div>
@@ -527,11 +523,11 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
           <div class="pick-list" id="manobra-picker-list"></div>
         </div>
 
-        <div class="colhead" style="margin-top:14px;">Combos <span class="small">(anote sequências de manobras)</span></div>
-        <div class="combo-line"><input id="combo1" placeholder="1." oninput="onSheetChange()"></div>
-        <div class="combo-line"><input id="combo2" placeholder="2." oninput="onSheetChange()"></div>
-        <div class="combo-line"><input id="combo3" placeholder="3." oninput="onSheetChange()"></div>
-        <div class="combo-line"><input id="combo4" placeholder="4." oninput="onSheetChange()"></div>
+        <div class="colhead" style="margin-top:14px;">Combos <span class="pts" id="combo-pts"></span></div>
+        <div class="manobrasbox" id="combo-box"></div>
+        <div class="no-print" style="margin-top:6px;">
+          <button class="toolbtn" style="width:100%;" onclick="openComboModal()">+ Montar Combo</button>
+        </div>
 
         <div class="colhead" style="margin-top:14px;">Experiência</div>
         <div class="xpbox" id="xp-box"></div>
@@ -876,7 +872,7 @@ function blankState(){
     skills:[], antecedentes:[], tecnicasCustom:[], manobras:[], manobrasCustom:[],
     renome:{gloria:0,honra:0,gloriaTemp:0,honraTemp:0},
     sessaoCheck:{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false), chi:Array(10).fill(false), fv:Array(10).fill(false)},
-    combos:['','','',''],
+    combos:['','','',''], combosList:[],
     cibernetico:{cabeca:false,tronco:false,bracos:false,pernas:false},
     xpPool:0, ledger:[]
   };
@@ -1675,7 +1671,7 @@ let state = {
   skills:[], antecedentes:[], tecnicasCustom:[], manobras:[], manobrasCustom:[],
   renome:{gloria:0,honra:0,gloriaTemp:0,honraTemp:0},
   sessaoCheck:{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false), chi:Array(10).fill(false), fv:Array(10).fill(false)},
-  combos:['','','',''],
+  combos:['','','',''], combosList:[],
   cibernetico:{cabeca:false,tronco:false,bracos:false,pernas:false},
   xpPool:0, ledger:[]
 };
@@ -1935,7 +1931,6 @@ function onSheetChange(){
   state.situacao.der=document.getElementById('s_der').value;
   state.situacao.emp=document.getElementById('s_emp').value;
   state.situacao.ko=document.getElementById('s_ko').value;
-  state.combos=[1,2,3,4].map(i=>document.getElementById('combo'+i).value);
   renderCards();
 }
 function onPortraitUpload(ev){
@@ -2352,8 +2347,8 @@ function doPickManobra(nome,cat,custoPP,semRequisito){
   if(currentMode==='normal'){
     state.manobras.push({id:nextId(),nome,categoria:cat,custo:custoPP,origem:'normal',semRequisito});
     ledgerAdd({characteristic:'Manobra Especial',key:'manobra:'+nome,label:nome,tipo:'normal',pontos:custoPP,custo:0,nota:cat});
-    const spentNormal=state.manobras.filter(m=>m.origem==='normal').reduce((a,m)=>a+m.custo,0);
-    if(spentNormal>7) sfAlert(`Manobras Especiais estão em ${spentNormal}/7 Pontos de Poder normais — orçamento excedido.`,'Limite de pontos excedido');
+    const spentTotal=manobrasComboSpentNormal();
+    if(spentTotal>7) sfAlert(`Manobras Especiais + Combos estão em ${spentTotal}/7 Pontos de Poder normais — orçamento excedido.`,'Limite de pontos excedido');
   } else if(currentMode==='bonus'){
     const custo=custoPP*BONUS_COST.poder;
     if(custo>bonusRemaining()){ sfAlert(`Faltam Pontos de Bônus (custo ${custo}, restam ${bonusRemaining()}).`,'Bônus insuficiente'); return; }
@@ -2397,6 +2392,83 @@ function saveCustomManobra(){
 }
 
 /* =========================================================================
+   COMBOS (Cap.6 p.108-109): custam Pontos de Poder do MESMO orçamento das
+   Manobras Especiais. 2 manobras = 1 PP; 3ª manobra = +1 PP; Atordoante = +1 PP.
+   ========================================================================= */
+const BASIC_MANOBRA_NAMES=['Jab','Strong','Fierce','Short','Forward','Roundhouse'];
+function comboAvailableMoveNames(){ return BASIC_MANOBRA_NAMES.concat(state.manobras.map(m=>m.nome)); }
+function comboCost(numManobras,atordoante){ let c=numManobras>=3?2:1; if(atordoante) c+=1; return c; }
+function manobrasComboSpentNormal(){
+  const manNormal=state.manobras.filter(m=>m.origem==='normal').reduce((a,m)=>a+m.custo,0);
+  const comboNormal=(state.combosList||[]).filter(c=>c.origem==='normal').reduce((a,c)=>a+c.custo,0);
+  return manNormal+comboNormal;
+}
+function openComboModal(){
+  const opts=comboAvailableMoveNames();
+  if(opts.length<2){ sfAlert('Você precisa ter pelo menos 2 manobras disponíveis (básicas ou especiais) para montar um Combo.'); return; }
+  const optHTML=opts.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">${n}</option>`).join('');
+  showModal(`<h3>Montar Combo</h3>
+    <label>1ª manobra</label><select id="combo-m1">${optHTML}</select>
+    <label>2ª manobra</label><select id="combo-m2">${optHTML}</select>
+    <label>3ª manobra (opcional, +1 PP)</label><select id="combo-m3"><option value="">— nenhuma —</option>${optHTML}</select>
+    <label style="display:flex; align-items:center; gap:6px; margin-top:8px;"><input type="checkbox" id="combo-atordoante"> Combo Atordoante — dano acumula pra estontear (+1 PP)</label>
+    <p class="small" style="margin-top:8px;">Custo: 2 manobras = 1 PP · 3ª manobra = +1 PP · Atordoante = +1 PP. A 2ª e 3ª manobra ganham +2 de Velocidade quando jogadas dentro do Combo (Cap.6, p.108).</p>
+    <div class="sf-modal-actions"><button class="btn ghost" onclick="closeModal()">Cancelar</button><button class="btn gold" onclick="saveCombo()">Adicionar</button></div>`,{noBackdropClose:true});
+}
+function saveCombo(){
+  const m1=document.getElementById('combo-m1').value;
+  const m2=document.getElementById('combo-m2').value;
+  const m3=document.getElementById('combo-m3').value;
+  const atordoante=document.getElementById('combo-atordoante').checked;
+  if(!m1||!m2||m1===m2){ sfAlert('Escolha duas manobras diferentes para o Combo.'); return; }
+  const manobras=[m1,m2]; if(m3 && m3!==m1 && m3!==m2) manobras.push(m3);
+  const custoPP=comboCost(manobras.length,atordoante);
+  doAddCombo(manobras,atordoante,custoPP);
+}
+function doAddCombo(manobras,atordoante,custoPP){
+  const id=nextId();
+  const label=manobras.join(' → ')+(atordoante?' (Atordoante)':'');
+  if(currentMode==='normal'){
+    state.combosList=state.combosList||[];
+    state.combosList.push({id,manobras,atordoante,custo:custoPP,origem:'normal'});
+    ledgerAdd({characteristic:'Combo',key:'combo:'+id,label,tipo:'normal',pontos:custoPP,custo:0,nota:'Combo'});
+    const spentTotal=manobrasComboSpentNormal();
+    if(spentTotal>7) sfAlert(`Manobras Especiais + Combos estão em ${spentTotal}/7 Pontos de Poder normais — orçamento excedido.`,'Limite de pontos excedido');
+  } else if(currentMode==='bonus'){
+    const custo=custoPP*BONUS_COST.poder;
+    if(custo>bonusRemaining()){ sfAlert(`Faltam Pontos de Bônus (custo ${custo}, restam ${bonusRemaining()}).`,'Bônus insuficiente'); return; }
+    state.combosList=state.combosList||[];
+    state.combosList.push({id,manobras,atordoante,custo:custoPP,origem:'bonus'});
+    ledgerAdd({characteristic:'Combo',key:'combo:'+id,label,tipo:'bonus',pontos:custoPP,custo,nota:'Combo'});
+  } else {
+    const custo=custoPP*4;
+    if(custo>xpRemaining()){ sfAlert(`Experiência insuficiente (custo ${custo}, restam ${xpRemaining()}).`,'XP insuficiente'); return; }
+    state.combosList=state.combosList||[];
+    state.combosList.push({id,manobras,atordoante,custo:custoPP,origem:'xp'});
+    ledgerAdd({characteristic:'Combo',key:'combo:'+id,label,tipo:'xp',pontos:custoPP,custo,nota:'Combo'});
+  }
+  closeModal(); renderAll();
+}
+function removeCombo(id){
+  const c=(state.combosList||[]).find(x=>x.id===id);
+  if(c) state.ledger=state.ledger.filter(e=>!(e.key==='combo:'+id && e.tipo===c.origem));
+  state.combosList=(state.combosList||[]).filter(x=>x.id!==id);
+  renderAll();
+}
+function renderCombos(){
+  const spentNormal=(state.combosList||[]).filter(c=>c.origem==='normal').reduce((a,c)=>a+c.custo,0);
+  document.getElementById('combo-pts').textContent=`${spentNormal} PP`;
+  const box=document.getElementById('combo-box'); box.innerHTML='';
+  if(!(state.combosList||[]).length){ box.innerHTML='<span class="small">nenhum combo montado ainda</span>'; return; }
+  state.combosList.forEach(c=>{
+    const div=document.createElement('div'); div.className='manobra-tag';
+    div.innerHTML=`<span><b>${c.manobras.join(' → ')}</b>${c.atordoante?' <span class="small">(Atordoante)</span>':''} <span class="small">(custo ${c.custo} PP)</span></span>
+      <span><span class="orig ${c.origem}">${c.origem}</span> <button class="rmbtn" onclick="removeCombo(${c.id})">✕</button></span>`;
+    box.appendChild(div);
+  });
+}
+
+/* =========================================================================
    RENOME (livre) / CHI / FV / SAÚDE (só Bônus/XP)
    ========================================================================= */
 function renderFreeTrack(elId,val,key){
@@ -2430,8 +2502,6 @@ function setFreeTrack(key,idx){
 }
 
 function renderFinais(){
-  renderFreeTrack('dots-gloria', state.renome.gloria, 'gloria');
-  renderFreeTrack('dots-honra', state.renome.honra, 'honra');
   renderFreeTrack('dots-gloriaTemp', state.renome.gloriaTemp||0, 'gloriaTemp');
   renderFreeTrack('dots-honraTemp', state.renome.honraTemp||0, 'honraTemp');
   document.getElementById('check-gloriaTemp').innerHTML = checkRowHTML([10], state.sessaoCheck.gloriaTemp, 'gloriaTemp');
@@ -2496,8 +2566,8 @@ function computeWarnings(){
   const tecs=allTecnicas(); const tecSpent=tecs.reduce((a,t)=>a+ledgerSum('tec:'+t.id,'normal'),0);
   if(tecSpent>8) w.push(`Técnicas: ${tecSpent}/8 — excedido.`);
   tecs.forEach(t=>{ const n=ledgerSum('tec:'+t.id,'normal'); if(n>3) w.push(`Técnica "${t.nome}" com ${n} pts normais — máximo 3 na criação.`); });
-  const manNormal=state.manobras.filter(m=>m.origem==='normal').reduce((a,m)=>a+m.custo,0);
-  if(manNormal>7) w.push(`Manobras Especiais: ${manNormal}/7 Pontos de Poder — excedido.`);
+  const manNormal=manobrasComboSpentNormal();
+  if(manNormal>7) w.push(`Manobras Especiais + Combos: ${manNormal}/7 Pontos de Poder — excedido.`);
   const semReq = state.manobras.filter(m=>!checkPrereqs(m.nome).ok);
   if(semReq.length) w.push(`${semReq.length} manobra(s) sem os pré-requisitos cumpridos: ${semReq.map(m=>m.nome).join(', ')}.`);
   if(bonusRemaining()<0) w.push(`Pontos de Bônus: ${bonusSpentTotal()}/15 — excedido.`);
@@ -2506,8 +2576,6 @@ function computeWarnings(){
   if(levelOf('chi',estilo.chi)>10) w.push(`Chi acima de 10 (máximo permanente).`);
   if(levelOf('fv',estilo.fv)>10) w.push(`Força de Vontade acima de 10 (máximo permanente).`);
   if(levelOf('saude',10)>20) w.push(`Saúde acima de 20 (máximo).`);
-  if((state.renome.gloria||0)>10) w.push(`Glória acima de 10 (máximo).`);
-  if((state.renome.honra||0)>10) w.push(`Honra acima de 10 (máximo).`);
   return w;
 }
 function renderWarnings(){
@@ -2748,7 +2816,7 @@ function libraryLoad(id){
     state=entry.data.state; cards=entry.data.cards||[];
     state.manobrasCustom=state.manobrasCustom||[];
     state.cibernetico=state.cibernetico||{cabeca:false,tronco:false,bracos:false,pernas:false};
-    state.sessaoCheck=state.sessaoCheck||{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false), chi:Array(10).fill(false), fv:Array(10).fill(false)}; state.sessaoCheck.chi=state.sessaoCheck.chi||Array(10).fill(false); state.sessaoCheck.fv=state.sessaoCheck.fv||Array(10).fill(false); state.combos=state.combos||['','','',''];
+    state.sessaoCheck=state.sessaoCheck||{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false), chi:Array(10).fill(false), fv:Array(10).fill(false)}; state.sessaoCheck.chi=state.sessaoCheck.chi||Array(10).fill(false); state.sessaoCheck.fv=state.sessaoCheck.fv||Array(10).fill(false); state.combos=state.combos||['','','','']; state.combosList=state.combosList||[];
     state.concept.racaModo=state.concept.racaModo||'';
     (state.manobrasCustom).forEach(m=>{ if(!MOVE_INFO[m.nome]) MOVE_INFO[m.nome]={prereq:'Nenhum (personalizada)',sistema:'Manobra personalizada.',custo:'A combinar',vel:'',dano:'',mov:''}; });
     uid=Math.max(1,...state.ledger.map(x=>x.id||0),...state.skills.map(x=>x.id||0),...cards.map(x=>x.id||0))+1;
@@ -3165,7 +3233,7 @@ function importJSON(ev){
       state=data.state; cards=data.cards||[];
       state.manobrasCustom=state.manobrasCustom||[];
       state.cibernetico=state.cibernetico||{cabeca:false,tronco:false,bracos:false,pernas:false};
-      state.sessaoCheck=state.sessaoCheck||{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false), chi:Array(10).fill(false), fv:Array(10).fill(false)}; state.sessaoCheck.chi=state.sessaoCheck.chi||Array(10).fill(false); state.sessaoCheck.fv=state.sessaoCheck.fv||Array(10).fill(false); state.combos=state.combos||['','','',''];
+      state.sessaoCheck=state.sessaoCheck||{saude:Array(20).fill(false), gloriaTemp:Array(10).fill(false), honraTemp:Array(10).fill(false), chi:Array(10).fill(false), fv:Array(10).fill(false)}; state.sessaoCheck.chi=state.sessaoCheck.chi||Array(10).fill(false); state.sessaoCheck.fv=state.sessaoCheck.fv||Array(10).fill(false); state.combos=state.combos||['','','','']; state.combosList=state.combosList||[];
       state.concept.racaModo=state.concept.racaModo||'';
       state.manobrasCustom.forEach(m=>{ if(!MOVE_INFO[m.nome]) MOVE_INFO[m.nome]={prereq:'Nenhum (personalizada)',sistema:'Manobra personalizada.',custo:'A combinar',vel:'',dano:'',mov:''}; });
       uid=Math.max(1,...state.ledger.map(x=>x.id||0),...state.skills.map(x=>x.id||0),...cards.map(x=>x.id||0))+1;
@@ -3191,7 +3259,6 @@ function hydrateInputs(){
   document.getElementById('s_der').value=state.situacao.der||'';
   document.getElementById('s_emp').value=state.situacao.emp||'';
   document.getElementById('s_ko').value=state.situacao.ko||'';
-  (state.combos||['','','','']).forEach((v,i)=>{ const el=document.getElementById('combo'+(i+1)); if(el) el.value=v||''; });
 }
 
 /* =========================================================================
@@ -3207,6 +3274,7 @@ function renderAll(){
   renderCiberPanel();
   renderTecnicas(); makeTecClickFns();
   renderManobras();
+  renderCombos();
   renderFinais();
   renderModeBar();
   renderLedger();
