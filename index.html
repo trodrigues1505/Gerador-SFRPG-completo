@@ -187,14 +187,14 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
 .btn.danger{background:transparent; border-color:#b3241c; color:#e18e83;}
 .cards-wrap{display:flex; flex-wrap:wrap; gap:22px;}
 .combat-card{
-  width:300px; height:410px; background:linear-gradient(160deg,#221a14,#14100d); border:3px solid #c79a3f;
+  width:300px; min-height:410px; background:linear-gradient(160deg,#221a14,#14100d); border:3px solid #c79a3f;
   position:relative; padding:14px; display:flex; flex-direction:column; color:#ece2d0; font-family:var(--font-body);
 }
 .combat-card .cc-head{text-align:center; font-family:var(--font-display); font-size:.95rem; color:#c79a3f; border-bottom:1px solid #7a6127; padding-bottom:4px;}
 .combat-card .cc-name{text-align:center; font-size:.62rem; color:#a4927c; font-family:var(--font-mono); text-transform:uppercase; margin-bottom:2px;}
 .combat-card .cc-move{text-align:center; font-family:var(--font-display); font-size:1.4rem; letter-spacing:1px; color:#fff; margin:2px 0 6px; text-shadow:0 0 8px rgba(165,38,32,.7);}
 .combat-card .cc-portrait{
-  flex:0 0 auto; margin:0 auto 8px; width:180px; height:180px; overflow:hidden; position:relative;
+  flex:0 0 auto; margin:0 auto 8px; width:150px; height:150px; overflow:hidden; position:relative;
   border-radius:10px; cursor:pointer; outline:none;
   background:#0d0a08; border:2px solid #a52620; display:flex; align-items:center; justify-content:center; color:#a4927c; font-size:.6rem; text-align:center;
 }
@@ -205,7 +205,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
 .combat-card .cc-stat{text-align:center;}
 .combat-card .cc-stat .lbl{font-family:var(--font-mono); font-size:.56rem; color:#c79a3f; text-transform:uppercase; letter-spacing:1px;}
 .combat-card .cc-stat .val{font-family:var(--font-display); font-size:1.5rem; color:#fff; line-height:1;}
-.combat-card .cc-special{flex:1 1 auto; display:flex; align-items:center; justify-content:center; font-size:.62rem; color:#a4927c; border-top:1px solid #7a6127; padding-top:5px; min-height:30px; text-align:center; line-height:1.25; overflow-wrap:break-word; word-break:break-word;}
+.combat-card .cc-special{flex:1 1 auto; display:flex; align-items:center; justify-content:center; font-size:.8rem; color:#a4927c; border-top:1px solid #7a6127; padding-top:5px; min-height:30px; text-align:center; line-height:1.25; overflow-wrap:break-word; word-break:break-word;}
 .combat-card .cc-foot{position:absolute; bottom:6px; right:10px; font-family:var(--font-mono); font-size:.54rem; color:#7a6127;}
 .card-controls{width:300px; display:flex; flex-direction:column; gap:6px; margin-top:8px; background:#161210; border:1px solid #3a2f27; padding:10px;}
 .paste-zone{border:1.5px dashed #7a6127; border-radius:6px; padding:8px; text-align:center; font-size:.68rem; color:#a4927c; cursor:text; background:#0d0a08;}
