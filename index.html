@@ -2177,8 +2177,8 @@ function checkPrereqs(nome){
   return {ok:missing.length===0, missing};
 }
 function renderManobras(){
-  const spentNormal=state.manobras.filter(m=>m.origem==='normal').reduce((a,m)=>a+m.custo,0);
-  document.getElementById('man-pts').textContent = `${spentNormal}/7 PP`;
+  const spentNormal=manobrasComboSpentNormal();
+  document.getElementById('man-pts').textContent = `${spentNormal}/7 PP (com Combos)`;
   document.getElementById('man-pts').classList.toggle('over', spentNormal>7);
   const box=document.getElementById('man-box'); box.innerHTML='';
   if(!state.manobras.length){ box.innerHTML='<span class="small">nenhuma escolhida ainda</span>'; return; }
@@ -2428,12 +2428,13 @@ function saveCombo(){
 function doAddCombo(manobras,atordoante,custoPP){
   const id=nextId();
   const label=manobras.join(' → ')+(atordoante?' (Atordoante)':'');
+  let overBudgetMsg=null;
   if(currentMode==='normal'){
     state.combosList=state.combosList||[];
     state.combosList.push({id,manobras,atordoante,custo:custoPP,origem:'normal'});
     ledgerAdd({characteristic:'Combo',key:'combo:'+id,label,tipo:'normal',pontos:custoPP,custo:0,nota:'Combo'});
     const spentTotal=manobrasComboSpentNormal();
-    if(spentTotal>7) sfAlert(`Manobras Especiais + Combos estão em ${spentTotal}/7 Pontos de Poder normais — orçamento excedido.`,'Limite de pontos excedido');
+    if(spentTotal>7) overBudgetMsg=`Manobras Especiais + Combos estão em ${spentTotal}/7 Pontos de Poder normais — orçamento excedido.`;
   } else if(currentMode==='bonus'){
     const custo=custoPP*BONUS_COST.poder;
     if(custo>bonusRemaining()){ sfAlert(`Faltam Pontos de Bônus (custo ${custo}, restam ${bonusRemaining()}).`,'Bônus insuficiente'); return; }
@@ -2448,6 +2449,7 @@ function doAddCombo(manobras,atordoante,custoPP){
     ledgerAdd({characteristic:'Combo',key:'combo:'+id,label,tipo:'xp',pontos:custoPP,custo,nota:'Combo'});
   }
   closeModal(); renderAll();
+  if(overBudgetMsg) sfAlert(overBudgetMsg,'Limite de pontos excedido');
 }
 function removeCombo(id){
   const c=(state.combosList||[]).find(x=>x.id===id);
@@ -2457,7 +2459,7 @@ function removeCombo(id){
 }
 function renderCombos(){
   const spentNormal=(state.combosList||[]).filter(c=>c.origem==='normal').reduce((a,c)=>a+c.custo,0);
-  document.getElementById('combo-pts').textContent=`${spentNormal} PP`;
+  document.getElementById('combo-pts').textContent=`${spentNormal} PP (incluso no total de Manobras Especiais acima)`;
   const box=document.getElementById('combo-box'); box.innerHTML='';
   if(!(state.combosList||[]).length){ box.innerHTML='<span class="small">nenhum combo montado ainda</span>'; return; }
   state.combosList.forEach(c=>{
