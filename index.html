@@ -301,11 +301,10 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
     padding:2.5mm 3mm !important; font-size:6.2px; break-inside:avoid; page-break-inside:avoid;
     background:var(--paper) !important; border-color:var(--red-dk) !important; color:var(--ink) !important;
   }
-  body.print-cards-mode .combat-card .cc-head{color:var(--red-dk) !important; border-bottom-color:#d8cba8 !important;}
-  body.print-cards-mode .combat-card .cc-name{color:var(--dim) !important;}
-  body.print-cards-mode .combat-card .cc-move{font-size:9px; color:var(--red-dk) !important; text-shadow:none !important;}
-  body.print-cards-mode .combat-card .cc-portrait{width:34mm !important; height:34mm !important; margin:0 auto 1.5mm !important; flex:0 0 auto !important; border-radius:2mm; background:#f1ece0 !important; border-color:var(--red-dk) !important;}
-  body.print-cards-mode .combat-card .cc-special{font-size:8px !important;}
+  body.print-cards-mode .combat-card .cc-head{font-size:9px; padding-bottom:2px; color:var(--red-dk) !important; border-bottom-color:#d8cba8 !important; text-shadow:none !important;}
+  body.print-cards-mode .combat-card .cc-name{font-size:6px; margin-bottom:1px; color:var(--dim) !important;}
+  body.print-cards-mode .combat-card .cc-portrait{width:30mm !important; height:30mm !important; margin:0 auto 1.5mm !important; flex:0 0 auto !important; border-radius:2mm; background:#f1ece0 !important; border-color:var(--red-dk) !important;}
+  body.print-cards-mode .combat-card .cc-special{font-size:10px !important;}
   body.print-cards-mode .combat-card .cc-stat .lbl{color:var(--gold) !important;}
   body.print-cards-mode .combat-card .cc-stat .val{font-size:11px; color:var(--ink) !important;}
   body.print-cards-mode .combat-card .cc-special{color:var(--dim) !important; border-top-color:#d8cba8 !important;}
@@ -3181,9 +3180,8 @@ function renderCards(){
     const portraitHTML = imgSrc ? `<img id="ccimg-${c.id}" src="${imgSrc}" style="transform:translate(-50%,-50%) translate(${c.imgX||0}px,${c.imgY||0}px) scale(${c.imgScale||1});">` : 'clique aqui e cole (Ctrl+V)';
     outer.innerHTML = `
       <div class="combat-card" id="cc-${c.id}">
-        <div class="cc-head">CARTA DE COMBATE</div>
+        <div class="cc-head">${c.manobra}</div>
         <div class="cc-name">${state.concept.nome||'Personagem'}</div>
-        <div class="cc-move">${c.manobra}</div>
         <div class="cc-portrait" id="ccport-${c.id}" tabindex="0" onclick="this.focus()" onpaste="onCardImagePaste(${c.id},event)">${portraitHTML}</div>
         <div class="cc-stats">
           <div class="cc-stat"><div class="lbl">Velocidade</div><div class="val">${c.velocidade}</div></div>
