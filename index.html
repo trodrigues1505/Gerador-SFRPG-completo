@@ -297,7 +297,7 @@ table.led th{color:var(--red-dk); font-size:.62rem; text-transform:uppercase;}
   body.print-cards-mode .card2, body.print-cards-mode .no-print{display:none !important;}
   body.print-cards-mode .cards-wrap{display:grid !important; grid-template-columns:repeat(3,63mm); grid-auto-rows:88mm; gap:3mm; justify-content:center;}
   body.print-cards-mode .combat-card{
-    width:63mm !important; height:88mm !important; clip-path:none !important; border-radius:2.5mm;
+    width:63mm !important; height:88mm !important; min-height:88mm !important; max-height:88mm !important; clip-path:none !important; border-radius:2.5mm;
     padding:2.5mm 3mm !important; font-size:6.2px; break-inside:avoid; page-break-inside:avoid;
     background:var(--paper) !important; border-color:var(--red-dk) !important; color:var(--ink) !important;
   }
