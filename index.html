@@ -43,7 +43,7 @@ section.tab.active{display:block;}
 .sf-modal-box h3{font-family:var(--font-display); letter-spacing:1px; color:#c79a3f; margin:0 0 10px; font-size:1.3rem;}
 .sf-modal-box p{font-size:.85rem; line-height:1.5;}
 .sf-modal-box label{display:block; font-size:.7rem; text-transform:uppercase; color:#a4927c; margin:8px 0 3px;}
-.sf-modal-box input, .sf-modal-box select, .sf-modal-box textarea{width:100%; padding:7px 9px; background:#0d0a08; color:#ece2d0; border:1px solid #3a2f27; font-family:var(--font-body);}
+.sf-modal-box input:not([type=checkbox]):not([type=radio]), .sf-modal-box select, .sf-modal-box textarea{width:100%; padding:7px 9px; background:#0d0a08; color:#ece2d0; border:1px solid #3a2f27; font-family:var(--font-body);}
 .sf-modal-actions{display:flex; gap:8px; justify-content:flex-end; margin-top:14px;}
 .sf-list-item{display:flex; justify-content:space-between; align-items:center; padding:7px 8px; border-bottom:1px solid #3a2f27; font-size:.85rem;}
 .sf-list-item:hover{background:#241d18;}
@@ -3118,11 +3118,12 @@ function doMultiPrint(){
     const e = entries.find(x=>x.id===id);
     if(e && e.data && e.data.cards){
       const nome = (e.data.state && e.data.state.concept && e.data.state.concept.nome) || e.name || 'Personagem';
-      e.data.cards.forEach(c=>merged.push(Object.assign({},c,{personagem:nome})));
+      const portrait = (e.data.state && e.data.state.portrait) || null;
+      e.data.cards.forEach(c=>merged.push(Object.assign({},c,{id:nextId(), personagem:nome, personagemPortrait:portrait})));
     }
   });
   if(includeCurrent){
-    cards.forEach(c=>merged.push(Object.assign({},c,{personagem:state.concept.nome||'Personagem'})));
+    cards.forEach(c=>merged.push(Object.assign({},c,{id:nextId(), personagem:state.concept.nome||'Personagem', personagemPortrait:state.portrait||null})));
   }
   if(!merged.length){ sfAlert('Nenhuma carta selecionada.'); return; }
   closeModal();
@@ -3221,7 +3222,7 @@ function renderCards(){
   const wrap=document.getElementById('cards-wrap'); if(!wrap) return; wrap.innerHTML='';
   cards.forEach(c=>{
     const outer=document.createElement('div');
-    const imgSrc = c.img || state.portrait || '';
+    const imgSrc = c.img || (('personagem' in c) ? (c.personagemPortrait || '') : (state.portrait || ''));
     const portraitHTML = imgSrc ? `<img id="ccimg-${c.id}" src="${imgSrc}" style="transform:translate(-50%,-50%) translate(${c.imgX||0}px,${c.imgY||0}px) scale(${c.imgScale||1});">` : 'clique aqui e cole (Ctrl+V)';
     outer.innerHTML = `
       <div class="combat-card" id="cc-${c.id}">
